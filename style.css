@@ -86,7 +86,7 @@ header {
     margin: 0.5rem auto 0;
 }
 
-.about, .projects, .skills, .contact {
+.about, .projects, .skills, .contact, .testimonials, .blog, .faq, .footer-info {
     max-width: 900px;
     margin: 0 auto;
     padding: 2rem 1rem;
@@ -131,7 +131,7 @@ header {
 }
 
 .btn-secondary:hover {
-    background: #00dfd8;
+        background: #00dfd8;
 }
 
 /* Skills */
@@ -182,6 +182,49 @@ header {
     background: linear-gradient(135deg, #00dfd8, #007cf0);
 }
 
+/* Testimonials */
+.testimonial-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.testimonial-card {
+    background: #161b22;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+/* Blog */
+.blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.blog-card {
+    background: #161b22;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+/* FAQ */
+.faq-list {
+    margin-top: 1rem;
+}
+
+.faq-item {
+    background: #161b22;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
 /* Footer */
 footer {
     background: #161b22;
@@ -189,4 +232,48 @@ footer {
     text-align: center;
     padding: 1.5rem 0;
     border-top: 2px solid #007cf0;
+}
+
+.social-media {
+    margin-top: 1rem;
+}
+
+.social-icon {
+    color: #58a6ff;
+    text-decoration: none;
+    margin: 0 10px;
+    transition: color 0.3s ease;
+}
+
+.social-icon:hover {
+    color: #00dfd8;
+}
+
+/* Subscribe Form */
+.subscribe-form {
+    display: grid;
+    gap: 1rem;
+}
+
+.subscribe-form input {
+    background: #161b22;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    padding: 0.8rem;
+    border-radius: 10px;
+}
+
+.subscribe-form button {
+    background: linear-gradient(135deg, #007cf0, #00dfd8);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.subscribe-form button:hover {
+    background: linear-gradient(135deg, #00dfd8, #007cf0);
 }
