@@ -3,105 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Portfolio</title>
+    <title>NeoTech Portfolio</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <h1>Welcome to My Portfolio</h1>
+    <header class="header">
+        <h1 class="title">NeoTech Portfolio</h1>
+        <nav class="navbar">
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#projects">Projects</a>
+            <a href="#contact">Contact</a>
+        </nav>
     </header>
-    <nav>
-        <a href="#home">Home</a>
-        <a href="#about">About</a>
-        <a href="#projects">Projects</a>
-        <a href="#contact">Contact</a>
-    </nav>
-    <section class="hero" id="home">
-        <div>
-            <h2>Building Ideas into Reality</h2>
-            <p>Explore my projects and journey in web development.</p>
-            <button id="learn-more">Learn More</button>
-        </div>
-    </section>
-    <section class="about" id="about">
-        <h2>About Me</h2>
-        <p>Hello! I'm a passionate web developer with a love for creating dynamic and user-friendly websites. I specialize in modern web technologies and enjoy solving problems with creative solutions.</p>
-    </section>
-    <section class="projects" id="projects">
-        <h2>My Projects</h2>
-        <div class="project-list">
-            <div class="project-item">
-                <h3>Project 1</h3>
-                <p>Description of project 1. A wonderful example of innovation and creativity.</p>
+    <main>
+        <section class="hero" id="home">
+            <div class="hero-content">
+                <h2>Building the Future, Today</h2>
+                <p>Discover cutting-edge projects and innovative solutions in web development.</p>
+                <button id="explore" class="btn-primary">Explore More</button>
             </div>
-            <div class="project-item">
-                <h3>Project 2</h3>
-                <p>Description of project 2. An exciting journey in web development.</p>
+        </section>
+        <section class="about" id="about">
+            <h2 class="section-title">About Me</h2>
+            <div class="about-content">
+                <p>I am a tech enthusiast and web developer passionate about crafting seamless digital experiences. Leveraging modern technologies, I aim to build responsive, scalable, and user-centric solutions.</p>
+                <div class="stats">
+                    <div class="stat-item">
+                        <h3>5+</h3>
+                        <p>Years of Experience</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>50+</h3>
+                        <p>Projects Completed</p>
+                    </div>
+                </div>
             </div>
-            <div class="project-item">
-                <h3>Project 3</h3>
-                <p>Description of project 3. A user-friendly application with modern features.</p>
+        </section>
+        <section class="projects" id="projects">
+            <h2 class="section-title">Projects</h2>
+            <div class="project-grid">
+                <div class="project-card">
+                    <h3>Project Alpha</h3>
+                    <p>A futuristic application leveraging AI to simplify workflows.</p>
+                    <button class="btn-secondary">View Details</button>
+                </div>
+                <div class="project-card">
+                    <h3>Project Beta</h3>
+                    <p>An intuitive platform designed for collaborative learning.</p>
+                    <button class="btn-secondary">View Details</button>
+                </div>
+                <div class="project-card">
+                    <h3>Project Gamma</h3>
+                    <p>An innovative e-commerce solution with AR integration.</p>
+                    <button class="btn-secondary">View Details</button>
+                </div>
             </div>
-        </div>
-    </section>
-    <section class="skills">
-        <h2>Skills</h2>
-        <ul>
-            <li>HTML & CSS</li>
-            <li>JavaScript</li>
-            <li>React</li>
-            <li>Node.js</li>
-            <li>Git & GitHub</li>
-        </ul>
-    </section>
-    <section class="testimonials">
-        <h2>Testimonials</h2>
-        <blockquote>
-            <p>"An amazing developer who delivers quality work on time."</p>
-            <footer>- Happy Client</footer>
-        </blockquote>
-        <blockquote>
-            <p>"Their attention to detail and creative problem-solving is exceptional."</p>
-            <footer>- Another Happy Client</footer>
-        </blockquote>
-    </section>
-    <section class="blog">
-        <h2>Blog</h2>
-        <article>
-            <h3>How to Build Responsive Websites</h3>
-            <p>A comprehensive guide to making your websites look great on any device.</p>
-        </article>
-        <article>
-            <h3>Top 5 JavaScript Frameworks</h3>
-            <p>Discover the most popular frameworks for modern web development.</p>
-        </article>
-    </section>
-    <section class="gallery">
-        <h2>Gallery</h2>
-        <div class="gallery-grid">
-            <img src="image1.jpg" alt="Project Screenshot 1">
-            <img src="image2.jpg" alt="Project Screenshot 2">
-            <img src="image3.jpg" alt="Project Screenshot 3">
-            <img src="image4.jpg" alt="Project Screenshot 4">
-        </div>
-    </section>
-    <section class="contact" id="contact">
-        <h2>Contact Me</h2>
-        <form id="contact-form">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required>
-
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-
-            <label for="message">Message:</label>
-            <textarea id="message" name="message" rows="5" required></textarea>
-
-            <button type="submit">Send Message</button>
-        </form>
-    </section>
-    <footer>
-        <p>&copy; 2025 My Portfolio. All rights reserved.</p>
+        </section>
+        <section class="skills">
+            <h2 class="section-title">Skills</h2>
+            <div class="skills-list">
+                <div class="skill">HTML & CSS</div>
+                <div class="skill">JavaScript</div>
+                <div class="skill">React</div>
+                <div class="skill">Node.js</div>
+                <div class="skill">UI/UX Design</div>
+            </div>
+        </section>
+        <section class="contact" id="contact">
+            <h2 class="section-title">Contact Me</h2>
+            <form id="contact-form" class="contact-form">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" placeholder="Your Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Your Email" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" placeholder="Your Message" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Send Message</button>
+            </form>
+        </section>
+    </main>
+    <footer class="footer">
+        <p>&copy; 2025 NeoTech Portfolio. Crafted with passion and precision.</p>
     </footer>
     <script src="script.js"></script>
 </body>
