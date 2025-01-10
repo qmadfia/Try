@@ -73,10 +73,18 @@ document.addEventListener("DOMContentLoaded", function () {
         const email = document.getElementById("email").value;
         const message = document.getElementById("message").value;
 
+                // Simple email validation
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            alert("Please enter a valid email address.");
+            return;
+        }
+
         if (name && email && message) {
             const confirmationMessage = document.createElement("div");
             confirmationMessage.className = "confirmation-message";
             confirmationMessage.textContent = `Thank you, ${name}! Your message has been sent.`;
+            confirmationMessage.style.animation = "fadeIn 0.5s"; // Add fade-in animation
             contactForm.appendChild(confirmationMessage);
 
             setTimeout(() => {
