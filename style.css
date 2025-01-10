@@ -277,3 +277,21 @@ footer {
 .subscribe-form button:hover {
     background: linear-gradient(135deg, #00dfd8, #007cf0);
 }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.confirmation-message {
+    background: rgba(0, 255, 0, 0.1);
+    color: #28a745;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-top: 1rem;
+    animation: fadeIn 0.5s;
+}
