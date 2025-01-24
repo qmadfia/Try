@@ -241,13 +241,16 @@ function setupQuantityButtons() {
         updateQuantity('right-counter', -1);
     });
 }
-// =============================
-// 10. Kirim Data ke Google Sheets via Web App
-// =============================
+
 // =============================
 // 10. Kirim Data ke Google Sheets via Web App
 // =============================
 document.querySelector(".save-button").addEventListener("click", async () => {
+  // Panggil fungsi validasi sebelum melanjutkan
+  if (!validateInputs()) {
+    return; // Jika validasi gagal, hentikan proses
+  }
+
   const fttElement = document.getElementById("fttOutput");
   const fttRaw = fttElement ? fttElement.innerText.replace("%", "").trim() : "0";
   const ftt = parseFloat(fttRaw) / 100; // Konversi ke desimal
@@ -294,6 +297,7 @@ document.querySelector(".save-button").addEventListener("click", async () => {
   }
 });
 
+
 // =============================
 // 11. Reset Data Setelah Simpan
 // =============================
@@ -327,3 +331,21 @@ function resetAllFields() {
   console.log("All fields have been reset.");
 }
 
+// =============================
+// 12. Validasi Input sebelum SIMPAN
+// =============================
+function validateInputs() {
+  // Ambil elemen input
+  const auditor = document.getElementById("auditor").value.trim();
+  const ncvs = document.getElementById("ncvs").value.trim();
+  const modelName = document.getElementById("model-name").value.trim();
+  const styleNumber = document.getElementById("style-number").value.trim();
+
+  // Cek apakah ada input yang kosong
+  if (!auditor || !ncvs || !modelName || !styleNumber) {
+    alert("Harap isi semua input sebelum menyimpan data!");
+    return false; // Validasi gagal
+  }
+
+  return true; // Validasi berhasil
+}
