@@ -1,10 +1,11 @@
+
 /* ============================= */
 /* 1. Global Styles              */
 /* ============================= */
 body {
     font-family: 'Roboto', sans-serif;
-    background: linear-gradient(to right, #f0fff0, #e0f7fa);
-    color: #2e7d32;
+    background: linear-gradient(to right, #e3f2fd, #bbdefb);
+    color: #333;
     margin: 0;
     padding: 0;
 }
@@ -15,43 +16,43 @@ body {
 .header {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    padding: 15px 30px;
-    background: linear-gradient(to right, #2e7d32, #4caf50);
-    border-bottom: 4px solid #ffffff;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease-in-out;
+    justify-content: flex-start; /* Mengubah agar logo dan teks berada di kiri */
+    padding: 15px 30px; /* Mengurangi padding untuk kompak */
+    background: linear-gradient(to right, #2196F3, #4CAF50); /* Gradient background */
+    border-bottom: 4px solid #ffffff; /* Menambah garis bawah header */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Menambah shadow lebih tegas */
+    transition: all 0.3s ease-in-out; /* Efek transisi saat hover */
 }
 
 .header:hover {
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Efek hover untuk shadow */
+    transform: translateY(-5px); /* Efek header sedikit terangkat */
 }
 
 .logo {
-    max-width: 60px;
+    max-width: 60px; /* Memperbesar logo */
     height: auto;
-    margin-right: 20px;
-    transition: transform 0.3s ease;
+    margin-right: 20px; /* Memberikan jarak lebih pada logo */
+    transition: transform 0.3s ease; /* Efek saat logo dihover */
 }
 
 .logo:hover {
-    transform: rotate(360deg);
+    transform: rotate(360deg); /* Efek rotasi pada logo saat hover */
 }
 
 h1 {
-    font-family: 'Poppins', sans-serif;
-    font-size: 2.5em;
+    font-family: 'Poppins', sans-serif; /* Font modern dan elegan */
+    font-size: 2.5em; /* Membesarkan ukuran teks */
     color: #ffffff;
     margin: 0;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-    letter-spacing: 2px;
-    transition: color 0.3s ease, transform 0.3s ease;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Memberikan efek bayangan pada teks */
+    letter-spacing: 2px; /* Memberikan jarak antar huruf */
+    transition: color 0.3s ease, transform 0.3s ease; /* Efek transisi saat hover */
 }
 
 h1:hover {
-    color: #ffeb3b;
-    transform: scale(1.1);
+    color: #FFEB3B; /* Mengubah warna saat hover */
+    transform: scale(1.1); /* Efek pembesaran teks saat hover */
 }
 
 /* ============================= */
@@ -60,7 +61,7 @@ h1:hover {
 .dashboard {
     display: grid;
     grid-template-columns: 1fr 2fr;
-    grid-template-rows: auto auto;
+    grid-template-rows: auto auto; /* Flexible row height */
     gap: 15px;
     padding: 20px;
     box-sizing: border-box;
@@ -89,7 +90,7 @@ h1:hover {
 .form-section label {
     font-weight: bold;
     margin-bottom: 8px;
-    color: #2e7d32;
+    color: #444;
     font-size: 20px;
     display: block;
 }
@@ -108,7 +109,7 @@ h1:hover {
 
 .form-section select:focus,
 .form-section input:focus {
-    border-color: #4caf50;
+    border-color: #4CAF50;
     box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
     outline: none;
 }
@@ -120,7 +121,7 @@ h1:hover {
 }
 
 .save-button {
-    background: linear-gradient(145deg, #4caf50, #43a047);
+    background: linear-gradient(145deg, #4CAF50, #43a047);
     color: white;
     padding: 12px 24px;
     border: none;
@@ -143,6 +144,8 @@ h1:hover {
     transform: scale(0.96);
 }
 
+
+
 /* ============================= */
 /* FTT Section - Styles           */
 /* ============================= */
@@ -151,25 +154,24 @@ h1:hover {
     font-weight: bold;
     text-align: center;
     padding: 12px;
-    border: 2px solid #4caf50;
+    border: 2px solid #4CAF50;
     border-radius: 8px;
     width: 120px;
     margin: 15px auto;
     background: linear-gradient(145deg, #e8f5e9, #ffffff);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    color: #2e7d32;
+    color: #0000FF; /* Default to light blue */
 }
 
 .section label {
     font-weight: bold;
-    text-align: center;
+  text-align: center;
     display: block;
     margin-bottom: 10px;
-    font-size: 20px;
-    color: #2e7d32;
+    font-size:20px;
+    color: #333;
 }
-
 .section {
     margin-bottom: 0;
     padding: 15px;
@@ -188,25 +190,26 @@ h1:hover {
 .counter.low-ftt {
     background-color: #ff0000;
     border-color: #ff0000;
-    color: #ff0000;
+    color: #ff0000; /* Red */
 }
 
 .counter.medium-ftt {
     background-color: #ffbf00;
     border-color: #ffbf00;
-    color: #ffbf00;
+    color: #ffbf00; /* Yellow */
 }
 
 .counter.high-ftt {
     background-color: #32cd32;
     border-color: #32cd32;
-    color: #32cd32;
+    color: #32cd32; /* Green */
 }
 
 .counter:hover {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
 }
+
 
 /* ============================= */
 /* 6. Qty Inspect Section        */
@@ -229,7 +232,7 @@ h1:hover {
     padding: 12px 24px;
     font-size: 16px;
     font-weight: bold;
-    background: linear-gradient(145deg, #4caf50, #43a047);
+    background: linear-gradient(145deg, #4CAF50, #43a047);
     color: white;
     border: none;
     border-radius: 8px;
@@ -260,7 +263,7 @@ h1:hover {
 #qtyInspectOutput {
     font-size: 28px;
     font-weight: bold;
-    color: #2e7d32;
+    color: #333;
     text-align: center;
     margin: 15px auto;
     padding: 10px;
@@ -274,7 +277,7 @@ h1:hover {
 /* 7. Rework Section            */
 /* ============================= */
 .rework-section {
-    grid-column: 2 / 3;
+     grid-column: 2 / 3;
     grid-row: 3 / 3;
     display: flex;
     gap: 20px;
@@ -313,12 +316,12 @@ h1:hover {
     font-size: 1.8rem;
     font-weight: bold;
     margin: 10px 0;
-    color: #2e7d32;
+    color: #333;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .rework-left button, .rework-right button {
-    background: linear-gradient(135deg, #4caf50, #45a049);
+    background: linear-gradient(135deg, #4CAF50, #45a049);
     color: white;
     font-size: 16px;
     padding: 12px 20px;
@@ -352,8 +355,8 @@ h1:hover {
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
     padding: 20px;
     transition: box-shadow 0.3s ease, transform 0.3s ease;
-    font-size: 20px;
-    text-align: center;
+  font-size: 20px;
+  text-align: center;
 }
 
 .defect-menu:hover {
@@ -368,7 +371,7 @@ h1:hover {
 }
 
 .defect-button {
-    background: linear-gradient(135deg, #2e7d32, #1b5e20);
+    background: linear-gradient(135deg, #2196F3, #1e88e5);
     color: white;
     padding: 12px 15px;
     border: none;
@@ -381,16 +384,18 @@ h1:hover {
     text-align: center;
     transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    min-width: 120px;
-    min-height: 50px;
-    width: auto;
-    overflow: hidden;
-    white-space: normal;
-    word-wrap: break-word;
+    
+    min-width: 120px; /* Menentukan lebar minimal tombol */
+    min-height: 50px; /* Menentukan tinggi minimal tombol */
+    width: auto; /* Memungkinkan tombol menyesuaikan lebar, tetapi tidak lebih kecil dari min-width */
+
+    overflow: hidden; /* Menyembunyikan teks yang keluar dari batas tombol */
+    white-space: normal; /* Membiarkan teks membungkus ke baris berikutnya */
+    word-wrap: break-word; /* Membiarkan teks panjang membungkus ke baris berikutnya */
 }
 
 .defect-button:hover {
-    background: linear-gradient(135deg, #1b5e20, #0d3b0d);
+    background: linear-gradient(135deg, #1e88e5, #1565c0);
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
     transform: translateY(-3px);
 }
@@ -398,6 +403,7 @@ h1:hover {
 .defect-button:active {
     transform: scale(0.95);
 }
+
 
 /* ============================= */
 /* 9. Summary Defect Section    */
@@ -409,10 +415,10 @@ h1:hover {
     border-radius: 15px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     padding: 25px;
-    height: 400px;
-    overflow-y: auto;
+    height: 400px; /* Adjust height as needed */
+    overflow-y: auto; /* Add scroll if content exceeds max height */
     transition: box-shadow 0.3s ease, transform 0.3s ease;
-    text-align: center;
+  text-align: center;
 }
 
 .summary-defect:hover {
@@ -424,7 +430,7 @@ h1:hover {
     margin: 0 0 15px 0;
     font-size: 18px;
     font-weight: bold;
-    color: #2e7d32;
+    color: #333;
     text-transform: uppercase;
     border-bottom: 2px solid #ddd;
     padding-bottom: 5px;
@@ -444,6 +450,7 @@ h1:hover {
     transform: translateY(-3px);
 }
 
+
 /* ============================= */
 /* 10. Plus and Minus Buttons   */
 /* ============================= */
@@ -454,4 +461,51 @@ h1:hover {
 }
 
 .control-button {
-   
+    font-size: 26px;
+    padding: 12px 25px;
+    margin: 0 15px;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.control-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+#plus-button {
+    background: linear-gradient(145deg, #85d1ff, #5aa8f3);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#plus-button.active {
+    background: linear-gradient(145deg, #3D3BF3, #2e2ac4);
+}
+
+#plus-button.inactive {
+    background: linear-gradient(145deg, #c3c9d5, #a6aebf);
+}
+
+#minus-button {
+    background: linear-gradient(145deg, #ffb3b3, #ff6f6f);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#minus-button.active {
+    background: linear-gradient(145deg, #FF2929, #c71d1d);
+}
+
+#minus-button.inactive {
+    background: linear-gradient(145deg, #c3c9d5, #a6aebf);
+}
+
+.control-button:active {
+    transform: scale(0.96);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
