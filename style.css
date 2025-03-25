@@ -457,7 +457,7 @@ h1:hover {
 .buttons {
     grid-column: 1 / 2;
     text-align: center;
-    margin: px 0;
+    margin-top: 25px;
 }
 
 .control-button {
