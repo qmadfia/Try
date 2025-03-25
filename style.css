@@ -123,11 +123,11 @@ h1:hover {
 .save-button {
     background: linear-gradient(145deg, #4CAF50, #43a047);
     color: white;
-    padding: 12px 24px;
+    padding: 25px 50px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 24px;
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 0.5px;
