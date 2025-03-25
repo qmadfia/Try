@@ -244,134 +244,7 @@ function setupQuantityButtons() {
 }
 
 // =============================
-// 10. Kirim Data ke Google Sheets via Web App
-// =============================
-document.querySelector(".save-button").addEventListener("click", async () => {
-  // Panggil fungsi validasi sebelum melanjutkan
-  if (!validateInputs() || !validateDefects()) {
-    return; // Jika validasi gagal, hentikan proses
-  }
-
-  const fttElement = document.getElementById("fttOutput");
-  const fttRaw = fttElement ? fttElement.innerText.replace("%", "").trim() : "0";
-  const ftt = parseFloat(fttRaw) / 100; // Konversi ke desimal
-
-  if (isNaN(ftt)) {
-    alert("FTT value is invalid!");
-    return;
-  }
-
-  const summaryItems = document.querySelectorAll(".summary-item");
-  const defects = Array.from(summaryItems).map(item => {
-    const [type, count] = item.textContent.split(":");
-    return { type: type.trim(), count: parseInt(count.trim(), 10) };
-  });
-
-  console.log("Defects array: ", defects); // Pastikan array defects berisi data yang benar
-
-  const data = {
-    auditor: document.getElementById("auditor").value,
-    ncvs: document.getElementById("ncvs").value,
-    modelName: document.getElementById("model-name").value,
-    styleNumber: document.getElementById("style-number").value,
-    ftt, // Kirim nilai desimal
-    qtyInspect: parseInt(document.getElementById("qtyInspectOutput").innerText, 10),
-    reworkKanan: parseInt(document.getElementById("right-counter").innerText, 10),
-    reworkKiri: parseInt(document.getElementById("left-counter").innerText, 10),
-    defects, // Tambahkan array defects
-  };
-
-  try {
-    const response = await fetch("https://script.google.com/macros/s/AKfycbynXvd96pVNY53rEfPjoYAGDhLyF3SBh68GIHKYOtuW5hrTVZPkOFC3AGpQGyRRVd5OVw/exec", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-
-    const result = await response.text();
-    alert(result);
-
-    // Reset all fields after successful save
-    resetAllFields();
-  } catch (error) {
-    alert("Terjadi kesalahan saat menyimpan data.");
-    console.error(error);
-  }
-});
-
-
-// =============================
-// 11. Reset Data Setelah Simpan
-// =============================
-function resetAllFields() {
-  // Reset input form fields
-  document.getElementById("auditor").value = "";
-  document.getElementById("ncvs").value = "";
-  document.getElementById("model-name").value = "";
-  document.getElementById("style-number").value = "";
-
-  // Reset counters and output sections
-  document.getElementById("qtyInspectOutput").textContent = "0";
-  document.getElementById("left-counter").textContent = "0";
-  document.getElementById("right-counter").textContent = "0";
-  document.getElementById("fttOutput").textContent = "0%";
-
-  // Reset defect summary
-  const summaryList = document.getElementById("summary-list");
-  summaryList.innerHTML = ""; // Clear the summary section
-
-  // Reset defect counts
-  for (const defect in defectCounts) {
-    defectCounts[defect] = 0; // Reset defect counters
-  }
-
-  // Reset global counters
-  totalInspected = 0;
-  totalReworkLeft = 0;
-  totalReworkRight = 0;
-
-  console.log("All fields have been reset.");
-}
-
-// =============================
-// 12. Validasi Input sebelum SIMPAN
-// =============================
-function validateInputs() {
-  // Ambil elemen input
-  const auditor = document.getElementById("auditor").value.trim();
-  const ncvs = document.getElementById("ncvs").value.trim();
-  const modelName = document.getElementById("model-name").value.trim();
-  const styleNumber = document.getElementById("style-number").value.trim();
-
-  // Cek apakah ada input yang kosong
-  if (!auditor || !ncvs || !modelName || !styleNumber) {
-    alert("Harap isi semua input sebelum menyimpan data!");
-    return false; // Validasi gagal
-  }
-
-  return true; // Validasi berhasil
-}
-
-// =============================
-// 13. Validasi Defect sebelum SIMPAN
-// =============================
-function validateDefects() {
-    console.log("Memeriksa apakah ada defect yang dipilih...");
-
-    // Mengecek apakah ada setidaknya satu defect yang memiliki jumlah > 0
-    const hasDefect = Object.values(defectCounts).some(count => count > 0);
-    
-    console.log("Hasil Pengecekan Defect:", hasDefect); // Debugging
-
-    if (!hasDefect) {
-        alert("Harap pilih setidaknya satu defect sebelum menyimpan data!");
-        return false;
-    }
-
-    return true;
-}
-
-// =============================
-// 14. Validasi Total Defect dan Total Rework Sebelum SIMPAN
+// 10. Kirim Data ke Google Sheets via Web App & Validasi Total Defect dan Total Rework Sebelum SIMPAN
 // =============================
 document.querySelector(".save-button").addEventListener("click", async () => {
   // Panggil fungsi validasi sebelum melanjutkan
@@ -444,3 +317,73 @@ document.querySelector(".save-button").addEventListener("click", async () => {
   }
 });
 
+// =============================
+// 11. Reset Data Setelah Simpan
+// =============================
+function resetAllFields() {
+  // Reset input form fields
+  document.getElementById("auditor").value = "";
+  document.getElementById("ncvs").value = "";
+  document.getElementById("model-name").value = "";
+  document.getElementById("style-number").value = "";
+
+  // Reset counters and output sections
+  document.getElementById("qtyInspectOutput").textContent = "0";
+  document.getElementById("left-counter").textContent = "0";
+  document.getElementById("right-counter").textContent = "0";
+  document.getElementById("fttOutput").textContent = "0%";
+
+  // Reset defect summary
+  const summaryList = document.getElementById("summary-list");
+  summaryList.innerHTML = ""; // Clear the summary section
+
+  // Reset defect counts
+  for (const defect in defectCounts) {
+    defectCounts[defect] = 0; // Reset defect counters
+  }
+
+  // Reset global counters
+  totalInspected = 0;
+  totalReworkLeft = 0;
+  totalReworkRight = 0;
+
+  console.log("All fields have been reset.");
+}
+
+// =============================
+// 12. Validasi Input sebelum SIMPAN
+// =============================
+function validateInputs() {
+  // Ambil elemen input
+  const auditor = document.getElementById("auditor").value.trim();
+  const ncvs = document.getElementById("ncvs").value.trim();
+  const modelName = document.getElementById("model-name").value.trim();
+  const styleNumber = document.getElementById("style-number").value.trim();
+
+  // Cek apakah ada input yang kosong
+  if (!auditor || !ncvs || !modelName || !styleNumber) {
+    alert("Harap isi semua input sebelum menyimpan data!");
+    return false; // Validasi gagal
+  }
+
+  return true; // Validasi berhasil
+}
+
+// =============================
+// 13. Validasi Defect sebelum SIMPAN
+// =============================
+function validateDefects() {
+    console.log("Memeriksa apakah ada defect yang dipilih...");
+
+    // Mengecek apakah ada setidaknya satu defect yang memiliki jumlah > 0
+    const hasDefect = Object.values(defectCounts).some(count => count > 0);
+    
+    console.log("Hasil Pengecekan Defect:", hasDefect); // Debugging
+
+    if (!hasDefect) {
+        alert("Harap pilih setidaknya satu defect sebelum menyimpan data!");
+        return false;
+    }
+
+    return true;
+}
