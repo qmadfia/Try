@@ -370,10 +370,6 @@ function validateDefects() {
     return true;
 }
 
-// =============================
-// 14. Validasi Total Defect dan Total Rework Sebelum SIMPAN
-// =============================
-
 document.querySelector(".save-button").addEventListener("click", async () => {
   // Panggil fungsi validasi sebelum melanjutkan
   if (!validateInputs() || !validateDefects()) {
@@ -388,9 +384,8 @@ document.querySelector(".save-button").addEventListener("click", async () => {
 
   // Cek apakah total defect lebih rendah dari total rework
   if (totalDefect < totalRework) {
-    // Jika total defect lebih rendah dari total rework, tampilkan pop-up dan hentikan proses
     alert("Total defect tidak boleh lebih rendah dari total rework. Data tidak dapat disimpan.");
-    return; // Hentikan proses penyimpanan
+    return;
   }
 
   const fttElement = document.getElementById("fttOutput");
@@ -408,22 +403,25 @@ document.querySelector(".save-button").addEventListener("click", async () => {
     return { type: type.trim(), count: parseInt(count.trim(), 10) };
   });
 
-  console.log("Defects array: ", defects); // Pastikan array defects berisi data yang benar
+  console.log("Defects array: ", defects);
 
   const data = {
     auditor: document.getElementById("auditor").value,
     ncvs: document.getElementById("ncvs").value,
     modelName: document.getElementById("model-name").value,
     styleNumber: document.getElementById("style-number").value,
-    ftt, // Kirim nilai desimal
+    ftt,
     qtyInspect: parseInt(document.getElementById("qtyInspectOutput").innerText, 10),
     reworkKanan: parseInt(document.getElementById("right-counter").innerText, 10),
     reworkKiri: parseInt(document.getElementById("left-counter").innerText, 10),
-    defects, // Tambahkan array defects
-    source: "stockfit", // Tambahkan informasi asal aplikasi
+    defects,
   };
 
   try {
+    // Nonaktifkan tombol simpan untuk mencegah multiple submission
+    const saveButton = document.querySelector(".save-button");
+    saveButton.disabled = true;
+
     const response = await fetch("https://script.google.com/macros/s/AKfycbynXvd96pVNY53rEfPjoYAGDhLyF3SBh68GIHKYOtuW5hrTVZPkOFC3AGpQGyRRVd5OVw/exec", {
       method: "POST",
       body: JSON.stringify(data),
@@ -437,6 +435,9 @@ document.querySelector(".save-button").addEventListener("click", async () => {
   } catch (error) {
     alert("Terjadi kesalahan saat menyimpan data.");
     console.error(error);
+  } finally {
+    // Aktifkan kembali tombol simpan setelah proses selesai
+    document.querySelector(".save-button").disabled = false;
   }
 });
 
