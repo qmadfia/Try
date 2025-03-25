@@ -123,6 +123,7 @@ h1:hover {
 .save-button {
     background: linear-gradient(145deg, #4CAF50, #43a047);
     color: white;
+    width: calc(100% - 10px);
     padding: 25px 50px;
     border: none;
     border-radius: 8px;
