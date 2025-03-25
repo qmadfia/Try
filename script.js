@@ -1,3 +1,4 @@
+
 // =============================
 // 1. Variabel Global
 // =============================
@@ -96,31 +97,23 @@ function updateQuantity(counterId, change) {
 // 6. Fungsi untuk menangani klik tombol defect
 // =============================
 const defectCounts = {
+    "BOND GAP": 0,
     "OVER CEMENT": 0,
-    "STAIN UPPER": 0,
-    "STAIN OUTSOLE": 0,
-    "THREAD END": 0,
-    "RAT HOLE": 0,
-    "BOND GAP UPPER": 0,
-    "WRINKLE": 0,
-    "ALIGN UP": 0,
-    "OVER BUFFING": 0,
-    "OFF CENTER": 0,
-    "ARIANCE": 0,
-    "X-RAY": 0,
-    "BROKEN STITCHING": 0,
-    "TOE / HEEL / COLLAR SHAPE": 0,
-    "STITCH MARGIN / SPI": 0,
-    "YELLOWING": 0,
-    "ROCKING": 0,
-    "BOND GAP MIDSOLE": 0,
-    "MATERIAL FAILURE": 0,
-    "COLOR MIGRATION": 0,
-    "PEEL OFF": 0,
-    "DELAMINATION": 0,
-    "METAL CONTAMINATION": 0,
-    "TWISTED SHOE": 0,
-    "LOGO / AIR BAG": 0
+    "OVER PRIMER": 0,
+    "STAIN R/B": 0,
+    "STAIN IP": 0,
+    "REBOUND": 0,
+    "POOR TRIMMING": 0,
+    "POOR PAINTING": 0,
+    "UNFITTING": 0,
+    "POOR CEMENT": 0,
+    "DOUBLE SKIN": 0,
+    "CONTAMINATION": 0,
+    "COLOR BLEEDING": 0,
+    "DAMAGE": 0,
+    "SHRINKAGE": 0,
+    "SOLELAYING": 0,
+    "BUBBLE": 0
 };
 
 // Setup defect buttons
@@ -247,7 +240,7 @@ function setupQuantityButtons() {
 // =============================
 document.querySelector(".save-button").addEventListener("click", async () => {
   // Panggil fungsi validasi sebelum melanjutkan
-  if (!validateInputs()) {
+  if (!validateInputs() || !validateDefects()) {
     return; // Jika validasi gagal, hentikan proses
   }
 
@@ -278,6 +271,7 @@ document.querySelector(".save-button").addEventListener("click", async () => {
     reworkKanan: parseInt(document.getElementById("right-counter").innerText, 10),
     reworkKiri: parseInt(document.getElementById("left-counter").innerText, 10),
     defects, // Tambahkan array defects
+    source: "stockfit", // Tambahkan informasi asal aplikasi
   };
 
   try {
@@ -348,4 +342,23 @@ function validateInputs() {
   }
 
   return true; // Validasi berhasil
+}
+
+// =============================
+// 13. Validasi Defect sebelum SIMPAN
+// =============================
+function validateDefects() {
+    console.log("Memeriksa apakah ada defect yang dipilih...");
+
+    // Mengecek apakah ada setidaknya satu defect yang memiliki jumlah > 0
+    const hasDefect = Object.values(defectCounts).some(count => count > 0);
+    
+    console.log("Hasil Pengecekan Defect:", hasDefect); // Debugging
+
+    if (!hasDefect) {
+        alert("Harap pilih setidaknya satu defect sebelum menyimpan data!");
+        return false;
+    }
+
+    return true;
 }
