@@ -370,6 +370,9 @@ function validateDefects() {
     return true;
 }
 
+// =============================
+// 14. Validasi Total Defect dan Total Rework Sebelum SIMPAN
+// =============================
 document.querySelector(".save-button").addEventListener("click", async () => {
   // Panggil fungsi validasi sebelum melanjutkan
   if (!validateInputs() || !validateDefects()) {
