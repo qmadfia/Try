@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,9 +11,8 @@
         <img src="logo.png.png" alt="Logo" class="logo">
         <h1>eQMS</h1>
     </div>
-    
     <div class="dashboard">
-        <!-- Form Section -->
+        <!-- Form Section (Kiri Bawah) -->
         <div class="form-section">
             <label for="auditor">Auditor</label>
             <select id="auditor">
@@ -64,85 +63,95 @@
 
             <label for="style-number">Style Number</label>
             <input type="text" id="style-number" placeholder="Style number diisi lengkap">
-            
-            <!-- Save Button -->
+            <!-- Wrapper for Save Button -->
             <div class="button-wrapper">
                 <button class="save-button">SIMPAN</button>
             </div>
         </div>
+        
+        <!-- FTT Section -->
+        <div class="section">
+            <label for="ftt">FTT (First Time Through):</label>
+            <div id="fttOutput" class="counter">0%</div>
+        </div>
 
-        <!-- Qty Inspect Section -->
-        <div id="qty-inspect-section">
-            <h2>Qty Inspect</h2>
-            <div class="qty-container">
-                <div class="qty-box">
-                    <h3>A-Grade</h3>
-                    <button id="a-grade-btn" class="qty-btn">Tambah</button>
-                    <p id="a-grade-counter">0</p>
-                </div>
-                <div class="qty-box">
-                    <h3>Rework</h3>
-                    <button id="rework-btn" class="qty-btn">Pilih Defect</button>
-                    <p id="rework-counter">0</p>
-                </div>
-                <div class="qty-box">
-                    <h3>B-Grade</h3>
-                    <button id="b-grade-btn" class="qty-btn">Pilih Defect</button>
-                    <p id="b-grade-counter">0</p>
-                </div>
-                <div class="qty-box">
-                    <h3>C-Grade</h3>
-                    <button id="c-grade-btn" class="qty-btn">Pilih Defect</button>
-                    <p id="c-grade-counter">0</p>
-                </div>
+        <!-- Reject Section -->
+        <div id="reject-section">
+            <!-- Menu Input (Qty Inspect) -->
+            <div id="input-section">
+                <button class="input-button">Qty Inspect</button>
             </div>
-            <h3>Total Qty Inspect: <span id="qty-inspect-total">0</span></h3>
+
+            <!-- Output Column -->
+            <div id="output-section">
+                <div id="qtyInspectOutput">0</div> <!-- Menampilkan hasil klik -->
+            </div>
         </div>
 
         <!-- Summary Defect Section -->
         <div class="summary-defect">
             <h3>Summary Defect</h3>
-            <div id="summary-list"></div>
+            <div id="summary-list">
+                <!-- Summary will be displayed here -->
+            </div>
         </div>
 
-        <!-- Defect Modal -->
-        <div id="defect-modal" class="modal hidden">
-            <div class="modal-content">
-                <h3>Pilih Defect Kanan atau Kiri</h3>
-                <button class="defect-side-btn" data-side="kanan">Defect Kanan</button>
-                <button class="defect-side-btn" data-side="kiri">Defect Kiri</button>
-                <div id="defect-type-container" class="hidden">
-                    <h3>Pilih Jenis Defect</h3>
-                    <div id="defect-type-list" class="defect-items">
-                        <button class="defect-button">OVER CEMENT</button>
-                        <button class="defect-button">STAIN UPPER</button>
-                        <button class="defect-button">STAIN OUTSOLE</button>
-                        <button class="defect-button">THREAD END</button>
-                        <button class="defect-button">RAT HOLE</button>
-                        <button class="defect-button">BOND GAP UPPER</button>
-                        <button class="defect-button">WRINKLE</button>
-                        <button class="defect-button">ALIGN UP</button>
-                        <button class="defect-button">OVER BUFFING</button>
-                        <button class="defect-button">OFF CENTER</button>
-                        <button class="defect-button">ARIANCE</button>
-                        <button class="defect-button">X-RAY</button>
-                        <button class="defect-button">BROKEN STITCHING</button>
-                        <button class="defect-button">TOE / HEEL / COLLAR SHAPE</button>
-                        <button class="defect-button">STITCH MARGIN / SPI</button>
-                        <button class="defect-button">YELLOWING</button>
-                        <button class="defect-button">ROCKING</button>
-                        <button class="defect-button">BOND GAP MIDSOLE</button>
-                        <button class="defect-button">MATERIAL FAILURE</button>
-                        <button class="defect-button">COLOR MIGRATION</button>
-                        <button class="defect-button">PEEL OFF</button>
-                        <button class="defect-button">DELAMINATION</button>
-                        <button class="defect-button">METAL CONTAMINATION</button>
-                        <button class="defect-button">TWISTED SHOE</button>
-                        <button class="defect-button">LOGO / AIR BAG</button>
-                    </div>
-                </div>
-                <button id="close-modal">Tutup</button>
+        <!-- Rework Section -->
+        <div class="rework-section">
+            <!-- Rework Left -->
+            <div class="rework-left">
+                <h3>Rework Kiri</h3>
+                <button id="rework-left" class="rework-button">Klik untuk Rework Kiri</button>
+                <p id="left-counter">0</p>
             </div>
+            <!-- Rework Right -->
+            <div class="rework-right">
+                <h3>Rework Kanan</h3>
+                <button id="rework-right" class="rework-button">Klik untuk Rework Kanan</button>
+                <p id="right-counter">0</p>
+            </div>
+        </div>
+
+        <!-- Defect Menu Section -->
+        <div class="defect-menu">
+            <h3>Defect Menu</h3>
+            <div class="defect-items">
+                <button class="defect-button">OVER CEMENT</button>
+                <button class="defect-button">STAIN UPPER</button>
+                <button class="defect-button">STAIN OUTSOLE</button>
+                <button class="defect-button">THREAD END</button>
+                <button class="defect-button">RAT HOLE</button>
+                <button class="defect-button">BOND GAP UPPER</button>
+                <button class="defect-button">WRINKLE</button>
+                <button class="defect-button">ALIGN UP</button>
+                <button class="defect-button">OVER BUFFING</button>
+                <button class="defect-button">OFF CENTER</button>
+                <button class="defect-button">ARIANCE</button>
+                <button class="defect-button">X-RAY</button>
+                <button class="defect-button">BROKEN STITCHING</button>
+                <button class="defect-button">TOE / HEEL / COLLAR SHAPE</button>
+                <button class="defect-button">STITCH MARGIN / SPI</button>
+                <button class="defect-button">YELLOWING</button>
+                <button class="defect-button">ROCKING</button>
+                <button class="defect-button">BOND GAP MIDSOLE</button>
+                <button class="defect-button">MATERIAL FAILURE</button>
+                <button class="defect-button">COLOR MIGRATION</button>
+                <button class="defect-button">PEEL OFF</button>
+                <button class="defect-button">DELAMINATION</button>
+                <button class="defect-button">METAL CONTAMINATION</button>
+                <button class="defect-button">TWISTED SHOE</button>
+                <button class="defect-button">LOGO / AIR BAG</button>
+            </div>
+        </div>
+
+        <!-- Plus and Minus Buttons -->
+        <div class="buttons">
+            <button id="plus-button" class="control-button" aria-label="Add">
+                <span class="button-icon">+</span>
+            </button>
+            <button id="minus-button" class="control-button" aria-label="Subtract">
+                <span class="button-icon">-</span>
+            </button>
         </div>
     </div>
 
