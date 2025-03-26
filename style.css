@@ -1,5 +1,4 @@
 
-
 /* ============================= */
 /* 1. Global Styles              */
 /* ============================= */
@@ -185,7 +184,7 @@ h1:hover {
 
 
 /* ============================= */
-/* 5. FTT Section - Styles           */
+/* FTT Section - Styles           */
 /* ============================= */
 .counter {
     font-size: 28px;
@@ -252,136 +251,64 @@ h1:hover {
 /* ============================= */
 /* 6. Qty Inspect Section        */
 /* ============================= */
-.qty-section {
-    display: flex; /* Menggunakan flexbox untuk fleksibilitas layout */
-    justify-content: space-evenly; /* Menyebar elemen secara merata dalam baris */
-    align-items: flex-start; /* Menyelaraskan elemen secara vertikal ke atas */
-    padding: 1rem; /* Gunakan rem untuk ukuran yang relatif */
+#reject-section {
+    padding: 15px;
     border: 2px solid #ccc;
     border-radius: 10px;
     background: linear-gradient(145deg, #ffffff, #f7f7f7);
-    margin-bottom: 20px;
+    margin-bottom: 0;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     transition: box-shadow 0.3s ease;
-    text-align: center;
-    width: 1000px;
-    margin: 0 auto; /* Membuat bagian ini terpusat */
 }
 
-/* Hover effect for qty-section */
-.qty-section:hover {
+#reject-section:hover {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* Container untuk tombol dan output */
-.qty-item {
-    display: flex;
-    flex-direction: column; /* Menyusun tombol dan output secara vertikal */
-    align-items: center; /* Menyelaraskan tombol dan output */
-    margin: 0 1rem; /* Memberikan jarak antar item */
-    width: 20%; /* Membatasi lebar setiap item */
-    min-width: 150px; /* Menentukan lebar minimum untuk item */
-    max-width: 200px; /* Membatasi lebar item */
-}
-
-/* Warna berbeda untuk setiap tombol */
 .input-button {
-    width: 110px; /* Tombol akan mengambil lebar penuh dari container */
-    padding: 1rem 0; /* Padding relatif menggunakan rem */
-    margin: 0.5rem 0;
-    font-size: 1rem; /* Gunakan rem untuk ukuran font */
+    padding: 12px 24px;
+    font-size: 16px;
     font-weight: bold;
+    background: linear-gradient(145deg, #4CAF50, #43a047);
     color: white;
     border: none;
-    border-radius: 20px;
+    border-radius: 8px;
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     transition: background 0.3s ease, transform 0.2s ease;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    white-space: nowrap; /* Menghindari pemotongan teks */
-    overflow: hidden; /* Menghindari teks meluap */
-    text-overflow: ellipsis; /* Menggunakan tiga titik jika teks terlalu panjang */
 }
 
-/* Warna spesifik untuk masing-masing tombol */
-.a-grade {
-    background: linear-gradient(145deg, #4CAF50, #43a047);
-}
-.a-grade:hover {
+.input-button:hover {
     background: linear-gradient(145deg, #43a047, #388e3c);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-.rework {
-    background: linear-gradient(145deg, #2196F3, #1E88E5);
-}
-.rework:hover {
-    background: linear-gradient(145deg, #1E88E5, #1976D2);
-}
-
-.b-grade {
-    background: linear-gradient(145deg, #FFC107, #FFA000);
-}
-.b-grade:hover {
-    background: linear-gradient(145deg, #FFA000, #FF8F00);
-}
-
-.c-grade {
-    background: linear-gradient(145deg, #F44336, #D32F2F);
-}
-.c-grade:hover {
-    background: linear-gradient(145deg, #D32F2F, #B71C1C);
-}
-
-/* Efek saat tombol ditekan */
 .input-button:active {
     transform: scale(0.96);
 }
 
-/* Output Box for Each Input */
-.output-box {
-    width: 100%; /* Output box akan mengikuti lebar dari container */
-    margin-top: 1rem;
-    padding: 1rem;
+#output-section {
+    padding: 15px;
     border: 2px solid #ccc;
-    border-radius: 8px;
+    border-radius: 10px;
     background: linear-gradient(145deg, #ffffff, #f7f7f7);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    font-size: 1.2rem; /* Menggunakan rem untuk ukuran font */
+}
+
+#qtyInspectOutput {
+    font-size: 28px;
     font-weight: bold;
     color: #333;
+    text-align: center;
+    margin: 15px auto;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #f9f9f9, #ffffff);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
-
-/* Responsive adjustments */
-@media screen and (max-width: 1200px) {
-    .qty-item {
-        width: 25%; /* Lebar item lebih kecil di layar sedang */
-    }
-}
-
-@media screen and (max-width: 992px) {
-    .qty-item {
-        width: 30%; /* Lebar item lebih kecil di layar lebih kecil */
-    }
-}
-
-@media screen and (max-width: 768px) {
-    .qty-item {
-        width: 45%; /* Lebar item lebih kecil di layar lebih kecil */
-    }
-}
-
-@media screen and (max-width: 480px) {
-    .qty-item {
-        width: 100%; /* Lebar item full width di layar mobile */
-    }
-}
-
-
-
-
 
 /* ============================= */
 /* 7. Rework Section            */
@@ -561,6 +488,9 @@ h1:hover {
 }
 
 
+/* ============================= */
+/* 10. Enhanced Plus and Minus Buttons   */
+/* ============================= */
 /* ============================= */
 /* 10. Enhanced Plus and Minus Buttons   */
 /* ============================= */
