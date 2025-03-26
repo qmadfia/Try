@@ -175,30 +175,49 @@ function updateDefectSummary() {
 // =============================
 // 7. Event Listeners untuk Plus dan Minus Buttons
 // =============================
-document.getElementById('plus-button').addEventListener('click', () => {
-    isAdding = true; // Aktifkan mode penambahan
-    isSubtracting = false; // Nonaktifkan mode pengurangan
+document.addEventListener('DOMContentLoaded', () => {
+    const plusButton = document.getElementById('plus-button');
+    const minusButton = document.getElementById('minus-button');
+    const allElements = document.querySelectorAll('*');
 
-    // Ubah kelas untuk tombol plus
-    document.getElementById('plus-button').classList.add('active');
-    document.getElementById('plus-button').classList.remove('inactive');
+    // Check button positioning
+    console.log('Button Position:', {
+        top: plusButton.offsetTop,
+        left: plusButton.offsetLeft,
+        width: plusButton.offsetWidth,
+        height: plusButton.offsetHeight
+    });
 
-    // Ubah kelas untuk tombol minus
-    document.getElementById('minus-button').classList.remove('active');
-    document.getElementById('minus-button').classList.add('inactive');
-});
+    // Diagnostic click event
+    document.body.addEventListener('click', (e) => {
+        console.log('Clicked Element:', {
+            element: e.target,
+            zIndex: window.getComputedStyle(e.target).zIndex,
+            position: window.getComputedStyle(e.target).position
+        });
+    });
 
-document.getElementById('minus-button').addEventListener('click', () => {
-    isAdding = false; // Nonaktifkan mode penambahan
-    isSubtracting = true; // Aktifkan mode pengurangan
+    // Check for potential blocking elements
+    allElements.forEach(el => {
+        const style = window.getComputedStyle(el);
+        if (
+            style.position !== 'static' && 
+            parseInt(style.zIndex) > 999
+        ) {
+            console.warn('Potential z-index blocking element:', el);
+        }
+    });
 
-    // Ubah kelas untuk tombol minus
-    document.getElementById('minus-button').classList.add('active');
-    document.getElementById('minus-button').classList.remove('inactive');
+    // Ensure buttons are clickable
+    plusButton.addEventListener('click', (e) => {
+        console.log('Plus Button Clicked');
+        e.stopPropagation(); // Prevent event bubbling
+    });
 
-    // Ubah kelas untuk tombol plus
-    document.getElementById('plus-button').classList.remove('active');
-    document.getElementById('plus-button').classList.add('inactive');
+    minusButton.addEventListener('click', (e) => {
+        console.log('Minus Button Clicked');
+        e.stopPropagation(); // Prevent event bubbling
+    });
 });
 
 // =============================
