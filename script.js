@@ -175,30 +175,58 @@ function updateDefectSummary() {
 // =============================
 // 7. Event Listeners untuk Plus dan Minus Buttons
 // =============================
-document.getElementById('plus-button').addEventListener('click', () => {
-    isAdding = true; // Aktifkan mode penambahan
-    isSubtracting = false; // Nonaktifkan mode pengurangan
+document.addEventListener('DOMContentLoaded', () => {
+    const plusButton = document.getElementById('plus-button');
+    const minusButton = document.getElementById('minus-button');
 
-    // Ubah kelas untuk tombol plus
-    document.getElementById('plus-button').classList.add('active');
-    document.getElementById('plus-button').classList.remove('inactive');
+    // Global click event listeners for plus and minus modes
+    plusButton.addEventListener('click', () => {
+        isAdding = true;
+        isSubtracting = false;
 
-    // Ubah kelas untuk tombol minus
-    document.getElementById('minus-button').classList.remove('active');
-    document.getElementById('minus-button').classList.add('inactive');
-});
+        // Update button styles
+        plusButton.classList.add('active');
+        plusButton.classList.remove('inactive');
+        minusButton.classList.remove('active');
+        minusButton.classList.add('inactive');
+    });
 
-document.getElementById('minus-button').addEventListener('click', () => {
-    isAdding = false; // Nonaktifkan mode penambahan
-    isSubtracting = true; // Aktifkan mode pengurangan
+    minusButton.addEventListener('click', () => {
+        isAdding = false;
+        isSubtracting = true;
 
-    // Ubah kelas untuk tombol minus
-    document.getElementById('minus-button').classList.add('active');
-    document.getElementById('minus-button').classList.remove('inactive');
+        // Update button styles
+        minusButton.classList.add('active');
+        minusButton.classList.remove('inactive');
+        plusButton.classList.remove('active');
+        plusButton.classList.add('inactive');
+    });
 
-    // Ubah kelas untuk tombol plus
-    document.getElementById('plus-button').classList.remove('active');
-    document.getElementById('plus-button').classList.add('inactive');
+    // Enhanced click event for defect buttons to work with plus/minus mode
+    const defectButtons = document.querySelectorAll('.defect-button');
+    defectButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const defectName = button.textContent.trim();
+            
+            // Handle defect click based on current mode
+            if (isAdding) {
+                defectCounts[defectName]++;
+            } else if (isSubtracting) {
+                defectCounts[defectName] = Math.max(0, defectCounts[defectName] - 1);
+            }
+
+            // Provide visual feedback
+            button.classList.add('active');
+            setTimeout(() => button.classList.remove('active'), 200);
+
+            // Update defect summary
+            updateDefectSummary();
+        });
+    });
+
+    // Make sure the initial state is correctly set
+    plusButton.classList.add('active');
+    minusButton.classList.add('inactive');
 });
 
 // =============================
