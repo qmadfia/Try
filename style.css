@@ -459,15 +459,17 @@ h1:hover {
     position: fixed;
     bottom: 20px;
     right: 20px;
+    z-index: 1000; /* Ensure highest z-index */
     display: flex;
     flex-direction: column;
     gap: 15px;
-    z-index: 9999; /* Ensure buttons are above other elements */
     pointer-events: auto;
 }
 
-.dashboard, .defect-menu {
-    overflow: visible;
+.defect-menu {
+    position: relative;
+    z-index: 1;
+}
 
 .control-button {
     width: 60px;
