@@ -453,7 +453,7 @@ h1:hover {
 
 
 /* ============================= */
-/* 10. Plus and Minus Buttons   */
+/* 10. Enhanced Plus and Minus Buttons   */
 /* ============================= */
 .buttons {
     position: fixed;
@@ -461,55 +461,116 @@ h1:hover {
     right: 20px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
+    z-index: 1000; /* Ensure buttons are above other elements */
 }
 
 .control-button {
-    font-size: 26px;
-    padding: 12px 25px;
-    margin: 0 15px;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
     color: #fff;
     border: none;
-    border-radius: 8px;
+    border-radius: 50%; /* Circular buttons */
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.3s ease;
-    font-weight: bold;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
 }
 
-.control-button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+.control-button .button-icon {
+    position: relative;
+    z-index: 1;
 }
 
+/* Plus Button Styles */
 #plus-button {
-    background: linear-gradient(145deg, #85d1ff, #5aa8f3);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(145deg, #4CAF50, #45a049);
+}
+
+#plus-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#plus-button:hover::before {
+    opacity: 1;
 }
 
 #plus-button.active {
-    background: linear-gradient(145deg, #3D3BF3, #2e2ac4);
+    background: linear-gradient(145deg, #388E3C, #2E7D32);
+    transform: scale(1.1);
 }
 
 #plus-button.inactive {
-    background: linear-gradient(145deg, #c3c9d5, #a6aebf);
+    background: linear-gradient(145deg, #B0BEC5, #90A4AE);
+    cursor: not-allowed;
 }
 
+/* Minus Button Styles */
 #minus-button {
-    background: linear-gradient(145deg, #ffb3b3, #ff6f6f);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(145deg, #F44336, #D32F2F);
+}
+
+#minus-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#minus-button:hover::before {
+    opacity: 1;
 }
 
 #minus-button.active {
-    background: linear-gradient(145deg, #FF2929, #c71d1d);
+    background: linear-gradient(145deg, #D32F2F, #B71C1C);
+    transform: scale(1.1);
 }
 
 #minus-button.inactive {
-    background: linear-gradient(145deg, #c3c9d5, #a6aebf);
+    background: linear-gradient(145deg, #B0BEC5, #90A4AE);
+    cursor: not-allowed;
+}
+
+/* Hover and Active States */
+.control-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
 }
 
 .control-button:active {
-    transform: scale(0.96);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transform: scale(0.95);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+/* Responsive Design */
+@media (max-width: 600px) {
+    .buttons {
+        bottom: 10px;
+        right: 10px;
+        gap: 10px;
+    }
+    
+    .control-button {
+        width: 50px;
+        height: 50px;
+        font-size: 30px;
+    }
+}
