@@ -1,4 +1,5 @@
 
+
 /* ============================= */
 /* 1. Global Styles              */
 /* ============================= */
@@ -184,7 +185,7 @@ h1:hover {
 
 
 /* ============================= */
-/* FTT Section - Styles           */
+/* 5. FTT Section - Styles           */
 /* ============================= */
 .counter {
     font-size: 28px;
@@ -251,64 +252,115 @@ h1:hover {
 /* ============================= */
 /* 6. Qty Inspect Section        */
 /* ============================= */
-#reject-section {
-    padding: 15px;
+.qty-section {
+    display: flex; /* Menggunakan flexbox untuk fleksibilitas layout */
+    justify-content: space-evenly; /* Menyebar elemen secara merata dalam baris */
+    align-items: flex-start; /* Menyelaraskan elemen secara vertikal ke atas */
+    padding: 1rem; /* Gunakan rem untuk ukuran yang relatif */
     border: 2px solid #ccc;
     border-radius: 10px;
     background: linear-gradient(145deg, #ffffff, #f7f7f7);
-    margin-bottom: 0;
+    margin-bottom: 20px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     transition: box-shadow 0.3s ease;
+    text-align: center;
+    width: 100%;
+    max-width: 1200px; /* Menentukan lebar maksimum agar tidak terlalu lebar */
+    margin: 0 auto; /* Membuat bagian ini terpusat */
+    flex-wrap: wrap; /* Agar elemen dapat berbaris di bawah jika terlalu banyak */
 }
 
-#reject-section:hover {
+/* Hover effect for each qty-section */
+.qty-section:hover {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
+/* Container untuk tombol dan output */
+.qty-item {
+    display: flex;
+    flex-direction: column; /* Menyusun tombol dan output secara vertikal */
+    align-items: center; /* Menyelaraskan tombol dan output */
+    margin: 0 1rem; /* Memberikan jarak antar item */
+    width: 20%; /* Membatasi lebar setiap item */
+    min-width: 150px; /* Menentukan lebar minimum untuk item */
+    max-width: 200px; /* Membatasi lebar item */
+}
+
+/* Input Buttons */
 .input-button {
-    padding: 12px 24px;
-    font-size: 16px;
+    width: 100%; /* Tombol akan mengambil lebar penuh dari container */
+    padding: 1rem 0; /* Padding relatif menggunakan rem */
+    margin: 0.5rem 0;
+    font-size: 1rem; /* Gunakan rem untuk ukuran font */
     font-weight: bold;
     background: linear-gradient(145deg, #4CAF50, #43a047);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 20px;
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     transition: background 0.3s ease, transform 0.2s ease;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    white-space: nowrap; /* Menghindari pemotongan teks */
+    overflow: hidden; /* Menghindari teks meluap */
+    text-overflow: ellipsis; /* Menggunakan tiga titik jika teks terlalu panjang */
 }
 
+/* Hover effect for input button */
 .input-button:hover {
     background: linear-gradient(145deg, #43a047, #388e3c);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
+/* Active effect for input button */
 .input-button:active {
     transform: scale(0.96);
 }
 
-#output-section {
-    padding: 15px;
+/* Output Box for Each Input */
+.output-box {
+    width: 100%; /* Output box akan mengikuti lebar dari container */
+    margin-top: 1rem;
+    padding: 1rem;
     border: 2px solid #ccc;
-    border-radius: 10px;
+    border-radius: 8px;
     background: linear-gradient(145deg, #ffffff, #f7f7f7);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-#qtyInspectOutput {
-    font-size: 28px;
+    text-align: center;
+    font-size: 1.2rem; /* Menggunakan rem untuk ukuran font */
     font-weight: bold;
     color: #333;
-    text-align: center;
-    margin: 15px auto;
-    padding: 10px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    background: linear-gradient(145deg, #f9f9f9, #ffffff);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
+
+/* Responsive adjustments */
+@media screen and (max-width: 1200px) {
+    .qty-item {
+        width: 25%; /* Lebar item lebih kecil di layar sedang */
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .qty-item {
+        width: 30%; /* Lebar item lebih kecil di layar lebih kecil */
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .qty-item {
+        width: 45%; /* Lebar item lebih kecil di layar lebih kecil */
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .qty-item {
+        width: 100%; /* Lebar item full width di layar mobile */
+    }
+}
+
+
+
 
 /* ============================= */
 /* 7. Rework Section            */
@@ -488,9 +540,6 @@ h1:hover {
 }
 
 
-/* ============================= */
-/* 10. Enhanced Plus and Minus Buttons   */
-/* ============================= */
 /* ============================= */
 /* 10. Enhanced Plus and Minus Buttons   */
 /* ============================= */
