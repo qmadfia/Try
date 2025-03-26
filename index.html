@@ -75,39 +75,21 @@
             <div id="fttOutput" class="counter">0%</div>
         </div>
 
-<!-- Qty Inspect Section -->
-<div id="qty-inspect-section">
-    <!-- A-Grade Section -->
-    <div id="a-grade-section">
-        <h3>A-Grade</h3>
-        <button class="qty-button">30</button>
+<!-- Reject Section -->
+<div id="reject-section">
+    <!-- Menu Input (Qty Inspect) -->
+    <div id="input-section">
+        <button class="input-button" id="a-grade">A-Grade</button>
+        <button class="input-button" id="rework">Rework</button>
+        <button class="input-button" id="b-grade">B-Grade</button>
+        <button class="input-button" id="c-grade">C-Grade</button>
     </div>
 
-    <!-- Rework Section -->
-    <div id="rework-section">
-        <h3>Rework</h3>
-        <button class="qty-button" onclick="openDefectSelection('Rework')">10</button>
-    </div>
-
-    <!-- B-Grade Section -->
-    <div id="b-grade-section">
-        <h3>B-Grade</h3>
-        <button class="qty-button" onclick="openDefectSelection('B-Grade')">5</button>
-    </div>
-
-    <!-- C-Grade Section -->
-    <div id="c-grade-section">
-        <h3>C-Grade</h3>
-        <button class="qty-button" onclick="openDefectSelection('C-Grade')">5</button>
+    <!-- Output Column -->
+    <div id="output-section">
+        <div id="qtyInspectOutput">0</div> <!-- Menampilkan hasil klik -->
     </div>
 </div>
-        <!-- Summary Defect Section -->
-        <div class="summary-defect">
-            <h3>Summary Defect</h3>
-            <div id="summary-list">
-                <!-- Summary will be displayed here -->
-            </div>
-        </div>
 
         <!-- Rework Section -->
         <div class="rework-section">
