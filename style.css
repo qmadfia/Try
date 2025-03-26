@@ -270,7 +270,7 @@ h1:hover {
     flex-wrap: wrap; /* Agar elemen dapat berbaris di bawah jika terlalu banyak */
 }
 
-/* Hover effect for each qty-section */
+/* Hover effect for qty-section */
 .qty-section:hover {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
@@ -286,14 +286,13 @@ h1:hover {
     max-width: 200px; /* Membatasi lebar item */
 }
 
-/* Input Buttons */
+/* Warna berbeda untuk setiap tombol */
 .input-button {
     width: 100%; /* Tombol akan mengambil lebar penuh dari container */
     padding: 1rem 0; /* Padding relatif menggunakan rem */
     margin: 0.5rem 0;
     font-size: 1rem; /* Gunakan rem untuk ukuran font */
     font-weight: bold;
-    background: linear-gradient(145deg, #4CAF50, #43a047);
     color: white;
     border: none;
     border-radius: 20px;
@@ -308,13 +307,36 @@ h1:hover {
     text-overflow: ellipsis; /* Menggunakan tiga titik jika teks terlalu panjang */
 }
 
-/* Hover effect for input button */
-.input-button:hover {
+/* Warna spesifik untuk masing-masing tombol */
+.a-grade {
+    background: linear-gradient(145deg, #4CAF50, #43a047);
+}
+.a-grade:hover {
     background: linear-gradient(145deg, #43a047, #388e3c);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Active effect for input button */
+.rework {
+    background: linear-gradient(145deg, #2196F3, #1E88E5);
+}
+.rework:hover {
+    background: linear-gradient(145deg, #1E88E5, #1976D2);
+}
+
+.b-grade {
+    background: linear-gradient(145deg, #FFC107, #FFA000);
+}
+.b-grade:hover {
+    background: linear-gradient(145deg, #FFA000, #FF8F00);
+}
+
+.c-grade {
+    background: linear-gradient(145deg, #F44336, #D32F2F);
+}
+.c-grade:hover {
+    background: linear-gradient(145deg, #D32F2F, #B71C1C);
+}
+
+/* Efek saat tombol ditekan */
 .input-button:active {
     transform: scale(0.96);
 }
@@ -358,6 +380,7 @@ h1:hover {
         width: 100%; /* Lebar item full width di layar mobile */
     }
 }
+
 
 
 
