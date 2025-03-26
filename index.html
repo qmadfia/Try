@@ -68,34 +68,43 @@
                 <button class="save-button">SIMPAN</button>
             </div>
         </div>
-        
-        <!-- FTT Section -->
-        <div class="section">
-            <label for="ftt">FTT (First Time Through):</label>
-            <div id="fttOutput" class="counter">0%</div>
-        </div>
+<!-- FTT & Qty Inspect Section -->
+<div class="ftt-container" style="display: flex; align-items: center;">
+    <!-- FTT Section -->
+    <div class="section" style="margin-right: 20px;">
+        <label for="ftt">FTT (First Time Through):</label>
+        <div id="fttOutput" class="counter">0%</div>
+    </div>
+
+    <!-- Qty Inspect Section -->
+    <div class="section">
+        <label for="qty-inspect">Qty Inspect:</label>
+        <div id="qtyInspectOutput" class="counter">0</div>
+    </div>
+</div>
         
 <div class="qty-section">
     <div class="qty-item">
-        <button class="input-button" onclick="updateOutput('a-grade')">A-Grade</button>
+        <button class="input-button a-grade" onclick="updateOutput('a-grade')">A-Grade</button>
         <div id="output-a-grade" class="output-box">0</div>
     </div>
     
     <div class="qty-item">
-        <button class="input-button" onclick="updateOutput('rework')">Rework</button>
+        <button class="input-button rework" onclick="updateOutput('rework')">Rework</button>
         <div id="output-rework" class="output-box">0</div>
     </div>
 
     <div class="qty-item">
-        <button class="input-button" onclick="updateOutput('b-grade')">B-Grade</button>
+        <button class="input-button b-grade" onclick="updateOutput('b-grade')">B-Grade</button>
         <div id="output-b-grade" class="output-box">0</div>
     </div>
 
     <div class="qty-item">
-        <button class="input-button" onclick="updateOutput('c-grade')">C-Grade</button>
+        <button class="input-button c-grade" onclick="updateOutput('c-grade')">C-Grade</button>
         <div id="output-c-grade" class="output-box">0</div>
     </div>
 </div>
+
 
 
         <!-- Summary Defect Section -->
