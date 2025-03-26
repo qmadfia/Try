@@ -264,10 +264,10 @@ h1:hover {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     transition: box-shadow 0.3s ease;
     text-align: center;
-    width: 100%;
-    max-width: 1200px; /* Menentukan lebar maksimum agar tidak terlalu lebar */
+    width: 1000px;
+    max-width: 1000px; /* Menentukan lebar maksimum agar tidak terlalu lebar */
+    min-width: 1000px; /* Menentukan lebar minimal tombol */
     margin: 0 auto; /* Membuat bagian ini terpusat */
-    flex-wrap: wrap; /* Agar elemen dapat berbaris di bawah jika terlalu banyak */
 }
 
 /* Hover effect for qty-section */
@@ -288,7 +288,7 @@ h1:hover {
 
 /* Warna berbeda untuk setiap tombol */
 .input-button {
-    width: 100%; /* Tombol akan mengambil lebar penuh dari container */
+    width: 110px; /* Tombol akan mengambil lebar penuh dari container */
     padding: 1rem 0; /* Padding relatif menggunakan rem */
     margin: 0.5rem 0;
     font-size: 1rem; /* Gunakan rem untuk ukuran font */
