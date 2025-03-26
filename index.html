@@ -74,22 +74,29 @@
             <label for="ftt">FTT (First Time Through):</label>
             <div id="fttOutput" class="counter">0%</div>
         </div>
-
-        <!-- Reject Section -->
-<div id="reject-section">
-    <!-- Menu Input (Qty Inspect) -->
-    <div id="input-section">
-        <button class="input-button" id="a-grade">A-Grade</button>
-        <button class="input-button" id="rework">Rework</button>
-        <button class="input-button" id="b-grade">B-Grade</button>
-        <button class="input-button" id="c-grade">C-Grade</button>
+        
+<div class="qty-section">
+    <div class="qty-item">
+        <button class="input-button" onclick="updateOutput('a-grade')">A-Grade</button>
+        <div id="output-a-grade" class="output-box">0</div>
     </div>
     
-    <!-- Output Column -->
-    <div id="output-section">
-        <div id="qtyInspectOutput">0</div> <!-- Menampilkan hasil klik -->
+    <div class="qty-item">
+        <button class="input-button" onclick="updateOutput('rework')">Rework</button>
+        <div id="output-rework" class="output-box">0</div>
+    </div>
+
+    <div class="qty-item">
+        <button class="input-button" onclick="updateOutput('b-grade')">B-Grade</button>
+        <div id="output-b-grade" class="output-box">0</div>
+    </div>
+
+    <div class="qty-item">
+        <button class="input-button" onclick="updateOutput('c-grade')">C-Grade</button>
+        <div id="output-c-grade" class="output-box">0</div>
     </div>
 </div>
+
 
         <!-- Summary Defect Section -->
         <div class="summary-defect">
