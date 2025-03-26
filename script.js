@@ -13,30 +13,45 @@ const qtyInspectOutput = document.getElementById('qtyInspectOutput');
 const leftCounter = document.getElementById('left-counter');
 const rightCounter = document.getElementById('right-counter');
 
-// =============================
-// 2. Event Listener untuk Qty Inspect
-// =============================
-const qtyInspectButton = document.querySelector('.input-button');
-qtyInspectButton.addEventListener('click', () => {
-    // Pilih mode A-Grade
-    updateQuantity('qtyInspectOutput', 1); // Tambah Qty Inspect
-    updateFTT(); // Perbarui FTT
-});
+<!-- Qty Inspect Section -->
+<div id="reject-section">
+    <div class="grade-section">
+        <label>A-Grade</label>
+        <div class="counter" id="aGradeQty">0</div>
+        <button id="aGradeIncrement">Add A-Grade</button>
+        <button id="aGradeDecrement">Remove A-Grade</button>
+    </div>
+    <div class="grade-section">
+        <label>Rework</label>
+        <div class="counter" id="reworkQty">0</div>
+        <button id="reworkIncrement">Add Rework</button>
+        <button id="reworkDecrement">Remove Rework</button>
+    </div>
+    <div class="grade-section">
+        <label>B-Grade</label>
+        <div class="counter" id="bGradeQty">0</div>
+        <button id="bGradeIncrement">Add B-Grade</button>
+        <button id="bGradeDecrement">Remove B-Grade</button>
+    </div>
+    <div class="grade-section">
+        <label>C-Grade</label>
+        <div class="counter" id="cGradeQty">0</div>
+        <button id="cGradeIncrement">Add C-Grade</button>
+        <button id="cGradeDecrement">Remove C-Grade</button>
+    </div>
+</div>
 
-// =============================
-// 3. Event Listener untuk Rework
-// =============================
-const reworkLeftButton = document.getElementById('rework-left');
-reworkLeftButton.addEventListener('click', () => {
-    updateQuantity('left-counter', 1); // Tambah Rework Kiri
-    updateFTT(); // Perbarui FTT
-});
+<!-- Defect Section -->
+<div id="defect-section">
+    <button id="defectLeft">Defect Left</button>
+    <button id="defectRight">Defect Right</button>
+    <div id="defectSummary"></div>
+</div>
 
-const reworkRightButton = document.getElementById('rework-right');
-reworkRightButton.addEventListener('click', () => {
-    updateQuantity('right-counter', 1); // Tambah Rework Kanan
-    updateFTT(); // Perbarui FTT
-});
+<!-- Total Inspect Output -->
+<div id="output-section">
+    <div id="qtyInspectOutput">0</div>
+</div>
 
 // =============================
 // 4. Fungsi untuk Menghitung FTT
