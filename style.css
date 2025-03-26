@@ -184,7 +184,7 @@ h1:hover {
 
 
 /* ============================= */
-/* FTT Section - Styles           */
+/* 5. FTT Section - Styles       */
 /* ============================= */
 .counter {
     font-size: 28px;
@@ -249,28 +249,48 @@ h1:hover {
 
 
 /* ============================= */
-/* 6. Qty Inspect Section        */
+/* 6. Qty Section - Stylish UI   */
 /* ============================= */
-#reject-section {
+.qty-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #f9f9f9, #ffffff);
+    border-radius: 15px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.qty-section:hover {
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+}
+
+/* Setiap item dalam Qty Section */
+.qty-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg, #ffffff, #e6e9ef);
+    border-radius: 12px;
     padding: 15px;
-    border: 2px solid #ccc;
-    border-radius: 10px;
-    background: linear-gradient(145deg, #ffffff, #f7f7f7);
-    margin-bottom: 0;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1), -4px -4px 10px rgba(255, 255, 255, 0.6);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-#reject-section:hover {
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+.qty-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.15), -6px -6px 15px rgba(255, 255, 255, 0.7);
 }
 
+/* Styling tombol input */
 .input-button {
-    padding: 12px 24px;
     font-size: 16px;
     font-weight: bold;
-    background: linear-gradient(145deg, #4CAF50, #43a047);
-    color: white;
+    padding: 12px 20px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -278,38 +298,58 @@ h1:hover {
     letter-spacing: 0.5px;
     transition: background 0.3s ease, transform 0.2s ease;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    color: white;
+    width: 140px;
+    text-align: center;
 }
 
+/* Warna tombol berdasarkan kategori */
+.a-grade {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+}
+
+.rework {
+    background: linear-gradient(135deg, #FF9800, #e68900);
+}
+
+.b-grade {
+    background: linear-gradient(135deg, #FFD700, #e6c200);
+    color: black;
+}
+
+.c-grade {
+    background: linear-gradient(135deg, #FF0000, #cc0000);
+}
+
+/* Hover efek pada tombol */
 .input-button:hover {
-    background: linear-gradient(145deg, #43a047, #388e3c);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    opacity: 0.9;
+    transform: scale(1.05);
 }
 
 .input-button:active {
-    transform: scale(0.96);
+    transform: scale(0.95);
 }
 
-#output-section {
-    padding: 15px;
-    border: 2px solid #ccc;
-    border-radius: 10px;
-    background: linear-gradient(145deg, #ffffff, #f7f7f7);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-#qtyInspectOutput {
-    font-size: 28px;
+/* Kotak output */
+.output-box {
+    font-size: 22px;
     font-weight: bold;
-    color: #333;
     text-align: center;
-    margin: 15px auto;
-    padding: 10px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    background: linear-gradient(145deg, #f9f9f9, #ffffff);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 12px;
+    border-radius: 10px;
+    width: 90px;
+    margin-top: 12px;
+    background: linear-gradient(145deg, #ffffff, #e6e9ef);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1), -4px -4px 10px rgba(255, 255, 255, 0.6);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Hover efek pada output box */
+.output-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.15), -6px -6px 15px rgba(255, 255, 255, 0.7);
+}
 /* ============================= */
 /* 7. Rework Section            */
 /* ============================= */
