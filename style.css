@@ -249,6 +249,71 @@ h1:hover {
 
 
 /* ============================= */
+/* FTT Section - Styles           */
+/* ============================= */
+.counter {
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    padding: 12px;
+    border: 2px solid #4CAF50;
+    border-radius: 8px;
+    width: 120px;
+    margin: 15px auto;
+    background: linear-gradient(145deg, #e8f5e9, #ffffff);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    color: #0000FF; /* Default to light blue */
+}
+
+.section label {
+    font-weight: bold;
+    text-align: center;
+    display: block;
+    margin-bottom: 10px;
+    font-size: 20px;
+    color: #333;
+}
+
+.section {
+    margin-bottom: 0;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #ffffff, #f3f3f3);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.section:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px);
+}
+
+.counter.low-ftt {
+    background-color: #ff0000;
+    border-color: #ff0000;
+    color: #ff0000; /* Red */
+}
+
+.counter.medium-ftt {
+    background-color: #ffbf00;
+    border-color: #ffbf00;
+    color: #ffbf00; /* Yellow */
+}
+
+.counter.high-ftt {
+    background-color: #32cd32;
+    border-color: #32cd32;
+    color: #32cd32; /* Green */
+}
+
+.counter:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+/* ============================= */
 /* 6. Qty Inspect Section        */
 /* ============================= */
 #reject-section {
@@ -265,6 +330,83 @@ h1:hover {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
+.grade-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: linear-gradient(145deg, #f9f9f9, #ffffff);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.grade-section:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px);
+}
+
+.grade-section label {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.grade-section .counter {
+    margin-top: 10px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #f9f9f9, #ffffff);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================= */
+/* Buttons for Defect Left/Right  */
+/* ============================= */
+button {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    background: linear-gradient(145deg, #4CAF50, #43a047);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: background 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin: 10px 0;
+}
+
+button:hover {
+    background: linear-gradient(145deg, #43a047, #388e3c);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+button:active {
+    transform: scale(0.96);
+}
+
+/* ============================= */
+/* Qty Inspect Section (Final Total) */
+/* ============================= */
+#input-section {
+    padding: 15px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    background: linear-gradient(145deg, #ffffff, #f7f7f7);
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
 .input-button {
     padding: 12px 24px;
     font-size: 16px;
@@ -278,6 +420,7 @@ h1:hover {
     letter-spacing: 0.5px;
     transition: background 0.3s ease, transform 0.2s ease;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
 }
 
 .input-button:hover {
@@ -308,76 +451,6 @@ h1:hover {
     border-radius: 8px;
     background: linear-gradient(145deg, #f9f9f9, #ffffff);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-/* ============================= */
-/* 7. Rework Section            */
-/* ============================= */
-.rework-section {
-     grid-column: 2 / 3;
-    grid-row: 3 / 3;
-    display: flex;
-    gap: 20px;
-    justify-content: space-between;
-    padding: 20px;
-    background: linear-gradient(135deg, #f9f9f9, #ffffff);
-    border-radius: 15px;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
-}
-
-.rework-section:hover {
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-    transform: translateY(-5px);
-}
-
-.rework-left, .rework-right {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(145deg, #ffffff, #e6e9ef);
-    border-radius: 12px;
-    padding: 15px;
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1), -4px -4px 10px rgba(255, 255, 255, 0.6);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.rework-left:hover, .rework-right:hover {
-    transform: translateY(-5px);
-    box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.15), -6px -6px 15px rgba(255, 255, 255, 0.7);
-}
-
-.rework-left p, .rework-right p {
-    font-size: 1.8rem;
-    font-weight: bold;
-    margin: 10px 0;
-    color: #333;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.rework-left button, .rework-right button {
-    background: linear-gradient(135deg, #4CAF50, #45a049);
-    color: white;
-    font-size: 16px;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: background 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.rework-left button:hover, .rework-right button:hover {
-    background: linear-gradient(135deg, #45a049, #388e3c);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.rework-left button:active, .rework-right button:active {
-    transform: scale(0.95);
 }
 
 /* ============================= */
