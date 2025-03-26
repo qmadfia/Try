@@ -465,6 +465,9 @@ h1:hover {
     z-index: 1000; /* Ensure buttons are above other elements */
 }
 
+.dashboard, .defect-menu {
+    overflow: visible;
+
 .control-button {
     width: 60px;
     height: 60px;
