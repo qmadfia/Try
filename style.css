@@ -265,8 +265,6 @@ h1:hover {
     transition: box-shadow 0.3s ease;
     text-align: center;
     width: 1000px;
-    max-width: 1000px; /* Menentukan lebar maksimum agar tidak terlalu lebar */
-    min-width: 1000px; /* Menentukan lebar minimal tombol */
     margin: 0 auto; /* Membuat bagian ini terpusat */
 }
 
