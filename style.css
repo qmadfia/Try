@@ -456,9 +456,12 @@ h1:hover {
 /* 10. Plus and Minus Buttons   */
 /* ============================= */
 .buttons {
-    grid-column: 1 / 2;
-    text-align: center;
-    margin-top: 25px;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .control-button {
