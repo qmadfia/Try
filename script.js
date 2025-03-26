@@ -141,9 +141,9 @@ function setupDefectButtons() {
 function handleDefectClick(defectName) {
     if (defectCounts.hasOwnProperty(defectName)) {
         if (isAdding) {
-            defectCounts[defectName]++;  // Menambah defect jika tombol Plus aktif
+            defectCounts[defectName]++;  // Menambah defect hanya 1 kali
         } else if (isSubtracting) {
-            defectCounts[defectName]--;  // Mengurangi defect jika tombol Minus aktif
+            defectCounts[defectName] = Math.max(0, defectCounts[defectName] - 1);  // Mengurangi defect hanya 1 kali
         }
 
         // Update nilai defect pada tampilan
@@ -155,6 +155,7 @@ function handleDefectClick(defectName) {
     // Update summary defect
     updateDefectSummary();
 }
+
 
 // Update the defect summary
 function updateDefectSummary() {
@@ -200,28 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
         minusButton.classList.remove('inactive');
         plusButton.classList.remove('active');
         plusButton.classList.add('inactive');
-    });
-
-    // Enhanced click event for defect buttons to work with plus/minus mode
-    const defectButtons = document.querySelectorAll('.defect-button');
-    defectButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const defectName = button.textContent.trim();
-            
-            // Handle defect click based on current mode
-            if (isAdding) {
-                defectCounts[defectName]++;
-            } else if (isSubtracting) {
-                defectCounts[defectName] = Math.max(0, defectCounts[defectName] - 1);
-            }
-
-            // Provide visual feedback
-            button.classList.add('active');
-            setTimeout(() => button.classList.remove('active'), 200);
-
-            // Update defect summary
-            updateDefectSummary();
-        });
     });
 
     // Make sure the initial state is correctly set
