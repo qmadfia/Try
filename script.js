@@ -1,4 +1,3 @@
-
 // =============================
 // 1. Variabel Global
 // =============================
@@ -19,6 +18,7 @@ const rightCounter = document.getElementById('right-counter');
 // =============================
 const qtyInspectButton = document.querySelector('.input-button');
 qtyInspectButton.addEventListener('click', () => {
+    // Pilih mode A-Grade
     updateQuantity('qtyInspectOutput', 1); // Tambah Qty Inspect
     updateFTT(); // Perbarui FTT
 });
@@ -97,7 +97,7 @@ function updateQuantity(counterId, change) {
 // 6. Fungsi untuk menangani klik tombol defect
 // =============================
 const defectCounts = {
-"OVER CEMENT": 0,
+    "OVER CEMENT": 0,
     "STAIN UPPER": 0,
     "STAIN OUTSOLE": 0,
     "THREAD END": 0,
@@ -155,7 +155,6 @@ function handleDefectClick(defectName) {
     // Update summary defect
     updateDefectSummary();
 }
-
 
 // Update the defect summary
 function updateDefectSummary() {
@@ -245,7 +244,7 @@ function setupQuantityButtons() {
     document.getElementById('plus-rework-kanan').addEventListener('click', function() {
         updateQuantity('right-counter', 1);
     });
-            document.getElementById('minus-rework-kanan').addEventListener('click', function() {
+    document.getElementById('minus-rework-kanan').addEventListener('click', function() {
         updateQuantity('right-counter', -1);
     });
 }
