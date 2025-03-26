@@ -184,8 +184,55 @@ h1:hover {
 
 
 /* ============================= */
-/* 5. FTT Section - Styles       */
+/* 5. FTT Section - Reworked     */
 /* ============================= */
+.ftt-container {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    padding: 20px;
+    background: linear-gradient(135deg, #f9f9f9, #ffffff);
+    border-radius: 15px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.ftt-container:hover {
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
+}
+
+/* FTT & Qty Inspect Box */
+.ftt-box, .qty-inspect-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg, #ffffff, #e6e9ef);
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1), -4px -4px 10px rgba(255, 255, 255, 0.6);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ftt-box:hover, .qty-inspect-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.15), -6px -6px 15px rgba(255, 255, 255, 0.7);
+}
+
+/* Label FTT & Qty Inspect */
+.ftt-box label, .qty-inspect-box label {
+    font-weight: bold;
+    text-align: center;
+    display: block;
+    margin-bottom: 10px;
+    font-size: 60px;
+    color: #333;
+    
+}
+
+/* Output Box (FTT & Qty Inspect) */
 .counter {
     font-size: 28px;
     font-weight: bold;
@@ -194,57 +241,36 @@ h1:hover {
     border: 2px solid #4CAF50;
     border-radius: 8px;
     width: 120px;
-    margin: 15px auto;
+    margin: 10px 0;
     background: linear-gradient(145deg, #e8f5e9, #ffffff);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    color: #0000FF; /* Default to light blue */
+    color: #0000FF; /* Tetap warna neon */
 }
 
-.section label {
-    font-weight: bold;
-  text-align: center;
-    display: block;
-    margin-bottom: 10px;
-    font-size:20px;
-    color: #333;
-}
-.section {
-    margin-bottom: 0;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background: linear-gradient(145deg, #ffffff, #f3f3f3);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* Hover efek untuk Output */
+.counter:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
 }
 
-.section:hover {
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    transform: translateY(-3px);
-}
-
+/* Variasi warna sesuai kategori FTT */
 .counter.low-ftt {
     background-color: #ff0000;
     border-color: #ff0000;
-    color: #ff0000; /* Red */
+    color: #ff0000; /* Merah */
 }
 
 .counter.medium-ftt {
     background-color: #ffbf00;
     border-color: #ffbf00;
-    color: #ffbf00; /* Yellow */
+    color: #ffbf00; /* Kuning */
 }
 
 .counter.high-ftt {
     background-color: #32cd32;
     border-color: #32cd32;
-    color: #32cd32; /* Green */
-}
-
-.counter:hover {
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
+    color: #32cd32; /* Hijau */
 }
 
 
@@ -274,11 +300,10 @@ h1:hover {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(145deg, #ffffff, #e6e9ef);
     border-radius: 12px;
     padding: 15px;
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1), -4px -4px 10px rgba(255, 255, 255, 0.6);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+
 }
 
 .qty-item:hover {
@@ -336,20 +361,22 @@ h1:hover {
     font-size: 22px;
     font-weight: bold;
     text-align: center;
-    padding: 12px;
+    padding: 12px 20px;
     border-radius: 10px;
     width: 90px;
     margin-top: 12px;
     background: linear-gradient(145deg, #ffffff, #e6e9ef);
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1), -4px -4px 10px rgba(255, 255, 255, 0.6);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* Hover efek pada output box */
 .output-box:hover {
     transform: translateY(-2px);
-    box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.15), -6px -6px 15px rgba(255, 255, 255, 0.7);
+
 }
+
+
+
 /* ============================= */
 /* 7. Rework Section            */
 /* ============================= */
