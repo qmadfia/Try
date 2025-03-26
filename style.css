@@ -610,13 +610,6 @@ h1:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.control-button.inactive {
-    background: linear-gradient(145deg, #B0BEC5, #90A4AE); /* Gray gradient */
-    cursor: not-allowed;
-    opacity: 0.6; /* Additional visual indication of inactivity */
-    pointer-events: none; /* Prevent interactions when inactive */
-}
-
 /* Responsive Design */
 @media (max-width: 600px) {
     .buttons {
