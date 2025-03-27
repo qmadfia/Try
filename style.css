@@ -275,19 +275,19 @@ h1:hover {
 .counter.low-ftt {
     background-color: #ff0000;
     border-color: #ff0000;
-    color: white;
+    color: #ff0000; /* Merah */
 }
 
 .counter.medium-ftt {
     background-color: #ffbf00;
     border-color: #ffbf00;
-    color: black;
+    color: #ffbf00; /* Kuning */
 }
 
 .counter.high-ftt {
     background-color: #32cd32;
     border-color: #32cd32;
-    color: white;
+    color: #32cd32; /* Hijau */
 }
 
 /* Responsive: Agar tetap rapi di HP */
