@@ -281,7 +281,7 @@ h1:hover {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 15px;
-    grid-auto-flow: dense;
+    grid-auto-flow: row;
     justify-content: center;
     padding: 20px;
     background: linear-gradient(70deg, #f9f9f9, #ffffff);
@@ -290,12 +290,26 @@ h1:hover {
     transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
+/* Efek hover pada qty-section */
 .qty-section:hover {
     box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
     transform: translateY(-3px);
 }
 
-/* Setiap item dalam Qty Section */
+/* Jika layar kecil (HP mode portrait), batasi jadi 2 kolom */
+@media (max-width: 600px) {
+    .qty-section {
+        grid-template-columns: repeat(2, 1fr); /* 2 item per baris */
+    }
+}
+
+/* Jika layar sangat kecil (<400px), buat 1 item per baris */
+@media (max-width: 400px) {
+    .qty-section {
+        grid-template-columns: repeat(1, 1fr); /* 1 item per baris */
+    }
+}
+
 .qty-item {
     display: flex;
     flex-direction: column;
@@ -303,16 +317,17 @@ h1:hover {
     justify-content: center;
     border-radius: 12px;
     padding: 15px;
-
-
+    background: linear-gradient(145deg, #ffffff, #e6e9ef);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1), -4px -4px 10px rgba(255, 255, 255, 0.6);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Efek hover qty-item */
 .qty-item:hover {
     transform: translateY(-5px);
     box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.15), -6px -6px 15px rgba(255, 255, 255, 0.7);
 }
 
-/* Styling tombol input */
 .input-button {
     font-size: 16px;
     font-weight: bold;
@@ -347,7 +362,7 @@ h1:hover {
     background: linear-gradient(135deg, #FF0000, #cc0000);
 }
 
-/* Hover efek pada tombol */
+/* Efek hover pada tombol */
 .input-button:hover {
     opacity: 0.9;
     transform: scale(1.05);
@@ -357,7 +372,6 @@ h1:hover {
     transform: scale(0.95);
 }
 
-/* Kotak output */
 .output-box {
     font-size: 22px;
     font-weight: bold;
@@ -370,10 +384,9 @@ h1:hover {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Hover efek pada output box */
+/* Efek hover pada output box */
 .output-box:hover {
     transform: translateY(-2px);
-
 }
 
 
