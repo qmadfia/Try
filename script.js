@@ -478,3 +478,52 @@ function updateTotalQtyInspect() {
 
 // Tambahkan reset total qty inspect ke dalam fungsi reset
 // (Fungsi ini sudah dihandle di resetQtyInspectOutputs)
+
+// =============================
+// 16. Logika Kontrol Tombol Berdasarkan Grade
+// =============================
+
+// Fungsi untuk mengaktifkan atau menonaktifkan tombol berdasarkan kategori
+function toggleButtonState(state) {
+    const reworkButtons = document.querySelectorAll('.rework-button');
+    const defectButtons = document.querySelectorAll('.defect-button');
+    
+    reworkButtons.forEach(button => {
+        button.disabled = state; // Menonaktifkan tombol rework
+        button.classList.toggle('inactive', state); // Menambahkan kelas 'inactive'
+    });
+
+    defectButtons.forEach(button => {
+        button.disabled = state; // Menonaktifkan tombol defect
+        button.classList.toggle('inactive', state); // Menambahkan kelas 'inactive'
+    });
+}
+
+// Fungsi untuk mengelola status tombol berdasarkan kategori yang dipilih
+function handleGradeSelection(gradeCategory) {
+    const gradeButtons = document.querySelectorAll('.input-button');
+
+    gradeButtons.forEach(button => {
+        button.classList.remove('active');
+    });
+
+    const selectedButton = document.querySelector(`.${gradeCategory}`);
+    selectedButton.classList.add('active'); // Menandai tombol yang dipilih
+
+    // Nonaktifkan tombol rework dan defect untuk A-Grade, aktifkan untuk kategori lain
+    if (gradeCategory === 'a-grade') {
+        // Nonaktifkan rework dan defect untuk A-Grade
+        toggleButtonState(true);  
+    } else {
+        // Aktifkan rework dan defect untuk kategori lainnya (Rework, B-Grade, C-Grade)
+        toggleButtonState(false); 
+    }
+}
+
+// Setup event listener untuk memilih grade
+document.querySelectorAll('.input-button').forEach(button => {
+    button.addEventListener('click', (event) => {
+        const gradeCategory = event.target.classList[1]; // Mengambil kelas kategori (a-grade, r-grade, b-grade, c-grade)
+        handleGradeSelection(gradeCategory); // Proses pemilihan grade
+    });
+});
