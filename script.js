@@ -450,3 +450,44 @@ function extendedResetAllFields() {
 
 // Override fungsi resetAllFields dengan versi yang diperluas
 resetAllFields = extendedResetAllFields;
+
+// =============================
+// 15. Akumulasi Qty Inspect dari Semua Grade
+// =============================
+
+// Fungsi untuk menghitung total qty inspect
+function updateTotalQtyInspect() {
+    let total = qtyInspectOutputs['a-grade'] + 
+                qtyInspectOutputs['r-grade'] + 
+                qtyInspectOutputs['b-grade'] + 
+                qtyInspectOutputs['c-grade'];
+
+    // Update tampilan output total qty inspect
+    document.getElementById('qtyInspectOutput').textContent = total;
+}
+
+// Modifikasi fungsi updateOutput agar otomatis memperbarui total qty inspect
+function updateOutput(category) {
+    if (isAdding) {
+        qtyInspectOutputs[category]++;
+    } else if (isSubtracting) {
+        qtyInspectOutputs[category] = Math.max(0, qtyInspectOutputs[category] - 1);
+    }
+
+    // Update tampilan per kategori
+    outputElements[category].textContent = qtyInspectOutputs[category];
+
+    // Perbarui total qty inspect setelah setiap perubahan
+    updateTotalQtyInspect();
+}
+
+// Tambahkan reset total qty inspect ke dalam fungsi reset
+function resetQtyInspectOutputs() {
+    for (const category in qtyInspectOutputs) {
+        qtyInspectOutputs[category] = 0;
+        outputElements[category].textContent = '0';
+    }
+
+    // Reset total qty inspect
+    document.getElementById('qtyInspectOutput').textContent = '0';
+}
