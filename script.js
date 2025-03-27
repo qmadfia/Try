@@ -16,12 +16,15 @@ const rightCounter = document.getElementById('right-counter');
 // =============================
 // 2. Event Listener untuk Qty Inspect
 // =============================
-const qtyInspectButton = document.querySelector('.input-button');
-qtyInspectButton.addEventListener('click', () => {
-    // Pilih mode A-Grade
-    updateQuantity('qtyInspectOutput', 1); // Tambah Qty Inspect
-    updateFTT(); // Perbarui FTT
-});
+const qtyInspectButton = document.getElementById('main-qty-inspect');
+if (qtyInspectButton) {
+    qtyInspectButton.addEventListener('click', () => {
+        // Pilih mode A-Grade
+        updateQuantity('qtyInspectOutput', 1); // Tambah Qty Inspect
+        updateFTT(); // Perbarui FTT
+    });
+}
+
 
 // =============================
 // 3. Event Listener untuk Rework
@@ -415,15 +418,16 @@ const qtyInspectOutputs = {
 // Fungsi untuk mengupdate output qty inspect
 function updateOutput(category) {
     if (isAdding) {
-        // Tambah 1 jika mode penambahan aktif
         qtyInspectOutputs[category]++;
     } else if (isSubtracting) {
-        // Kurangi 1 dengan batas minimum 0
         qtyInspectOutputs[category] = Math.max(0, qtyInspectOutputs[category] - 1);
     }
 
-    // Update tampilan output
+    // Update tampilan per kategori
     outputElements[category].textContent = qtyInspectOutputs[category];
+
+    // Perbarui total qty inspect setelah setiap perubahan
+    updateTotalQtyInspect();
 }
 
 // Setup event listener untuk setiap tombol qty inspect
@@ -440,6 +444,9 @@ function resetQtyInspectOutputs() {
         qtyInspectOutputs[category] = 0;
         outputElements[category].textContent = '0';
     }
+
+    // Reset total qty inspect
+    document.getElementById('qtyInspectOutput').textContent = '0';
 }
 
 // Tambahkan pemanggilan reset ke fungsi resetAllFields
@@ -457,9 +464,9 @@ resetAllFields = extendedResetAllFields;
 
 // Fungsi untuk menghitung total qty inspect
 function updateTotalQtyInspect() {
-    let total = qtyInspectOutputs['a-grade'] + 
-                qtyInspectOutputs['r-grade'] + 
-                qtyInspectOutputs['b-grade'] + 
+    let total = qtyInspectOutputs['a-grade'] +
+                qtyInspectOutputs['r-grade'] +
+                qtyInspectOutputs['b-grade'] +
                 qtyInspectOutputs['c-grade'];
 
     // Update tampilan output total qty inspect
@@ -467,27 +474,7 @@ function updateTotalQtyInspect() {
 }
 
 // Modifikasi fungsi updateOutput agar otomatis memperbarui total qty inspect
-function updateOutput(category) {
-    if (isAdding) {
-        qtyInspectOutputs[category]++;
-    } else if (isSubtracting) {
-        qtyInspectOutputs[category] = Math.max(0, qtyInspectOutputs[category] - 1);
-    }
-
-    // Update tampilan per kategori
-    outputElements[category].textContent = qtyInspectOutputs[category];
-
-    // Perbarui total qty inspect setelah setiap perubahan
-    updateTotalQtyInspect();
-}
+// (Fungsi ini sudah benar)
 
 // Tambahkan reset total qty inspect ke dalam fungsi reset
-function resetQtyInspectOutputs() {
-    for (const category in qtyInspectOutputs) {
-        qtyInspectOutputs[category] = 0;
-        outputElements[category].textContent = '0';
-    }
-
-    // Reset total qty inspect
-    document.getElementById('qtyInspectOutput').textContent = '0';
-}
+// (Fungsi ini sudah dihandle di resetQtyInspectOutputs)
