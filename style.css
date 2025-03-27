@@ -731,3 +731,33 @@ h1:hover {
         font-size: 30px;
     }
 }
+
+/* ============================= */
+/* 11. Gaya untuk Elemen yang Dinonaktifkan (Disabled) */
+/* ============================= */
+
+/* Gaya untuk tombol defect yang dinonaktifkan */
+.defect-button:disabled,
+.defect-button.disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background: linear-gradient(135deg, #a0bde3, #90a4ae); /* Warna lebih redup */
+    box-shadow: none;
+}
+
+/* Gaya untuk tombol rework yang dinonaktifkan */
+#rework-left:disabled,
+#rework-right:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background: linear-gradient(135deg, #c8e6c9, #b2dfdb); /* Warna lebih redup */
+    box-shadow: none;
+}
+
+/* Gaya untuk tombol grade saat tidak aktif (opsional) */
+.qty-item .input-button.inactive {
+    opacity: 0.7;
+    cursor: default;
+    background: linear-gradient(135deg, #e0e0e0, #d0d0d0);
+    color: #888;
+}
