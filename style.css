@@ -284,6 +284,7 @@ h1:hover {
     grid-auto-flow: row;
     justify-content: center;
     padding: 20px;
+    margin-right: 10px;
     background: linear-gradient(70deg, #f9f9f9, #ffffff);
     border-radius: 15px;
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
@@ -317,9 +318,6 @@ h1:hover {
     justify-content: center;
     border-radius: 12px;
     padding: 15px;
-    gap: 15px;
-    background: linear-gradient(145deg, #ffffff, #e6e9ef);
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1), -4px -4px 10px rgba(255, 255, 255, 0.6);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -389,8 +387,6 @@ h1:hover {
 .output-box:hover {
     transform: translateY(-2px);
 }
-
-
 
 /* ============================= */
 /* 7. Rework Section            */
