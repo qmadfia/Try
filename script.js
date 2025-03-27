@@ -393,3 +393,60 @@ function validateDefects() {
 
     return true;
 }
+
+// =============================
+// 14. Qty Inspect Section Management
+// =============================
+const outputElements = {
+    'a-grade': document.getElementById('output-a-grade'),
+    'r-grade': document.getElementById('output-r-grade'),
+    'b-grade': document.getElementById('output-b-grade'),
+    'c-grade': document.getElementById('output-c-grade')
+};
+
+const qtyInspectButtons = document.querySelectorAll('.qty-item .input-button');
+const qtyInspectOutputs = {
+    'a-grade': 0,
+    'r-grade': 0,
+    'b-grade': 0,
+    'c-grade': 0
+};
+
+// Fungsi untuk mengupdate output qty inspect
+function updateOutput(category) {
+    if (isAdding) {
+        // Tambah 1 jika mode penambahan aktif
+        qtyInspectOutputs[category]++;
+    } else if (isSubtracting) {
+        // Kurangi 1 dengan batas minimum 0
+        qtyInspectOutputs[category] = Math.max(0, qtyInspectOutputs[category] - 1);
+    }
+
+    // Update tampilan output
+    outputElements[category].textContent = qtyInspectOutputs[category];
+}
+
+// Setup event listener untuk setiap tombol qty inspect
+qtyInspectButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const category = button.classList[1].replace('-grade', '');
+        updateOutput(category);
+    });
+});
+
+// Tambahkan fungsi untuk reset qty inspect outputs saat reset
+function resetQtyInspectOutputs() {
+    for (const category in qtyInspectOutputs) {
+        qtyInspectOutputs[category] = 0;
+        outputElements[category].textContent = '0';
+    }
+}
+
+// Tambahkan pemanggilan reset ke fungsi resetAllFields
+function extendedResetAllFields() {
+    resetAllFields(); // Panggil fungsi asli
+    resetQtyInspectOutputs(); // Tambahkan reset untuk qty inspect outputs
+}
+
+// Override fungsi resetAllFields dengan versi yang diperluas
+resetAllFields = extendedResetAllFields;
