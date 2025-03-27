@@ -181,15 +181,13 @@ h1:hover {
     }
 }
 
-
-
 /* ============================= */
 /* 5. FTT Section - Reworked     */
 /* ============================= */
 .ftt-container {
     display: flex;
     gap: 20px;
-    justify-content: space-between;
+    justify-content: center;
     padding: 20px;
     background: linear-gradient(135deg, #f9f9f9, #ffffff);
     border-radius: 15px;
@@ -199,11 +197,11 @@ h1:hover {
 
 .ftt-container:hover {
     box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-    transform: translateY(-5px);
+    transform: translateY(-3px);
 }
 
 /* FTT & Qty Inspect Box */
-.ftt-box, .qty-inspect-box {
+.section {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -211,25 +209,27 @@ h1:hover {
     justify-content: center;
     background: linear-gradient(145deg, #ffffff, #e6e9ef);
     border-radius: 12px;
-    padding: 15px;
+    padding: 20px;
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1), -4px -4px 10px rgba(255, 255, 255, 0.6);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    min-width: 150px; /* Menjaga agar tidak terlalu kecil */
 }
 
-.ftt-box:hover, .qty-inspect-box:hover {
+.section:hover {
     transform: translateY(-5px);
     box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.15), -6px -6px 15px rgba(255, 255, 255, 0.7);
 }
 
 /* Label FTT & Qty Inspect */
-.ftt-box label, .qty-inspect-box label {
+.section label {
+    font-size: 16px;
     font-weight: bold;
-    text-align: center;
-    display: block;
-    margin-bottom: 10px;
-    font-size: 60px;
-    color: #333;
-    
+    color: #555;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 /* Output Box (FTT & Qty Inspect) */
@@ -238,14 +238,13 @@ h1:hover {
     font-weight: bold;
     text-align: center;
     padding: 12px;
-    border: 2px solid #4CAF50;
     border-radius: 8px;
     width: 120px;
-    margin: 10px 0;
+    margin-top: 6px;
     background: linear-gradient(145deg, #e8f5e9, #ffffff);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    color: #0000FF; /* Tetap warna neon */
+    color: #0000FF;
 }
 
 /* Hover efek untuk Output */
@@ -258,21 +257,34 @@ h1:hover {
 .counter.low-ftt {
     background-color: #ff0000;
     border-color: #ff0000;
-    color: #ff0000; /* Merah */
+    color: white;
 }
 
 .counter.medium-ftt {
     background-color: #ffbf00;
     border-color: #ffbf00;
-    color: #ffbf00; /* Kuning */
+    color: black;
 }
 
 .counter.high-ftt {
     background-color: #32cd32;
     border-color: #32cd32;
-    color: #32cd32; /* Hijau */
+    color: white;
 }
 
+/* Responsive: Agar tetap rapi di HP */
+@media (max-width: 600px) {
+    .ftt-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .section {
+        width: 100%;
+        max-width: 250px;
+    }
+}
 
 /* ============================= */
 /* 6. Qty Section - Stylish UI   */
