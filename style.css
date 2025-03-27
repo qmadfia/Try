@@ -279,11 +279,11 @@ h1:hover {
 /* ============================= */
 .qty-section {
     display: flex;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 2px;
+    justify-content: space-between; 
+    gap: 15px;
     justify-content: center;
     padding: 20px;
-    background: linear-gradient(135deg, #f9f9f9, #ffffff);
+    background: linear-gradient(70deg, #f9f9f9, #ffffff);
     border-radius: 15px;
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
     transition: box-shadow 0.3s ease, transform 0.3s ease;
