@@ -13,17 +13,6 @@ const qtyInspectOutput = document.getElementById('qtyInspectOutput');
 const leftCounter = document.getElementById('left-counter');
 const rightCounter = document.getElementById('right-counter');
 
-// =============================
-// 2. Event Listener untuk Qty Inspect
-// =============================
-const qtyInspectButton = document.getElementById('main-qty-inspect');
-if (qtyInspectButton) {
-    qtyInspectButton.addEventListener('click', () => {
-        // Pilih mode A-Grade
-        updateQuantity('qtyInspectOutput', 1); // Tambah Qty Inspect
-        updateFTT(); // Perbarui FTT
-    });
-}
 
 
 // =============================
@@ -32,13 +21,13 @@ if (qtyInspectButton) {
 const reworkLeftButton = document.getElementById('rework-left');
 reworkLeftButton.addEventListener('click', () => {
     updateQuantity('left-counter', 1); // Tambah Rework Kiri
-    updateFTT(); // Perbarui FTT
+    // updateFTT(); // Hapus pemanggilan updateFTT()
 });
 
 const reworkRightButton = document.getElementById('rework-right');
 reworkRightButton.addEventListener('click', () => {
     updateQuantity('right-counter', 1); // Tambah Rework Kanan
-    updateFTT(); // Perbarui FTT
+    // updateFTT(); // Hapus pemanggilan updateFTT()
 });
 
 // =============================
@@ -50,8 +39,18 @@ function updateFTT() {
         fttOutput.className = 'counter'; // Set default class (light blue)
         return;
     }
-    const averageRework = (totalReworkLeft + totalReworkRight) / 2;
-    const fttValue = ((totalInspected - averageRework) / totalInspected) * 100;
+
+    // Ambil nilai total R-Grade, B-Grade, dan C-Grade dari output elemen
+    const totalRGradeElement = document.getElementById('output-r-grade');
+    const totalBGradeElement = document.getElementById('output-b-grade');
+    const totalCGradeElement = document.getElementById('output-c-grade');
+    const totalRGrade = parseInt(totalRGradeElement ? totalRGradeElement.textContent : '0', 10);
+    const totalBGrade = parseInt(totalBGradeElement ? totalBGradeElement.textContent : '0', 10);
+    const totalCGrade = parseInt(totalCGradeElement ? totalCGradeElement.textContent : '0', 10);
+
+    // New FTT formula: (qty inspect - (r-grade) - (b-grade) - (c-grade)) / qty inspect
+    const fttValue = ((totalInspected - totalRGrade - totalBGrade - totalCGrade) / totalInspected) * 100;
+
     fttOutput.textContent = `${Math.max(0, fttValue.toFixed(2))}%`; // Nilai FTT tidak boleh negatif
 
     // Update color based on FTT value
@@ -63,7 +62,6 @@ function updateFTT() {
         fttOutput.className = 'counter low-ftt'; // Red
     }
 }
-
 // =============================
 // 5. Fungsi untuk Mengupdate Kuantitas
 // =============================
@@ -428,6 +426,11 @@ function updateOutput(category) {
 
     // Perbarui total qty inspect setelah setiap perubahan
     updateTotalQtyInspect();
+
+    // Panggil updateFTT() jika ada perubahan pada R-Grade, B-Grade, atau C-Grade
+    if (category === 'r-grade' || category === 'b-grade' || category === 'c-grade') {
+        updateFTT();
+    }
 }
 
 // Setup event listener untuk setiap tombol qty inspect
@@ -447,6 +450,36 @@ function resetQtyInspectOutputs() {
 
     // Reset total qty inspect
     document.getElementById('qtyInspectOutput').textContent = '0';
+    updateFTT(); // Pastikan FTT direset ke 0% saat semua qty direset
+}
+
+// Tambahkan pemanggilan reset ke fungsi resetAllFields
+function extendedResetAllFields() {
+    resetAllFields(); // Panggil fungsi asli
+    resetQtyInspectOutputs(); // Tambahkan reset untuk qty inspect outputs
+}
+
+// Override fungsi resetAllFields dengan versi yang diperluas
+resetAllFields = extendedResetAllFields;
+
+// Setup event listener untuk setiap tombol qty inspect
+qtyInspectButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const category = button.classList[1].replace('-grade', '');
+        updateOutput(category);
+    });
+});
+
+// Tambahkan fungsi untuk reset qty inspect outputs saat reset
+function resetQtyInspectOutputs() {
+    for (const category in qtyInspectOutputs) {
+        qtyInspectOutputs[category] = 0;
+        outputElements[category].textContent = '0';
+    }
+
+    // Reset total qty inspect
+    document.getElementById('qtyInspectOutput').textContent = '0';
+    updateFTT(); // Pastikan FTT direset ke 0% saat semua qty direset
 }
 
 // Tambahkan pemanggilan reset ke fungsi resetAllFields
@@ -471,6 +504,12 @@ function updateTotalQtyInspect() {
 
     // Update tampilan output total qty inspect
     document.getElementById('qtyInspectOutput').textContent = total;
+
+    // Perbarui variabel global totalInspected
+    totalInspected = total;
+
+    // Panggil updateFTT() setiap kali total qty inspect berubah
+    updateFTT();
 }
 
 // Modifikasi fungsi updateOutput agar otomatis memperbarui total qty inspect
