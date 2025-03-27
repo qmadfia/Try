@@ -280,7 +280,7 @@ h1:hover {
 .qty-section {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Menyesuaikan ukuran otomatis */
-    gap: 5px;
+    gap: 9px;
     justify-content: center;
     padding: 20px;
     background: linear-gradient(70deg, #f9f9f9, #ffffff);
