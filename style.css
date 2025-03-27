@@ -222,7 +222,7 @@ h1:hover {
 /* Responsive Mode */
 @media (max-width: 600px) {
     .ftt-container {
-        grid-template-columns: repeat(2, 1fr); /* 2 item per baris */
+        grid-template-columns: repeat(1, 1fr); /* 2 item per baris */
     }
 
     .section {
