@@ -278,9 +278,9 @@ h1:hover {
 /* 6. Qty Section - Stylish UI   */
 /* ============================= */
 .qty-section {
-    display: flex;
-    justify-content: space-between; 
-    gap: 15px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Menyesuaikan ukuran otomatis */
+    gap: 1px;
     justify-content: center;
     padding: 20px;
     background: linear-gradient(70deg, #f9f9f9, #ffffff);
