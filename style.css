@@ -279,7 +279,7 @@ h1:hover {
 /* ============================= */
 .qty-section {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Menyesuaikan ukuran otomatis */
+    grid-template-columns: repeat(2, 1fr); /* Menyesuaikan ukuran otomatis */
     gap: 9px;
     justify-content: center;
     padding: 20px;
