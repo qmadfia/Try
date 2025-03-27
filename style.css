@@ -1,4 +1,5 @@
 
+
 /* ============================= */
 /* 1. Global Styles              */
 /* ============================= */
@@ -181,11 +182,14 @@ h1:hover {
     }
 }
 
+
+
 /* ============================= */
 /* 5. FTT Section - Reworked     */
 /* ============================= */
 .ftt-container {
     display: flex;
+    flex-wrap: wrap; /* Agar tidak berdempetan saat layar kecil */
     gap: 20px;
     justify-content: center;
     padding: 20px;
@@ -213,6 +217,20 @@ h1:hover {
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1), -4px -4px 10px rgba(255, 255, 255, 0.6);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     min-width: 150px; /* Menjaga agar tidak terlalu kecil */
+}
+
+/* Responsive Mode */
+@media (max-width: 600px) {
+    .ftt-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px; /* Tambah jarak agar tidak berdempetan */
+    }
+
+    .section {
+        width: 100%;
+        max-width: 250px; /* Batasi agar tidak terlalu lebar */
+    }
 }
 
 .section:hover {
@@ -285,6 +303,8 @@ h1:hover {
         max-width: 250px;
     }
 }
+
+
 
 /* ============================= */
 /* 6. Qty Section - Stylish UI   */
@@ -578,9 +598,6 @@ h1:hover {
 }
 
 
-/* ============================= */
-/* 10. Enhanced Plus and Minus Buttons   */
-/* ============================= */
 /* ============================= */
 /* 10. Enhanced Plus and Minus Buttons   */
 /* ============================= */
