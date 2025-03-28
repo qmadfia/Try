@@ -189,8 +189,8 @@ h1:hover {
 /* ============================= */
 .ftt-container {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Selalu 2 kolom */
-    gap: 10px;
+    grid-template-columns: repeat(2, 1fr); /* Selalu 2 kolom */
+    gap: 20px;
     justify-content: center;
     align-items: center;
     padding: 20px;
@@ -201,7 +201,7 @@ h1:hover {
 }
 
 .ftt-container:hover {
-    box-shadow: 0 7px 25px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
     transform: translateY(-3px);
 }
 
@@ -214,8 +214,6 @@ h1:hover {
     background: linear-gradient(145deg, #ffffff, #e6e9ef);
     border-radius: 12px;
     padding: 20px;
-    margin: 10px;
-    width: 70px;
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1), -4px -4px 10px rgba(255, 255, 255, 0.6);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     min-width: 130px; /* Agar tetap muat di layar kecil */
@@ -242,10 +240,10 @@ h1:hover {
 
 /* Label FTT & Qty Inspect */
 .section label {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: bold;
     color: #555;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     text-transform: uppercase;
     display: flex;
     align-items: center;
@@ -254,12 +252,12 @@ h1:hover {
 
 /* Output Box (FTT & Qty Inspect) */
 .counter {
-    font-size: 25px;
+    font-size: 28px;
     font-weight: bold;
     text-align: center;
     padding: 12px;
     border-radius: 8px;
-    width: 90px;
+    width: 120px;
     margin-top: 6px;
     background: linear-gradient(145deg, #e8f5e9, #ffffff);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
