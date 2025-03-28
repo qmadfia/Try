@@ -272,6 +272,14 @@ h1:hover {
     transform: translateY(-2px);
 }
 
+/* Responsive: Agar tetap rapi di HP */
+@media (max-width: 600px) {
+    .ftt-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
 .ftt-container {
     display: grid;
     grid-template-areas:
@@ -318,13 +326,7 @@ h1:hover {
     color: #32cd32; /* Hijau */
 }
 
-/* Responsive: Agar tetap rapi di HP */
-@media (max-width: 600px) {
-    .ftt-container {
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-    }
+
 
     .section {
         width: 100%;
