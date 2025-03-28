@@ -218,6 +218,19 @@ h1:hover {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     min-width: 130px; /* Agar tetap muat di layar kecil */
 }
+
+/* Responsive Mode */
+@media (max-width: 600px) {
+    .ftt-container {
+        grid-template-columns: repeat(3, 1fr); /* Tetap 2 kolom di layar kecil */
+        gap: 10px; /* Tambahkan sedikit jarak agar lebih nyaman */
+    }
+
+    .section {
+        min-width: 100px; /* Sesuaikan ukuran agar tetap muat */
+    }
+}
+
 /* Hover Efek */
 .section:hover {
     transform: translateY(-5px);
@@ -290,18 +303,6 @@ h1:hover {
         max-width: 250px;
     }
 }
-/* Responsive Mode */
-@media (max-width: 600px) {
-    .ftt-container {
-        grid-template-columns: repeat(3, 1fr); /* Tetap 2 kolom di layar kecil */
-        gap: 10px; /* Tambahkan sedikit jarak agar lebih nyaman */
-    }
-
-    .section {
-        min-width: 100px; /* Sesuaikan ukuran agar tetap muat */
-    }
-}
-
 
 
 /* ============================= */
