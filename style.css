@@ -1,3 +1,5 @@
+
+
 /* ============================= */
 /* 1. Global Styles              */
 /* ============================= */
@@ -15,43 +17,43 @@ body {
 .header {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    padding: 15px 30px;
-    background: linear-gradient(to right, #2196F3, #4CAF50);
-    border-bottom: 4px solid #ffffff;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease-in-out;
+    justify-content: flex-start; /* Mengubah agar logo dan teks berada di kiri */
+    padding: 15px 30px; /* Mengurangi padding untuk kompak */
+    background: linear-gradient(to right, #2196F3, #4CAF50); /* Gradient background */
+    border-bottom: 4px solid #ffffff; /* Menambah garis bawah header */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Menambah shadow lebih tegas */
+    transition: all 0.3s ease-in-out; /* Efek transisi saat hover */
 }
 
 .header:hover {
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Efek hover untuk shadow */
+    transform: translateY(-5px); /* Efek header sedikit terangkat */
 }
 
 .logo {
-    max-width: 60px;
+    max-width: 60px; /* Memperbesar logo */
     height: auto;
-    margin-right: 20px;
-    transition: transform 0.3s ease;
+    margin-right: 20px; /* Memberikan jarak lebih pada logo */
+    transition: transform 0.3s ease; /* Efek saat logo dihover */
 }
 
 .logo:hover {
-    transform: rotate(360deg);
+    transform: rotate(360deg); /* Efek rotasi pada logo saat hover */
 }
 
 h1 {
-    font-family: 'Poppins', sans-serif;
-    font-size: 2.5em;
+    font-family: 'Poppins', sans-serif; /* Font modern dan elegan */
+    font-size: 2.5em; /* Membesarkan ukuran teks */
     color: #ffffff;
     margin: 0;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-    letter-spacing: 2px;
-    transition: color 0.3s ease, transform 0.3s ease;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Memberikan efek bayangan pada teks */
+    letter-spacing: 2px; /* Memberikan jarak antar huruf */
+    transition: color 0.3s ease, transform 0.3s ease; /* Efek transisi saat hover */
 }
 
 h1:hover {
-    color: #FFEB3B;
-    transform: scale(1.1);
+    color: #FFEB3B; /* Mengubah warna saat hover */
+    transform: scale(1.1); /* Efek pembesaran teks saat hover */
 }
 
 /* ============================= */
@@ -60,7 +62,7 @@ h1:hover {
 .dashboard {
     display: grid;
     grid-template-columns: 1fr 2fr;
-    grid-template-rows: auto auto auto auto auto; /* Tambahkan auto rows */
+    grid-template-rows: auto auto; /* Flexible row height */
     gap: 15px;
     padding: 20px;
     box-sizing: border-box;
@@ -71,7 +73,7 @@ h1:hover {
 /* ============================= */
 .form-section {
     grid-column: 1 / 2;
-    grid-row: 1 / 2; /* Adjust grid row */
+    grid-row: 1 / 4;
     background: linear-gradient(145deg, #ffffff, #f1f1f1);
     border-radius: 12px;
     box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
@@ -179,12 +181,15 @@ h1:hover {
         letter-spacing: 0.3px;
     }
 }
+
+
+
 /* ============================= */
 /* 5. FTT Section - Reworked     */
 /* ============================= */
 .ftt-container {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr); /* Selalu 2 kolom */
     gap: 20px;
     justify-content: center;
     align-items: center;
@@ -211,18 +216,18 @@ h1:hover {
     padding: 20px;
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1), -4px -4px 10px rgba(255, 255, 255, 0.6);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    min-width: 130px;
+    min-width: 130px; /* Agar tetap muat di layar kecil */
 }
 
 /* Responsive Mode */
 @media (max-width: 600px) {
     .ftt-container {
-        grid-template-columns: 1fr; /* Satu kolom untuk layar kecil */
-        gap: 10px;
+        grid-template-columns: repeat(2, 1fr); /* Tetap 2 kolom di layar kecil */
+        gap: 10px; /* Tambahkan sedikit jarak agar lebih nyaman */
     }
 
     .section {
-        min-width: 100px;
+        min-width: 100px; /* Sesuaikan ukuran agar tetap muat */
     }
 }
 
@@ -231,6 +236,7 @@ h1:hover {
     transform: translateY(-5px);
     box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.15), -6px -6px 15px rgba(255, 255, 255, 0.7);
 }
+
 
 /* Label FTT & Qty Inspect */
 .section label {
@@ -269,19 +275,19 @@ h1:hover {
 .counter.low-ftt {
     background-color: #ff0000;
     border-color: #ff0000;
-    color: #ff0000;
+    color: #ff0000; /* Merah */
 }
 
 .counter.medium-ftt {
     background-color: #ffbf00;
     border-color: #ffbf00;
-    color: #ffbf00;
+    color: #ffbf00; /* Kuning */
 }
 
 .counter.high-ftt {
     background-color: #32cd32;
     border-color: #32cd32;
-    color: #32cd32;
+    color: #32cd32; /* Hijau */
 }
 
 /* Responsive: Agar tetap rapi di HP */
@@ -297,6 +303,9 @@ h1:hover {
         max-width: 250px;
     }
 }
+
+
+
 /* ============================= */
 /* 6. Qty Section - Stylish UI   */
 /* ============================= */
@@ -323,14 +332,14 @@ h1:hover {
 /* Jika layar kecil (HP mode portrait), batasi jadi 2 kolom */
 @media (max-width: 600px) {
     .qty-section {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, 1fr); /* 2 item per baris */
     }
 }
 
 /* Jika layar sangat kecil (<400px), buat 1 item per baris */
 @media (max-width: 400px) {
     .qty-section {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(1, 1fr); /* 1 item per baris */
     }
 }
 
@@ -410,12 +419,13 @@ h1:hover {
 .output-box:hover {
     transform: translateY(-2px);
 }
+
 /* ============================= */
 /* 7. Rework Section            */
 /* ============================= */
 .rework-section {
-    grid-column: 2 / 3;
-    grid-row: 3 / 4; /* Adjust grid row */
+     grid-column: 2 / 3;
+    grid-row: 3 / 3;
     display: flex;
     gap: 20px;
     justify-content: space-between;
@@ -431,8 +441,7 @@ h1:hover {
     transform: translateY(-5px);
 }
 
-.rework-left,
-.rework-right {
+.rework-left, .rework-right {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -445,14 +454,12 @@ h1:hover {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.rework-left:hover,
-.rework-right:hover {
+.rework-left:hover, .rework-right:hover {
     transform: translateY(-5px);
     box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.15), -6px -6px 15px rgba(255, 255, 255, 0.7);
 }
 
-.rework-left p,
-.rework-right p {
+.rework-left p, .rework-right p {
     font-size: 1.8rem;
     font-weight: bold;
     margin: 10px 0;
@@ -460,8 +467,7 @@ h1:hover {
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.rework-left button,
-.rework-right button {
+.rework-left button, .rework-right button {
     background: linear-gradient(135deg, #4CAF50, #45a049);
     color: white;
     font-size: 16px;
@@ -475,30 +481,29 @@ h1:hover {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.rework-left button:hover,
-.rework-right button:hover {
+.rework-left button:hover, .rework-right button:hover {
     background: linear-gradient(135deg, #45a049, #388e3c);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-.rework-left button:active,
-.rework-right button:active {
+.rework-left button:active, .rework-right button:active {
     transform: scale(0.95);
 }
+
 /* ============================= */
 /* 8. Defect Menu Section       */
 /* ============================= */
 .defect-menu {
     grid-column: 2 / 3;
-    grid-row: 4 / 5; /* Adjust grid row */
+    grid-row: 4 / 5;
     margin-top: 0;
     background: linear-gradient(145deg, #ffffff, #f3f3f3);
     border-radius: 15px;
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
     padding: 20px;
     transition: box-shadow 0.3s ease, transform 0.3s ease;
-    font-size: 20px;
-    text-align: center;
+  font-size: 20px;
+  text-align: center;
 }
 
 .defect-menu:hover {
@@ -526,14 +531,14 @@ h1:hover {
     text-align: center;
     transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    
+    min-width: 120px; /* Menentukan lebar minimal tombol */
+    min-height: 50px; /* Menentukan tinggi minimal tombol */
+    width: auto; /* Memungkinkan tombol menyesuaikan lebar, tetapi tidak lebih kecil dari min-width */
 
-    min-width: 120px;
-    min-height: 50px;
-    width: auto;
-
-    overflow: hidden;
-    white-space: normal;
-    word-wrap: break-word;
+    overflow: hidden; /* Menyembunyikan teks yang keluar dari batas tombol */
+    white-space: normal; /* Membiarkan teks membungkus ke baris berikutnya */
+    word-wrap: break-word; /* Membiarkan teks panjang membungkus ke baris berikutnya */
 }
 
 .defect-button:hover {
@@ -546,21 +551,21 @@ h1:hover {
     transform: scale(0.95);
 }
 
+
 /* ============================= */
 /* 9. Summary Defect Section    */
 /* ============================= */
 .summary-defect {
     grid-column: 1 / 2;
-    grid-row: 2 / 3; /* Adjust grid row */
     margin-top: 0;
     background: linear-gradient(145deg, #ffffff, #f7f7f7);
     border-radius: 15px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     padding: 25px;
-    height: auto; /* Adjust height as needed */
-    overflow-y: auto;
+    height: 400px; /* Adjust height as needed */
+    overflow-y: auto; /* Add scroll if content exceeds max height */
     transition: box-shadow 0.3s ease, transform 0.3s ease;
-    text-align: center;
+  text-align: center;
 }
 
 .summary-defect:hover {
@@ -591,6 +596,8 @@ h1:hover {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     transform: translateY(-3px);
 }
+
+
 /* ============================= */
 /* 10. Enhanced Plus and Minus Buttons   */
 /* ============================= */
@@ -598,13 +605,14 @@ h1:hover {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    z-index: 9999;
+    z-index: 9999; /* Highest possible z-index to ensure visibility */
     display: flex;
     flex-direction: column;
     gap: 15px;
     pointer-events: auto;
 }
 
+/* Ensure buttons are always on top of other elements */
 .defect-menu,
 .rework-section,
 #reject-section,
@@ -622,13 +630,13 @@ h1:hover {
     font-size: 36px;
     color: #fff;
     border: none;
-    border-radius: 50%;
+    border-radius: 50%; /* Circular buttons */
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
     position: relative;
     overflow: hidden;
-    z-index: 9999;
+    z-index: 9999; /* Ensure buttons are always on top */
 }
 
 .control-button .button-icon {
@@ -636,6 +644,7 @@ h1:hover {
     z-index: 1;
 }
 
+/* Plus Button Styles */
 #plus-button {
     background: linear-gradient(145deg, #4CAF50, #45a049);
 }
@@ -647,7 +656,7 @@ h1:hover {
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3) 0%, transparent 50%);
+    background: radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 50%);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -666,6 +675,7 @@ h1:hover {
     cursor: not-allowed;
 }
 
+/* Minus Button Styles */
 #minus-button {
     background: linear-gradient(145deg, #F44336, #D32F2F);
 }
@@ -677,7 +687,7 @@ h1:hover {
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3) 0%, transparent 50%);
+    background: radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 50%);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -696,6 +706,7 @@ h1:hover {
     cursor: not-allowed;
 }
 
+/* Hover and Active States */
 .control-button:hover {
     transform: scale(1.05);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
@@ -713,73 +724,40 @@ h1:hover {
         right: 10px;
         gap: 10px;
     }
-
+    
     .control-button {
         width: 50px;
         height: 50px;
         font-size: 30px;
     }
-
-    .dashboard {
-        grid-template-columns: 1fr; /* Satu kolom di HP portrait */
-        grid-template-rows: auto auto auto auto auto auto auto auto auto; /* Auto rows */
-    }
-
-    .form-section {
-        grid-column: 1 / 2;
-        grid-row: 1 / 2; /* Adjust position */
-    }
-
-    .ftt-container {
-        grid-column: 1 / 2;
-        grid-row: 2 / 3; /* Adjust position */
-    }
-
-    .qty-section {
-        grid-column: 1 / 2;
-        grid-row: 3 / 4; /* Adjust position */
-    }
-
-    .rework-section {
-        grid-column: 1 / 2;
-        grid-row: 4 / 5; /* Adjust position */
-    }
-
-    .defect-menu {
-        grid-column: 1 / 2;
-        grid-row: 5 / 6; /* Adjust position */
-    }
-
-    .summary-defect {
-        grid-column: 1 / 2;
-        grid-row: 6 / 7; /* Adjust position */
-    }
-
-    /* Adjust other sections if needed */
 }
+
 /* ============================= */
 /* 11. Gaya untuk Elemen yang Dinonaktifkan (Disabled) */
 /* ============================= */
+
+/* Gaya untuk tombol defect yang dinonaktifkan */
 .defect-button:disabled,
 .defect-button.disabled {
     opacity: 0.7;
     cursor: not-allowed;
-    background: linear-gradient(135deg, #a0bde3, #90a4ae);
+    background: linear-gradient(135deg, #a0bde3, #90a4ae); /* Warna lebih redup */
     box-shadow: none;
 }
 
+/* Gaya untuk tombol rework yang dinonaktifkan */
 #rework-left:disabled,
 #rework-right:disabled {
     opacity: 0.7;
     cursor: not-allowed;
-    background: linear-gradient(135deg, #c8e6c9, #b2dfdb);
+    background: linear-gradient(135deg, #c8e6c9, #b2dfdb); /* Warna lebih redup */
     box-shadow: none;
 }
 
+/* Gaya untuk tombol grade saat tidak aktif (opsional) */
 .qty-item .input-button.inactive {
     opacity: 0.7;
     cursor: default;
     background: linear-gradient(135deg, #e0e0e0, #d0d0d0);
     color: #888;
 }
-
