@@ -328,34 +328,39 @@ document.querySelector(".save-button").addEventListener("click", async () => {
 // 11. Reset Data Setelah Simpan
 // =============================
 function resetAllFields() {
-  // Reset input form fields
-  document.getElementById("auditor").value = "";
-  document.getElementById("ncvs").value = "";
-  document.getElementById("model-name").value = "";
-  document.getElementById("style-number").value = "";
+    // Reset input form fields
+    document.getElementById("auditor").value = "";
+    document.getElementById("ncvs").value = "";
+    document.getElementById("model-name").value = "";
+    document.getElementById("style-number").value = "";
 
-  // Reset counters and output sections
-  document.getElementById("qtyInspectOutput").textContent = "0";
-  document.getElementById("left-counter").textContent = "0";
-  document.getElementById("right-counter").textContent = "0";
-  document.getElementById("fttOutput").textContent = "0%";
+    // Reset counters and output sections
+    document.getElementById("qtyInspectOutput").textContent = "0";
+    document.getElementById("left-counter").textContent = "0";
+    document.getElementById("right-counter").textContent = "0";
+    document.getElementById("fttOutput").textContent = "0%";
+    document.getElementById("redoRateOutput").textContent = "0.00%"; // Reset redo rate
 
-  // Reset defect summary
-  const summaryList = document.getElementById("summary-list");
-  summaryList.innerHTML = ""; // Clear the summary section
+    // Reset defect summary
+    const summaryList = document.getElementById("summary-list");
+    summaryList.innerHTML = ""; // Clear the summary section
 
-  // Reset defect counts
-  for (const defect in defectCounts) {
-    defectCounts[defect] = 0; // Reset defect counters
-  }
+    // Reset defect counts
+    for (const defect in defectCounts) {
+        defectCounts[defect] = 0; // Reset defect counters
+    }
 
-  // Reset global counters
-  totalInspected = 0;
-  totalReworkLeft = 0;
-  totalReworkRight = 0;
+    // Reset global counters
+    totalInspected = 0;
+    totalReworkLeft = 0;
+    totalReworkRight = 0;
 
-  console.log("All fields have been reset.");
+    // Reset qty inspect outputs
+    resetQtyInspectOutputs();
+
+    console.log("All fields have been reset.");
 }
+
 
 // =============================
 // 12. Validasi Input sebelum SIMPAN
