@@ -205,21 +205,6 @@ h1:hover {
     transform: translateY(-3px);
 }
 
-
-/* Jika layar kecil (HP mode portrait), batasi jadi 2 kolom */
-@media (max-width: 600px) {
-    .ftt-container {
-        grid-template-columns: repeat(3, 1fr); /* 2 item per baris */
-    }
-}
-
-/* Jika layar sangat kecil (<400px), buat 1 item per baris */
-@media (max-width: 400px) {
-    .ftt-container {
-        grid-template-columns: repeat(3, 1fr); /* 1 item per baris */
-    }
-}
-
 /* FTT & Qty Inspect Box */
 .section {
     display: flex;
@@ -237,7 +222,7 @@ h1:hover {
 /* Responsive Mode */
 @media (max-width: 600px) {
     .ftt-container {
-        grid-template-columns: repeat(2, 1fr); /* Tetap 2 kolom di layar kecil */
+        grid-template-columns: repeat(3, 1fr); /* Tetap 2 kolom di layar kecil */
         gap: 10px; /* Tambahkan sedikit jarak agar lebih nyaman */
     }
 
@@ -312,15 +297,12 @@ h1:hover {
         align-items: center;
         gap: 15px;
     }
-    
-    
 
     .section {
         width: 100%;
         max-width: 250px;
     }
 }
-
 
 
 /* ============================= */
