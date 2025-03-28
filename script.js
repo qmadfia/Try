@@ -21,13 +21,13 @@ const rightCounter = document.getElementById('right-counter');
 const reworkLeftButton = document.getElementById('rework-left');
 reworkLeftButton.addEventListener('click', () => {
     updateQuantity('left-counter', 1); // Tambah Rework Kiri
-    // updateFTT(); // Hapus pemanggilan updateFTT()
+    updateRedoRate(); // Perbarui Redo Rate
 });
 
 const reworkRightButton = document.getElementById('rework-right');
 reworkRightButton.addEventListener('click', () => {
     updateQuantity('right-counter', 1); // Tambah Rework Kanan
-    // updateFTT(); // Hapus pemanggilan updateFTT()
+    updateRedoRate(); // Perbarui Redo Rate
 });
 
 // =============================
@@ -510,13 +510,8 @@ function updateTotalQtyInspect() {
 
     // Panggil updateFTT() setiap kali total qty inspect berubah
     updateFTT();
+    updateRedoRate(); // Perbarui Redo Rate
 }
-
-// Modifikasi fungsi updateOutput agar otomatis memperbarui total qty inspect
-// (Fungsi ini sudah benar)
-
-// Tambahkan reset total qty inspect ke dalam fungsi reset
-// (Fungsi ini sudah dihandle di resetQtyInspectOutputs)
 
 // =============================
 // 16. Logika Kontrol Tombol Berdasarkan Grade
@@ -566,3 +561,16 @@ document.querySelectorAll('.input-button').forEach(button => {
         handleGradeSelection(gradeCategory); // Proses pemilihan grade
     });
 });
+
+// =============================
+// 17. Redo Rate
+// =============================
+
+// Fungsi untuk menghitung dan menampilkan Redo Rate
+function updateRedoRate() {
+    const redoRateOutput = document.getElementById('redoRateOutput');
+    const totalRework = (totalReworkLeft + totalReworkRight) / 2;
+    const redoRateValue = totalInspected !== 0 ? (totalRework / totalInspected) * 100 : 0;
+
+    redoRateOutput.textContent = `${redoRateValue.toFixed(2)}%`;
+}
