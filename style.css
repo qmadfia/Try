@@ -272,33 +272,6 @@ h1:hover {
     transform: translateY(-2px);
 }
 
-.ftt-container {
-    display: grid;
-    grid-template-areas:
-        "ftt redo qty"; /* Mendefinisikan area grid */
-    grid-template-columns: 1.5fr 1fr 1fr; /* Memberikan lebih banyak lebar pada FTT */
-    gap: 20px;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    background: linear-gradient(135deg, #f9f9f9, #ffffff);
-    border-radius: 15px;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
-}
-
-.ftt-container .section:nth-child(1) {
-    grid-area: ftt;
-}
-
-.ftt-container .section:nth-child(2) {
-    grid-area: redo;
-}
-
-.ftt-container .section:nth-child(3) {
-    grid-area: qty;
-}
-
 /* Variasi warna sesuai kategori FTT */
 .counter.low-ftt {
     background-color: #ff0000;
