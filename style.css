@@ -189,7 +189,7 @@ h1:hover {
 /* ============================= */
 .ftt-container {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Selalu 2 kolom */
+    grid-template-columns: repeat(2, 1fr); /* Selalu 2 kolom */
     gap: 20px;
     justify-content: center;
     align-items: center;
@@ -222,7 +222,7 @@ h1:hover {
 /* Responsive Mode */
 @media (max-width: 600px) {
     .ftt-container {
-        grid-template-columns: repeat(3, 1fr); /* Tetap 2 kolom di layar kecil */
+        grid-template-columns: repeat(2, 1fr); /* Tetap 2 kolom di layar kecil */
         gap: 10px; /* Tambahkan sedikit jarak agar lebih nyaman */
     }
 
@@ -303,6 +303,7 @@ h1:hover {
         max-width: 250px;
     }
 }
+
 
 
 /* ============================= */
