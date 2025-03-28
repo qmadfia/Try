@@ -222,7 +222,7 @@ h1:hover {
 /* Responsive Mode */
 @media (max-width: 600px) {
     .ftt-container {
-        grid-template-columns: repeat(2, 1fr); /* Tetap 2 kolom di layar kecil */
+        grid-template-columns: repeat(3, 1fr); /* Tetap 2 kolom di layar kecil */
         gap: 10px; /* Tambahkan sedikit jarak agar lebih nyaman */
     }
 
