@@ -589,7 +589,8 @@ const announcements = [
     { date: "2024-10-27", text: "Fitur baru telah ditambahkan." },
     { date: "2024-10-28", text: "Maintenance darurat pada server." },
     { date: "2024-10-29", text: "Test Pop Up." },
-    { date: "2024-04-09", text: "Sebagai bagian dari upaya berkelanjutan untuk meningkatkan kualitas dan efektivitas sistem, telah dilakukan kegiatan pemeliharaan (maintenance) pada QM System yang mencakup penambahan fitur baru berupa pengumuman. Fitur ini dirancang untuk mempermudah penyampaian informasi secara langsung dari tim pengelola QM System kepada para auditor, khususnya terkait dengan pembaruan sistem, perbaikan aplikasi, maupun informasi penting lainnya yang berkaitan dengan operasional dan penggunaan aplikasi secara keseluruhan." }
+    { date: "2024-04-09", text: "Sebagai bagian dari upaya berkelanjutan untuk meningkatkan kualitas dan efektivitas sistem, telah dilakukan kegiatan pemeliharaan (maintenance) pada QM System yang mencakup penambahan fitur baru berupa pengumuman. Fitur ini dirancang untuk mempermudah penyampaian informasi secara langsung dari tim pengelola QM System kepada para auditor, khususnya terkait dengan pembaruan sistem, perbaikan aplikasi, maupun informasi penting lainnya yang berkaitan dengan operasional dan penggunaan aplikasi secara keseluruhan." },
+    { date: "2024-10-01", text: "Test" }
 ];
 
 let currentAnnouncementIndex = 0;
