@@ -590,7 +590,8 @@ const announcements = [
     { date: "2024-10-27", text: "info c" },
     { date: "2024-10-28", text: "info d" },
      { date: "2024-11-01", text: "info e" },
-     { date: "2024-11-02", text: "info f" }
+     { date: "2024-11-02", text: "info f" },
+    { date: "2024-11-04", text: "info g" }
 ];
 
 let currentAnnouncementIndex = 0;
