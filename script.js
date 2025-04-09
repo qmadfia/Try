@@ -255,8 +255,17 @@ function setupQuantityButtons() {
 // =============================
 document.querySelector(".save-button").addEventListener("click", async () => {
   // Panggil fungsi validasi sebelum melanjutkan
-  if (!validateInputs() || !validateDefects()) {
-    return; // Jika validasi gagal, hentikan proses
+  if (!validateInputs()) {
+    return; // Jika validasi input gagal, hentikan proses
+  }
+  
+  if (!validateDefects()) {
+    return; // Jika validasi defect gagal, hentikan proses
+  }
+  
+  // Tambahkan validasi Qty Sample Set
+  if (!validateQtySampleSet()) {
+    return; // Jika validasi qty sample set gagal, hentikan proses
   }
 
   // Hitung total defect dari summary defect
@@ -649,3 +658,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+// ... JavaScript sebelumnya ...
+
+// =============================
+// 19. Qty Sample Set Logic
+// =============================
+const qtySampleSetInput = document.getElementById('qty-sample-set');
+let qtySampleSetValue = parseInt(localStorage.getItem('qtySampleSet')) || 0; // Ambil dari localStorage atau default 0
+
+// Set nilai awal qty sample set dari localStorage
+qtySampleSetInput.value = qtySampleSetValue;
+
+// Update qtySampleSetValue saat input berubah
+qtySampleSetInput.addEventListener('change', () => {
+    qtySampleSetValue = parseInt(qtySampleSetInput.value) || 0;
+    localStorage.setItem('qtySampleSet', qtySampleSetValue); // Simpan ke localStorage
+});
+
+// Fungsi untuk validasi qty inspect terhadap qty sample set
+function validateQtySampleSet() {
+    const totalQtyInspect = qtyInspectOutputs['a-grade'] + qtyInspectOutputs['r-grade'] + qtyInspectOutputs['b-grade'] + qtyInspectOutputs['c-grade'];
+
+    if (totalQtyInspect !== qtySampleSetValue) {
+        alert(`Jumlah total Qty Inspect (${totalQtyInspect}) harus sama dengan Qty Sample Set (${qtySampleSetValue}).`);
+        return false;
+    }
+
+    return true;
+}
