@@ -763,13 +763,13 @@ h1:hover {
 /* 12. Announcement Styles */
 /* ============================= */
 .announcement-button {
-    background: none; /* Menghapus background tombol */
+    background: none;
     border: none;
     cursor: pointer;
     position: absolute;
     top: 25px;
     right: 30px;
-    padding: 0; /* Menghapus padding tombol */
+    padding: 0;
     transition: color 0.3s ease, transform 0.2s ease;
 }
 
@@ -796,11 +796,18 @@ h1:hover {
     transform: translate(-50%, -50%);
     width: 80%;
     max-width: 600px;
-    background: white;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-    border-radius: 15px; /* Radius border yang lebih besar */
-    padding: 30px; /* Tambahkan padding agar konten lebih lega */
+    background: linear-gradient(135deg, #2979FF, #D50000); /* Gradasi biru dan merah */
+    background-blend-mode: multiply; /* Efek memudar */
+    box-shadow: 0 10px 25px rgba(213, 0, 0, 0.3); /* Shadow dengan warna senada */
+    border-radius: 20px;
+    padding: 30px;
     z-index: 10000;
+    animation: popupFadeIn 0.5s ease-in-out;
+}
+
+@keyframes popupFadeIn {
+    from { opacity: 0; transform: translate(-50%, -60%); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
 }
 
 .announcement-content {
@@ -809,52 +816,54 @@ h1:hover {
 
 .close-button {
     position: absolute;
-    top: 5px;
-    right: 10px;
-    font-size: 20px;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
     cursor: pointer;
+    color: white; /* Warna teks putih agar kontras */
 }
 
 .announcement-date {
-    display: flex; /* Menggunakan flexbox */
-    align-items: center; /* Vertikal center */
-    justify-content: space-between; /* Mengatur jarak antara tombol dan tanggal */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     font-weight: bold;
     font-size: 1.2em;
-    margin-bottom: 15px;
-    color: #333;
-    padding: 10px 15px; /* Tambahkan padding horizontal */
-    background-color: #f0f0f0;
-    border-radius: 8px;
+    margin-bottom: 20px;
+    color: white; /* Warna teks putih agar kontras */
+    padding: 15px 20px;
+    background-color: rgba(255, 255, 255, 0.2); /* Latar belakang semi-transparan */
+    border-radius: 10px;
 }
 
 #date-text {
-    flex-grow: 1; /* Memungkinkan tanggal mengisi ruang yang tersisa */
-    text-align: center; /* Pusatkan teks tanggal */
+    flex-grow: 1;
+    text-align: center;
 }
 
 .announcement-nav {
-    background: #e0e0e0;
+    background: white;
     border: none;
-    padding: 8px 12px;
+    padding: 10px 15px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 1.2em;
     font-weight: bold;
+    color: #333; /* Warna teks hitam agar kontras */
     transition: background 0.3s ease;
 }
 
 .announcement-nav:hover {
-    background: #d0d0d0;
+    background: #f0f0f0;
 }
 
 .announcement-text {
-    text-align: justify; /* Rata kanan kiri */
+    text-align: justify;
     font-size: 1em;
-    color: #555;
-    margin-bottom: 20px;
+    color: white; /* Warna teks putih agar kontras */
+    margin-bottom: 25px;
     line-height: 1.6;
-    padding: 15px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.2); /* Latar belakang semi-transparan */
+    border-radius: 10px;
 }
