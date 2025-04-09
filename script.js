@@ -579,3 +579,62 @@ function updateRedoRate() {
 
     redoRateOutput.textContent = `${redoRateValue.toFixed(2)}%`;
 }
+
+// =============================
+// 18. Announcement Logic
+// =============================
+
+const announcements = [
+    { date: "2024-10-26", text: "Perbaikan sistem akan dilakukan pada jam 14.00 WIB." },
+    { date: "2024-10-27", text: "Fitur baru telah ditambahkan." },
+    { date: "2024-10-28", text: "Maintenance darurat pada server." },
+    { date: "2024-10-29", text: "Test Pop Up." },
+    { date: "2024-04-09", text: "Sebagai bagian dari upaya berkelanjutan untuk meningkatkan kualitas dan efektivitas sistem, telah dilakukan kegiatan pemeliharaan (maintenance) pada QM System yang mencakup penambahan fitur baru berupa pengumuman. Fitur ini dirancang untuk mempermudah penyampaian informasi secara langsung dari tim pengelola QM System kepada para auditor, khususnya terkait dengan pembaruan sistem, perbaikan aplikasi, maupun informasi penting lainnya yang berkaitan dengan operasional dan penggunaan aplikasi secara keseluruhan." }
+];
+
+let currentAnnouncementIndex = 0;
+let announcementShown = localStorage.getItem('announcementShown') === 'true';
+
+function showAnnouncement(index) {
+    const popup = document.getElementById('announcement-popup');
+    const dateElement = document.getElementById('date-text'); // Perubahan di sini
+    const textElement = document.getElementById('announcement-text');
+
+    dateElement.textContent = announcements[index].date;
+    textElement.textContent = announcements[index].text;
+    popup.style.display = 'block';
+    localStorage.setItem('announcementShown', 'true');
+}
+
+function closeAnnouncement() {
+    document.getElementById('announcement-popup').style.display = 'none';
+}
+
+function nextAnnouncement() {
+    currentAnnouncementIndex = (currentAnnouncementIndex + 1) % announcements.length;
+    showAnnouncement(currentAnnouncementIndex);
+}
+
+function prevAnnouncement() {
+    currentAnnouncementIndex = (currentAnnouncementIndex - 1 + announcements.length) % announcements.length;
+    showAnnouncement(currentAnnouncementIndex);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const announcementButton = document.getElementById('announcement-button');
+    const closeButton = document.querySelector('.close-button');
+    const prevButton = document.getElementById('prev-announcement');
+    const nextButton = document.getElementById('next-announcement');
+
+    announcementButton.addEventListener('click', () => {
+        showAnnouncement(currentAnnouncementIndex);
+    });
+
+    closeButton.addEventListener('click', closeAnnouncement);
+    prevButton.addEventListener('click', prevAnnouncement);
+    nextButton.addEventListener('click', nextAnnouncement);
+
+    if (!announcementShown && announcements.length > 0) {
+        showAnnouncement(currentAnnouncementIndex);
+    }
+});
