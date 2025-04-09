@@ -1,5 +1,3 @@
-
-
 /* ============================= */
 /* 1. Global Styles              */
 /* ============================= */
@@ -63,8 +61,8 @@ h1:hover {
     display: grid;
     grid-template-columns: 1fr 2fr;
     grid-template-rows: auto auto; /* Flexible row height */
-    gap: 15px;
-    padding: 20px;
+    gap: 10px;
+    padding: 1px;
     box-sizing: border-box;
 }
 
@@ -316,7 +314,6 @@ h1:hover {
     grid-auto-flow: row;
     justify-content: center;
     padding: 20px;
-    margin-right: 10px;
     background: linear-gradient(70deg, #f9f9f9, #ffffff);
     border-radius: 15px;
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
@@ -760,4 +757,104 @@ h1:hover {
     cursor: default;
     background: linear-gradient(135deg, #e0e0e0, #d0d0d0);
     color: #888;
+}
+
+/* ============================= */
+/* 12. Announcement Styles */
+/* ============================= */
+.announcement-button {
+    background: none; /* Menghapus background tombol */
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    top: 25px;
+    right: 30px;
+    padding: 0; /* Menghapus padding tombol */
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.announcement-button:hover {
+    transform: scale(1.1);
+}
+
+.announcement-icon {
+    font-size: 30px;
+    color: #FF9800;
+    transition: transform 0.2s ease;
+}
+
+.announcement-icon:hover {
+    transform: scale(1.2);
+    color: #e68900;
+}
+
+.announcement-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 600px;
+    background: white;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 15px; /* Radius border yang lebih besar */
+    padding: 30px; /* Tambahkan padding agar konten lebih lega */
+    z-index: 10000;
+}
+
+.announcement-content {
+    position: relative;
+}
+
+.close-button {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.announcement-date {
+    display: flex; /* Menggunakan flexbox */
+    align-items: center; /* Vertikal center */
+    justify-content: space-between; /* Mengatur jarak antara tombol dan tanggal */
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    color: #333;
+    padding: 10px 15px; /* Tambahkan padding horizontal */
+    background-color: #f0f0f0;
+    border-radius: 8px;
+}
+
+#date-text {
+    flex-grow: 1; /* Memungkinkan tanggal mengisi ruang yang tersisa */
+    text-align: center; /* Pusatkan teks tanggal */
+}
+
+.announcement-nav {
+    background: #e0e0e0;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+.announcement-nav:hover {
+    background: #d0d0d0;
+}
+
+.announcement-text {
+    text-align: justify; /* Rata kanan kiri */
+    font-size: 1em;
+    color: #555;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
 }
