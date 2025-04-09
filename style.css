@@ -315,7 +315,7 @@ h1:hover {
     gap: 15px;
     grid-auto-flow: row;
     justify-content: center;
-    padding: 20px;
+    padding: 30px;
     background: linear-gradient(70deg, #f9f9f9, #ffffff);
     border-radius: 15px;
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
@@ -428,7 +428,7 @@ h1:hover {
     display: flex;
     gap: 20px;
     justify-content: space-between;
-    padding: 20px;
+    padding: 1px;
     background: linear-gradient(135deg, #f9f9f9, #ffffff);
     border-radius: 15px;
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
@@ -448,7 +448,7 @@ h1:hover {
     justify-content: center;
     background: linear-gradient(145deg, #ffffff, #e6e9ef);
     border-radius: 12px;
-    padding: 15px;
+    padding: 1px;
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1), -4px -4px 10px rgba(255, 255, 255, 0.6);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
