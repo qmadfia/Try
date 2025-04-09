@@ -5,12 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inspection Form</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="header">
         <img src="logo.png.png" alt="Logo" class="logo">
         <h1>eQMS</h1>
+<button id="announcement-button" class="announcement-button">
+    <i class="fas fa-bell announcement-icon"></i>
+</button>
     </div>
+    <div class="dashboard">
+        </div>
+
+   <div id="announcement-popup" class="announcement-popup">
+    <div class="announcement-content">
+        <span class="close-button">&times;</span>
+        <div id="announcement-date" class="announcement-date">
+            <button id="prev-announcement" class="announcement-nav">&lt;</button>
+            <span id="date-text"></span>
+            <button id="next-announcement" class="announcement-nav">&gt;</button>
+        </div>
+        <div id="announcement-text" class="announcement-text"></div>
+    </div>
+</div>
     <div class="dashboard">
         <!-- Form Section (Kiri Bawah) -->
         <div class="form-section">
