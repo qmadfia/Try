@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Make sure the initial state is correctly set
-    plusButton.classList.add('active');
+    plusButton.classList.add('inactive');
     minusButton.classList.add('inactive');
 });
 
