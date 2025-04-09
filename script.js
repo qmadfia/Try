@@ -585,26 +585,31 @@ function updateRedoRate() {
 // =============================
 
 const announcements = [
-    { date: "2024-10-26", text: "Perbaikan sistem akan dilakukan pada jam 14.00 WIB." },
-    { date: "2024-10-27", text: "Fitur baru telah ditambahkan." },
-    { date: "2024-10-28", text: "Maintenance darurat pada server." },
-    { date: "2024-10-29", text: "Test Pop Up." },
-    { date: "2024-04-09", text: "Sebagai bagian dari upaya berkelanjutan untuk meningkatkan kualitas dan efektivitas sistem, telah dilakukan kegiatan pemeliharaan (maintenance) pada QM System yang mencakup penambahan fitur baru berupa pengumuman. Fitur ini dirancang untuk mempermudah penyampaian informasi secara langsung dari tim pengelola QM System kepada para auditor, khususnya terkait dengan pembaruan sistem, perbaikan aplikasi, maupun informasi penting lainnya yang berkaitan dengan operasional dan penggunaan aplikasi secara keseluruhan." },
-    { date: "2024-10-01", text: "Test" }
+    { date: "2024-10-26", text: "info a" },
+    { date: "2024-10-27", text: "info b" },
+    { date: "2024-10-27", text: "info c" },
+    { date: "2024-10-28", text: "info d" },
+     { date: "2024-11-01", text: "info e" },
+     { date: "2024-11-02", text: "info f" }
 ];
 
 let currentAnnouncementIndex = 0;
-let announcementShown = localStorage.getItem('announcementShown') === 'true';
+let viewedAnnouncements = JSON.parse(localStorage.getItem('viewedAnnouncements')) || [];
 
 function showAnnouncement(index) {
     const popup = document.getElementById('announcement-popup');
-    const dateElement = document.getElementById('date-text'); // Perubahan di sini
+    const dateElement = document.getElementById('date-text');
     const textElement = document.getElementById('announcement-text');
 
     dateElement.textContent = announcements[index].date;
     textElement.textContent = announcements[index].text;
     popup.style.display = 'block';
-    localStorage.setItem('announcementShown', 'true');
+
+    // Tambahkan pengumuman ke daftar yang sudah dilihat
+    if (!viewedAnnouncements.includes(announcements[index].date)) {
+        viewedAnnouncements.push(announcements[index].date);
+        localStorage.setItem('viewedAnnouncements', JSON.stringify(viewedAnnouncements));
+    }
 }
 
 function closeAnnouncement() {
@@ -635,7 +640,11 @@ document.addEventListener('DOMContentLoaded', () => {
     prevButton.addEventListener('click', prevAnnouncement);
     nextButton.addEventListener('click', nextAnnouncement);
 
-    if (!announcementShown && announcements.length > 0) {
-        showAnnouncement(currentAnnouncementIndex);
+    // Tampilkan pengumuman baru yang belum dilihat
+    for (let i = 0; i < announcements.length; i++) {
+        if (!viewedAnnouncements.includes(announcements[i].date)) {
+            showAnnouncement(i);
+            return; // Hentikan loop setelah menemukan pengumuman baru
+        }
     }
 });
