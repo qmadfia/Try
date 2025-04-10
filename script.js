@@ -258,11 +258,11 @@ document.querySelector(".save-button").addEventListener("click", async () => {
   if (!validateInputs()) {
     return; // Jika validasi input gagal, hentikan proses
   }
-  
+
   if (!validateDefects()) {
     return; // Jika validasi defect gagal, hentikan proses
   }
-  
+
   // Tambahkan validasi Qty Sample Set
   if (!validateQtySampleSet()) {
     return; // Jika validasi qty sample set gagal, hentikan proses
@@ -272,7 +272,7 @@ document.querySelector(".save-button").addEventListener("click", async () => {
   const totalDefect = Object.values(defectCounts).reduce((acc, count) => acc + count, 0);
 
   // Hitung total rework (kiri + kanan)
-  const totalRework = (totalReworkLeft + totalReworkRight)/2;
+  const totalRework = (totalReworkLeft + totalReworkRight) / 2;
 
   // Cek apakah total defect lebih rendah dari total rework
   if (totalDefect < totalRework) {
@@ -297,6 +297,7 @@ document.querySelector(".save-button").addEventListener("click", async () => {
 
   console.log("Defects array: ", defects);
 
+  // Tambahkan data A-Grade, B-Grade, dan C-Grade ke objek data
   const data = {
     auditor: document.getElementById("auditor").value,
     ncvs: document.getElementById("ncvs").value,
@@ -307,6 +308,9 @@ document.querySelector(".save-button").addEventListener("click", async () => {
     reworkKanan: parseInt(document.getElementById("right-counter").innerText, 10),
     reworkKiri: parseInt(document.getElementById("left-counter").innerText, 10),
     defects,
+    "a-grade": parseInt(document.getElementById("output-a-grade").innerText, 10), // Tambahkan A-Grade
+    "b-grade": parseInt(document.getElementById("output-b-grade").innerText, 10), // Tambahkan B-Grade
+    "c-grade": parseInt(document.getElementById("output-c-grade").innerText, 10), // Tambahkan C-Grade
   };
 
   try {
@@ -314,7 +318,7 @@ document.querySelector(".save-button").addEventListener("click", async () => {
     const saveButton = document.querySelector(".save-button");
     saveButton.disabled = true;
 
-    const response = await fetch("https://script.google.com/macros/s/AKfycbynXvd96pVNY53rEfPjoYAGDhLyF3SBh68GIHKYOtuW5hrTVZPkOFC3AGpQGyRRVd5OVw/exec", {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbxM1QZ_zd-UXDm-t0PWJDpjE5T-8ToD4tYfE-uN6fVZe_RS7tAGsSL6i6mZmOe3gwLK/exec", {
       method: "POST",
       body: JSON.stringify(data),
     });
