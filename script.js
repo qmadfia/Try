@@ -4,6 +4,7 @@
 let totalInspected = 0; // Total barang yang diinspeksi
 let totalReworkLeft = 0; // Total rework kiri
 let totalReworkRight = 0; // Total rework kanan
+let totalReworkPairs = 0; // Total rework pairs
 let isAdding = false; // Flag untuk menandakan mode penambahan
 let isSubtracting = false; // Flag untuk menandakan mode pengurangan
 
@@ -12,7 +13,7 @@ const fttOutput = document.getElementById('fttOutput');
 const qtyInspectOutput = document.getElementById('qtyInspectOutput');
 const leftCounter = document.getElementById('left-counter');
 const rightCounter = document.getElementById('right-counter');
-
+const pairsCounter = document.getElementById('pairs-counter');
 
 
 // =============================
@@ -27,6 +28,11 @@ reworkLeftButton.addEventListener('click', () => {
 const reworkRightButton = document.getElementById('rework-right');
 reworkRightButton.addEventListener('click', () => {
     updateQuantity('right-counter', 1); // Tambah Rework Kanan
+    updateRedoRate(); // Perbarui Redo Rate
+});
+const reworkPairsButton = document.getElementById('rework-pairs');
+reworkPairsButton.addEventListener('click', () => {
+    updateQuantity('pairs-counter', 1); // Tambah Rework Pairs
     updateRedoRate(); // Perbarui Redo Rate
 });
 
@@ -91,6 +97,8 @@ function updateQuantity(counterId, change) {
         totalReworkLeft = currentValue; // Perbarui totalReworkLeft
     } else if (counterId === 'right-counter') {
         totalReworkRight = currentValue; // Perbarui totalReworkRight
+    } else if (counterId === 'pairs-counter') {
+        totalReworkPairs = currentValue; // Perbarui totalReworkPairs
     }
 }
 
@@ -271,14 +279,13 @@ document.querySelector(".save-button").addEventListener("click", async () => {
   // Hitung total defect dari summary defect
   const totalDefect = Object.values(defectCounts).reduce((acc, count) => acc + count, 0);
 
-  // Hitung total rework (kiri + kanan)
-  const totalRework = (totalReworkLeft + totalReworkRight) / 2;
+    const totalRework = ((totalReworkLeft + totalReworkRight) / 2) + totalReworkPairs;
 
-  // Cek apakah total defect lebih rendah dari total rework
-  if (totalDefect < totalRework) {
-    alert("Total defect tidak boleh lebih rendah dari total rework. Data tidak dapat disimpan.");
-    return;
-  }
+    // Cek apakah total defect lebih rendah dari total rework
+    if (totalDefect < totalRework) {
+        alert("Total defect tidak boleh lebih rendah dari total rework. Data tidak dapat disimpan.");
+        return;
+    }
 
   const fttElement = document.getElementById("fttOutput");
   const fttRaw = fttElement ? fttElement.innerText.replace("%", "").trim() : "0";
@@ -351,6 +358,7 @@ function resetAllFields() {
     document.getElementById("qtyInspectOutput").textContent = "0";
     document.getElementById("left-counter").textContent = "0";
     document.getElementById("right-counter").textContent = "0";
+    document.getElementById("pairs-counter").textContent = "0";
     document.getElementById("fttOutput").textContent = "0%";
     document.getElementById("redoRateOutput").textContent = "0.00%"; // Reset redo rate
 
@@ -367,6 +375,7 @@ function resetAllFields() {
     totalInspected = 0;
     totalReworkLeft = 0;
     totalReworkRight = 0;
+    totalReworkPairs = 0;
 
     // Reset qty inspect outputs
     resetQtyInspectOutputs();
@@ -587,11 +596,12 @@ document.querySelectorAll('.input-button').forEach(button => {
 // Fungsi untuk menghitung dan menampilkan Redo Rate
 function updateRedoRate() {
     const redoRateOutput = document.getElementById('redoRateOutput');
-    const totalRework = (totalReworkLeft + totalReworkRight) / 2;
+    // Hitung total rework dengan rumus yang benar
+    const totalRework = ((totalReworkLeft + totalReworkRight) / 2) + totalReworkPairs;
     const redoRateValue = totalInspected !== 0 ? (totalRework / totalInspected) * 100 : 0;
-
     redoRateOutput.textContent = `${redoRateValue.toFixed(2)}%`;
 }
+
 
 // =============================
 // 18. Announcement Logic
