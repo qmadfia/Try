@@ -262,70 +262,66 @@ function setupQuantityButtons() {
 // 10. Kirim Data ke Google Sheets via Web App & Validasi Total Defect dan Total Rework Sebelum SIMPAN
 // =============================
 document.querySelector(".save-button").addEventListener("click", async () => {
-  // Panggil fungsi validasi sebelum melanjutkan
-  if (!validateInputs()) {
-    return; // Jika validasi input gagal, hentikan proses
-  }
+  // Validasi input
+  if (!validateInputs()) return;
+  if (!validateDefects()) return;
+  if (!validateQtySampleSet()) return;
 
-  if (!validateDefects()) {
-    return; // Jika validasi defect gagal, hentikan proses
-  }
-
-  // Tambahkan validasi Qty Sample Set
-  if (!validateQtySampleSet()) {
-    return; // Jika validasi qty sample set gagal, hentikan proses
-  }
-
-  // Hitung total defect dari summary defect
+  // Hitung total defect
   const totalDefect = Object.values(defectCounts).reduce((acc, count) => acc + count, 0);
 
-    const totalRework = ((totalReworkLeft + totalReworkRight) / 2) + totalReworkPairs;
+  // Hitung total rework
+  const totalRework = ((totalReworkLeft + totalReworkRight) / 2) + totalReworkPairs;
 
-    // Cek apakah total defect lebih rendah dari total rework
-    if (totalDefect < totalRework) {
-        alert("Total defect tidak boleh lebih rendah dari total rework. Data tidak dapat disimpan.");
-        return;
-    }
-
-  const fttElement = document.getElementById("fttOutput");
-  const fttRaw = fttElement ? fttElement.innerText.replace("%", "").trim() : "0";
-  const ftt = parseFloat(fttRaw) / 100; // Konversi ke desimal
-
-  if (isNaN(ftt)) {
-    alert("FTT value is invalid!");
+  // Validasi total defect tidak boleh lebih rendah dari total rework
+  if (totalDefect < totalRework) {
+    alert("Total defect tidak boleh lebih rendah dari total rework. Data tidak dapat disimpan.");
     return;
   }
 
+  // Ambil nilai FTT dan Redo Rate
+  const fttElement = document.getElementById("fttOutput");
+  const fttRaw = fttElement ? fttElement.innerText.replace("%", "").trim() : "0";
+  const ftt = parseFloat(fttRaw) / 100;
+
+  const redoRateElement = document.getElementById("redoRateOutput");
+  const redoRateRaw = redoRateElement ? redoRateElement.innerText.replace("%", "").trim() : "0";
+  const redoRate = parseFloat(redoRateRaw) / 100;
+
+  // Ambil data defect dari elemen summary-item
   const summaryItems = document.querySelectorAll(".summary-item");
   const defects = Array.from(summaryItems).map(item => {
     const [type, count] = item.textContent.split(":");
-    return { type: type.trim(), count: parseInt(count.trim(), 10) };
+    return {
+      type: type.trim(),
+      count: parseInt(count.trim(), 10),
+    };
   });
 
-  console.log("Defects array: ", defects);
-
-  // Tambahkan data A-Grade, B-Grade, dan C-Grade ke objek data
+  // Buat payload data yang akan dikirim
   const data = {
     auditor: document.getElementById("auditor").value,
     ncvs: document.getElementById("ncvs").value,
     modelName: document.getElementById("model-name").value,
     styleNumber: document.getElementById("style-number").value,
-    ftt,
     qtyInspect: parseInt(document.getElementById("qtyInspectOutput").innerText, 10),
-    reworkKanan: parseInt(document.getElementById("right-counter").innerText, 10),
+    ftt,
+    redoRate,
+    "a-grade": parseInt(document.getElementById("output-a-grade").innerText, 10),
+    "b-grade": parseInt(document.getElementById("output-b-grade").innerText, 10),
+    "c-grade": parseInt(document.getElementById("output-c-grade").innerText, 10),
     reworkKiri: parseInt(document.getElementById("left-counter").innerText, 10),
+    reworkKanan: parseInt(document.getElementById("right-counter").innerText, 10),
     defects,
-    "a-grade": parseInt(document.getElementById("output-a-grade").innerText, 10), // Tambahkan A-Grade
-    "b-grade": parseInt(document.getElementById("output-b-grade").innerText, 10), // Tambahkan B-Grade
-    "c-grade": parseInt(document.getElementById("output-c-grade").innerText, 10), // Tambahkan C-Grade
   };
 
   try {
-    // Nonaktifkan tombol simpan untuk mencegah multiple submission
+    // Nonaktifkan tombol simpan sementara
     const saveButton = document.querySelector(".save-button");
     saveButton.disabled = true;
 
-    const response = await fetch("https://script.google.com/macros/s/AKfycbxM1QZ_zd-UXDm-t0PWJDpjE5T-8ToD4tYfE-uN6fVZe_RS7tAGsSL6i6mZmOe3gwLK/exec", {
+    // Kirim data ke Web App Google Apps Script
+    const response = await fetch("https://script.google.com/macros/s/AKfycbxspNQ-fdeeibgJO5w_NqRNpjdSWerIthbzuKt0piSeRvs18HEweQ9Od5feg6Enlh_0/exec", {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -333,13 +329,13 @@ document.querySelector(".save-button").addEventListener("click", async () => {
     const result = await response.text();
     alert(result);
 
-    // Reset all fields after successful save
+    // Reset semua input jika berhasil
     resetAllFields();
   } catch (error) {
     alert("Terjadi kesalahan saat menyimpan data.");
     console.error(error);
   } finally {
-    // Aktifkan kembali tombol simpan setelah proses selesai
+    // Aktifkan kembali tombol simpan
     document.querySelector(".save-button").disabled = false;
   }
 });
