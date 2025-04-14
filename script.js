@@ -321,7 +321,7 @@ document.querySelector(".save-button").addEventListener("click", async () => {
     saveButton.disabled = true;
 
     // Kirim data ke Web App Google Apps Script
-    const response = await fetch("https://script.google.com/macros/s/AKfycbxspNQ-fdeeibgJO5w_NqRNpjdSWerIthbzuKt0piSeRvs18HEweQ9Od5feg6Enlh_0/exec", {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbwpDfeJf5TTi1I5KPpXc-eIxHZ-RJYi2BTzUJJwnyaOu2ywP_iKe4W-7hGWwiAKWPJr/exec", {
       method: "POST",
       body: JSON.stringify(data),
     });
