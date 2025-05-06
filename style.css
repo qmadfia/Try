@@ -145,6 +145,11 @@ h1:hover {
 .save-button:active {
     transform: scale(0.96);
 }
+.invalid-input {
+    border: 1px solid red; /* Berikan border merah pada input yang tidak valid */
+    background-color: #ffe0e0; /* Berikan warna latar belakang merah muda pucat */
+}
+
 
 /* Responsive Save Button */
 @media screen and (max-width: 1200px) {
