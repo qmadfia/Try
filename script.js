@@ -384,19 +384,30 @@ function resetAllFields() {
 // 12. Validasi Input sebelum SIMPAN
 // =============================
 function validateInputs() {
-  // Ambil elemen input
-  const auditor = document.getElementById("auditor").value.trim();
-  const ncvs = document.getElementById("ncvs").value.trim();
-  const modelName = document.getElementById("model-name").value.trim();
-  const styleNumber = document.getElementById("style-number").value.trim();
+    // Ambil elemen input
+    const auditor = document.getElementById("auditor").value.trim();
+    const ncvs = document.getElementById("ncvs").value.trim();
+    const modelName = document.getElementById("model-name").value.trim();
+    const styleNumberInput = document.getElementById("style-number"); // Dapatkan elemen input style number
+    const styleNumber = styleNumberInput.value.trim();
 
-  // Cek apakah ada input yang kosong
-  if (!auditor || !ncvs || !modelName || !styleNumber) {
-    alert("Harap isi semua input sebelum menyimpan data!");
-    return false; // Validasi gagal
-  }
+    // Cek apakah ada input yang kosong
+    if (!auditor || !ncvs || !modelName || !styleNumber) {
+        alert("Harap isi semua input sebelum menyimpan data!");
+        return false; // Validasi gagal
+    }
 
-  return true; // Validasi berhasil
+    // Pola regex untuk format Style Number (6 huruf/angka - 3 huruf/angka)
+    const styleNumberPattern = /^[a-zA-Z0-9]{6}-[a-zA-Z0-9]{3}$/;
+    if (!styleNumberPattern.test(styleNumber)) {
+        alert("Format Style Number tidak sesuai. Contoh: AH1567-100 atau 767688-001");
+        styleNumberInput.classList.add('invalid-input'); // Tambahkan kelas error visual
+        return false; // Validasi gagal jika format salah
+    } else {
+        styleNumberInput.classList.remove('invalid-input'); // Hapus kelas error jika format benar
+    }
+
+    return true; // Validasi berhasil
 }
 
 // =============================
