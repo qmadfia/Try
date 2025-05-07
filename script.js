@@ -119,7 +119,7 @@ function updateQuantity(counterId, change) {
 }
 
 // =============================
-// 6. Fungsi untuk menangani klik tombol defect
+// 6. Fungsi untuk menangani klik tombol defect (MODIFIED)
 // =============================
 const defectCounts = {
     "OVER CEMENT": 0,
@@ -149,20 +149,22 @@ const defectCounts = {
     "LOGO / AIR BAG": 0
 };
 
-// Setup defect buttons
+// Setup defect buttons (MODIFIED)
 function setupDefectButtons() {
     const defectButtons = document.querySelectorAll('.defect-button');
+    const summaryContainer = document.getElementById('summary-list');
+
     defectButtons.forEach(button => {
         button.addEventListener('click', () => {
-            const defectName = button.textContent.trim();
-            handleDefectClick(defectName);
+            const defectType = button.textContent.trim();
+            addDefectToSummary(defectType, summaryContainer);
             button.classList.add('active');
             setTimeout(() => button.classList.remove('active'), 200);
         });
     });
 }
 
-// Function to handle defect button clicks
+// Function to handle defect button clicks (DIALIHKAN KE addDefectToSummary)
 function handleDefectClick(defectName) {
     // MODIFIKASI - PART CODE 6: Periksa apakah grade R, B, atau C aktif
     const rGradeActive = document.querySelector('.r-grade.active');
@@ -174,24 +176,10 @@ function handleDefectClick(defectName) {
         return; // Jangan lakukan update defect jika grade R/B/C tidak aktif
     }
 
-    if (defectCounts.hasOwnProperty(defectName)) {
-        if (isAdding) {
-            defectCounts[defectName]++;  // Menambah defect hanya 1 kali
-        } else if (isSubtracting) {
-            defectCounts[defectName] = Math.max(0, defectCounts[defectName] - 1);  // Mengurangi defect hanya 1 kali
-        }
-
-        // Update nilai defect pada tampilan
-        console.log(`Defect ${defectName} updated to ${defectCounts[defectName]}`);
-    } else {
-        console.warn(`Defect '${defectName}' tidak dikenali.`);
-    }
-
-    // Update summary defect
-    updateDefectSummary();
+    // Penambahan dan pengurangan defect ditangani di addDefectToSummary
 }
 
-// Update the defect summary
+// Update the defect summary (MODIFIED)
 function updateDefectSummary() {
     const summaryList = document.getElementById('summary-list');
     summaryList.innerHTML = ''; // Clear previous content
@@ -201,10 +189,48 @@ function updateDefectSummary() {
         if (count !== 0) {
             const summaryItem = document.createElement('div');
             summaryItem.className = 'summary-item';
-            summaryItem.textContent = `${defect}: ${count}`;
+            summaryItem.dataset.defect = defect; // Tambahkan data-defect
+            summaryItem.innerHTML = `${defect}: <span class="count">${count}</span>`; // Tambahkan span untuk count
             summaryList.appendChild(summaryItem);
         }
     }
+}
+
+// Fungsi untuk menambahkan atau mengupdate defect di summary (MIRIP JS 2)
+function addDefectToSummary(defectType, container) {
+    const rGradeActive = document.querySelector('.r-grade.active');
+    const bGradeActive = document.querySelector('.b-grade.active');
+    const cGradeActive = document.querySelector('.c-grade.active');
+
+    if (!rGradeActive && !bGradeActive && !cGradeActive) {
+        console.warn("Defect hanya dapat ditambahkan setelah memilih R-Grade, B-Grade, atau C-Grade.");
+        return;
+    }
+
+    const existingItem = container.querySelector(`[data-defect="${defectType}"]`);
+    if (existingItem) {
+        // Update jumlah jika sudah ada
+        const countSpan = existingItem.querySelector('.count');
+        let currentCount = parseInt(countSpan.textContent);
+        if (isAdding) {
+            currentCount++;
+        } else if (isSubtracting && currentCount > 0) {
+            currentCount--;
+        }
+        countSpan.textContent = currentCount;
+        defectCounts[defectType] = currentCount; // Update object defectCounts
+    } else {
+        // Tambah item baru
+        const item = document.createElement('div');
+        item.className = 'summary-item';
+        item.dataset.defect = defectType;
+        item.innerHTML = `${defectType}: <span class="count">1</span>`;
+        container.appendChild(item);
+        defectCounts[defectType] = 1; // Inisialisasi count di object
+    }
+
+    // Tidak perlu memanggil updateDefectSummary lagi di sini,
+    // karena perubahan DOM terjadi langsung.
 }
 
 // =============================
@@ -245,34 +271,119 @@ document.addEventListener('DOMContentLoaded', () => {
 // =============================
 // 8. Inisialisasi Aplikasi
 // =============================
-function init() {
-    setupDefectButtons(); // Setup defect buttons
-    setupQuantityButtons(); // Setup quantity buttons
 
-    // MODIFIKASI - PART CODE 8: Pastikan rework section dan defect menu item nonaktif saat aplikasi dimuat
-    toggleButtonState(true); // true berarti nonaktifkan tombol
+// Fungsi untuk mengaktifkan atau menonaktifkan tombol berdasarkan kategori
+function toggleButtonState(state) {
+    const reworkButtons = document.querySelectorAll('.rework-button');
+    const defectButtons = document.querySelectorAll('.defect-button');
 
-    // MODIFIKASI - PART CODE 8: Pastikan tidak ada tombol grade yang aktif secara visual saat awal
+    reworkButtons.forEach(button => {
+        button.disabled = state;
+        button.classList.toggle('inactive', state);
+    });
+
+    defectButtons.forEach(button => {
+        button.disabled = state;
+        button.classList.toggle('inactive', state);
+    });
+}
+
+// Fungsi untuk mengelola status tombol berdasarkan kategori yang dipilih
+function handleGradeSelection(gradeCategory) {
     const gradeButtons = document.querySelectorAll('.input-button');
+    let enableReworkAndDefects = false; // Default nonaktif
+
+    // Hapus status aktif dari semua tombol grade
     gradeButtons.forEach(button => {
         button.classList.remove('active');
     });
 
-    // MODIFIKASI - PART CODE 8: Atur ulang status tombol plus/minus global ke inactive
-    const plusButton = document.getElementById('plus-button');
-    const minusButton = document.getElementById('minus-button');
-    if (plusButton && minusButton) { // Pastikan tombol ada
-        isAdding = false;
-        isSubtracting = false;
-        plusButton.classList.remove('active');
-        plusButton.classList.add('inactive');
-        minusButton.classList.remove('active');
-        minusButton.classList.add('inactive');
+    // Aktifkan tombol grade yang dipilih
+    const selectedButton = document.querySelector(`.${gradeCategory}`);
+    if (selectedButton) {
+        selectedButton.classList.add('active');
+
+        if (gradeCategory === 'r-grade' || gradeCategory === 'b-grade' || gradeCategory === 'c-grade') {
+            enableReworkAndDefects = true;
+        }
+    }
+
+    toggleButtonState(!enableReworkAndDefects);
+}
+
+// =============================
+// Defect Summary Handling
+// =============================
+function setupDefectButtons() {
+    const defectButtons = document.querySelectorAll('.defect-button');
+    const summaryContainer = document.getElementById('summary-list');
+
+    defectButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const defectType = button.textContent.trim();
+            addDefectToSummary(defectType, summaryContainer);
+            button.classList.add('active');
+            setTimeout(() => button.classList.remove('active'), 200);
+        });
+    });
+}
+
+function addDefectToSummary(defectType, container) {
+    const existingItem = container.querySelector(`[data-defect="${defectType}"]`);
+    if (existingItem) {
+        // Update jumlah jika sudah ada
+        const countSpan = existingItem.querySelector('.count');
+        countSpan.textContent = parseInt(countSpan.textContent) + 1;
+    } else {
+        // Tambah item baru dengan class dan style yang mendukung box shadow
+        const item = document.createElement('div');
+        item.dataset.defect = defectType;
+        item.classList.add('summary-item'); // penting agar CSS aktif
+        item.innerHTML = `
+            <span class="defect-name">${defectType}</span>
+            <span class="count">1</span>
+        `;
+        container.appendChild(item);
     }
 }
 
-// Tunggu hingga DOM dimuat sebelum menginisialisasi
+// =============================
+// Quantity Buttons Setup (opsional kalau kamu pakai ini sebelumnya)
+// =============================
+function setupQuantityButtons() {
+    // Sesuaikan dengan kode aslimu; tambahkan fungsi ini kalau mau
+}
+
+// =============================
+// Inisialisasi aplikasi
+// =============================
+function init() {
+    setupDefectButtons();
+    setupQuantityButtons(); // jika perlu
+    toggleButtonState(true); // Nonaktifkan rework & defect saat awal
+}
+
 document.addEventListener('DOMContentLoaded', init);
+
+// Setup event listener untuk memilih grade
+document.querySelectorAll('.input-button').forEach(button => {
+    button.addEventListener('click', (event) => {
+        let targetButton = event.target;
+        while (targetButton && !targetButton.classList.contains('input-button')) {
+            targetButton = targetButton.parentElement;
+        }
+
+        if (targetButton) {
+            const gradeCategory = targetButton.classList[1]; // ambil kelas (a-grade, r-grade, b-grade, c-grade)
+            if (gradeCategory) {
+                handleGradeSelection(gradeCategory);
+            } else {
+                console.warn("Grade category class not found:", targetButton);
+            }
+        }
+    });
+});
+
 
 // =============================
 // 10. Kirim Data ke Google Sheets via Web App & Validasi Total Defect dan Total Rework Sebelum SIMPAN
