@@ -799,7 +799,8 @@ h1:hover {
 
 /* Gaya untuk tombol rework yang dinonaktifkan */
 #rework-left:disabled,
-#rework-right:disabled {
+#rework-right:disabled, 
+#rework-pairs:disabled {
     opacity: 0.7;
     cursor: not-allowed;
     background: linear-gradient(135deg, #c8e6c9, #b2dfdb); /* Warna lebih redup */
