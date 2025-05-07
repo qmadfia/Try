@@ -206,40 +206,6 @@ function updateDefectSummary() {
         }
     }
 }
-// Function to handle defect button clicks
-function handleDefectClick(defectName) {
-    if (defectCounts.hasOwnProperty(defectName)) {
-        if (isAdding) {
-            defectCounts[defectName]++;  // Menambah defect hanya 1 kali
-        } else if (isSubtracting) {
-            defectCounts[defectName] = Math.max(0, defectCounts[defectName] - 1);  // Mengurangi defect hanya 1 kali
-        }
-
-        // Update nilai defect pada tampilan
-        console.log(`Defect ${defectName} updated to ${defectCounts[defectName]}`);
-    } else {
-        console.warn(`Defect '${defectName}' tidak dikenali.`);
-    }
-
-    // Update summary defect
-    updateDefectSummary();
-}
-
-// Update the defect summary
-function updateDefectSummary() {
-    const summaryList = document.getElementById('summary-list');
-    summaryList.innerHTML = ''; // Clear previous content
-
-    // Loop through defect counts and display them
-    for (const [defect, count] of Object.entries(defectCounts)) {
-        if (count !== 0) {
-            const summaryItem = document.createElement('div');
-            summaryItem.className = 'summary-item';
-            summaryItem.textContent = `${defect}: ${count}`;
-            summaryList.appendChild(summaryItem);
-        }
-    }
-}
 
 // =============================
 // 7. Event Listeners untuk Plus dan Minus Buttons
