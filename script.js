@@ -68,12 +68,23 @@ function updateFTT() {
         fttOutput.className = 'counter low-ftt'; // Red
     }
 }
+
 // =============================
 // 5. Fungsi untuk Mengupdate Kuantitas
 // =============================
 function updateQuantity(counterId, change) {
     const counterElement = document.getElementById(counterId);
     let currentValue = parseInt(counterElement.textContent) || 0; // Ambil nilai saat ini
+
+    // MODIFIKASI - PART CODE 5: Periksa apakah grade R, B, atau C aktif
+    const rGradeActive = document.querySelector('.r-grade.active');
+    const bGradeActive = document.querySelector('.b-grade.active');
+    const cGradeActive = document.querySelector('.c-grade.active');
+
+    if (!rGradeActive && !bGradeActive && !cGradeActive && (counterId === 'left-counter' || counterId === 'right-counter' || counterId === 'pairs-counter')) {
+        console.warn("Rework hanya dapat ditambahkan setelah memilih R-Grade, B-Grade, atau C-Grade.");
+        return; // Jangan lakukan update jika grade R/B/C tidak aktif dan ini adalah tombol rework
+    }
 
     // Tambah atau kurangi nilai berdasarkan mode
     if (isAdding) {
@@ -99,6 +110,11 @@ function updateQuantity(counterId, change) {
         totalReworkRight = currentValue; // Perbarui totalReworkRight
     } else if (counterId === 'pairs-counter') {
         totalReworkPairs = currentValue; // Perbarui totalReworkPairs
+    }
+
+    // Perbarui Redo Rate setelah perubahan rework
+    if (counterId === 'left-counter' || counterId === 'right-counter' || counterId === 'pairs-counter') {
+        updateRedoRate();
     }
 }
 
@@ -146,6 +162,50 @@ function setupDefectButtons() {
     });
 }
 
+// Function to handle defect button clicks
+function handleDefectClick(defectName) {
+    // MODIFIKASI - PART CODE 6: Periksa apakah grade R, B, atau C aktif
+    const rGradeActive = document.querySelector('.r-grade.active');
+    const bGradeActive = document.querySelector('.b-grade.active');
+    const cGradeActive = document.querySelector('.c-grade.active');
+
+    if (!rGradeActive && !bGradeActive && !cGradeActive) {
+        console.warn("Defect hanya dapat ditambahkan setelah memilih R-Grade, B-Grade, atau C-Grade.");
+        return; // Jangan lakukan update defect jika grade R/B/C tidak aktif
+    }
+
+    if (defectCounts.hasOwnProperty(defectName)) {
+        if (isAdding) {
+            defectCounts[defectName]++;  // Menambah defect hanya 1 kali
+        } else if (isSubtracting) {
+            defectCounts[defectName] = Math.max(0, defectCounts[defectName] - 1);  // Mengurangi defect hanya 1 kali
+        }
+
+        // Update nilai defect pada tampilan
+        console.log(`Defect ${defectName} updated to ${defectCounts[defectName]}`);
+    } else {
+        console.warn(`Defect '${defectName}' tidak dikenali.`);
+    }
+
+    // Update summary defect
+    updateDefectSummary();
+}
+
+// Update the defect summary
+function updateDefectSummary() {
+    const summaryList = document.getElementById('summary-list');
+    summaryList.innerHTML = ''; // Clear previous content
+
+    // Loop through defect counts and display them
+    for (const [defect, count] of Object.entries(defectCounts)) {
+        if (count !== 0) {
+            const summaryItem = document.createElement('div');
+            summaryItem.className = 'summary-item';
+            summaryItem.textContent = `${defect}: ${count}`;
+            summaryList.appendChild(summaryItem);
+        }
+    }
+}
 // Function to handle defect button clicks
 function handleDefectClick(defectName) {
     if (defectCounts.hasOwnProperty(defectName)) {
@@ -222,41 +282,31 @@ document.addEventListener('DOMContentLoaded', () => {
 function init() {
     setupDefectButtons(); // Setup defect buttons
     setupQuantityButtons(); // Setup quantity buttons
+
+    // MODIFIKASI - PART CODE 8: Pastikan rework section dan defect menu item nonaktif saat aplikasi dimuat
+    toggleButtonState(true); // true berarti nonaktifkan tombol
+
+    // MODIFIKASI - PART CODE 8: Pastikan tidak ada tombol grade yang aktif secara visual saat awal
+    const gradeButtons = document.querySelectorAll('.input-button');
+    gradeButtons.forEach(button => {
+        button.classList.remove('active');
+    });
+
+    // MODIFIKASI - PART CODE 8: Atur ulang status tombol plus/minus global ke inactive
+    const plusButton = document.getElementById('plus-button');
+    const minusButton = document.getElementById('minus-button');
+    if (plusButton && minusButton) { // Pastikan tombol ada
+        isAdding = false;
+        isSubtracting = false;
+        plusButton.classList.remove('active');
+        plusButton.classList.add('inactive');
+        minusButton.classList.remove('active');
+        minusButton.classList.add('inactive');
+    }
 }
 
 // Tunggu hingga DOM dimuat sebelum menginisialisasi
 document.addEventListener('DOMContentLoaded', init);
-
-// =============================
-// 9. Setup Quantity Buttons
-// =============================
-function setupQuantityButtons() {
-    // Qty Inspect
-    document.getElementById('plus-qty').addEventListener('click', function() {
-        updateQuantity('qtyInspectOutput', 1);
-    });
-
-    document.getElementById('minus-qty').addEventListener('click', function() {
-        updateQuantity('qtyInspectOutput', -1);
-    });
-
-    // Rework Kiri
-    document.getElementById('plus-rework-kiri').addEventListener('click', function() {
-        updateQuantity('left-counter', 1);
-    });
-
-    document.getElementById('minus-rework-kiri').addEventListener('click', function() {
-        updateQuantity('left-counter', -1);
-    });
-
-    // Rework Kanan
-    document.getElementById('plus-rework-kanan').addEventListener('click', function() {
-        updateQuantity('right-counter', 1);
-    });
-    document.getElementById('minus-rework-kanan').addEventListener('click', function() {
-        updateQuantity('right-counter', -1);
-    });
-}
 
 // =============================
 // 10. Kirim Data ke Google Sheets via Web App & Validasi Total Defect dan Total Rework Sebelum SIMPAN
@@ -555,44 +605,62 @@ function updateTotalQtyInspect() {
 function toggleButtonState(state) {
     const reworkButtons = document.querySelectorAll('.rework-button');
     const defectButtons = document.querySelectorAll('.defect-button');
-    
+
     reworkButtons.forEach(button => {
-        button.disabled = state; // Menonaktifkan tombol rework
-        button.classList.toggle('inactive', state); // Menambahkan kelas 'inactive'
+        button.disabled = state;
+        button.classList.toggle('inactive', state);
     });
 
     defectButtons.forEach(button => {
-        button.disabled = state; // Menonaktifkan tombol defect
-        button.classList.toggle('inactive', state); // Menambahkan kelas 'inactive'
+        button.disabled = state;
+        button.classList.toggle('inactive', state);
     });
 }
 
 // Fungsi untuk mengelola status tombol berdasarkan kategori yang dipilih
 function handleGradeSelection(gradeCategory) {
     const gradeButtons = document.querySelectorAll('.input-button');
+    let enableReworkAndDefects = false; // Defaultnya nonaktif
 
+    // Hapus status aktif dari semua tombol grade terlebih dahulu
     gradeButtons.forEach(button => {
         button.classList.remove('active');
     });
 
+    // Aktifkan tombol grade yang dipilih
     const selectedButton = document.querySelector(`.${gradeCategory}`);
-    selectedButton.classList.add('active'); // Menandai tombol yang dipilih
+    if (selectedButton) {
+        selectedButton.classList.add('active'); // Menandai tombol yang dipilih
 
-    // Nonaktifkan tombol rework dan defect untuk A-Grade, aktifkan untuk kategori lain
-    if (gradeCategory === 'a-grade') {
-        // Nonaktifkan rework dan defect untuk A-Grade
-        toggleButtonState(true);  
-    } else {
-        // Aktifkan rework dan defect untuk kategori lainnya (Rework, B-Grade, C-Grade)
-        toggleButtonState(false); 
+        // MODIFIKASI - PART CODE 16: Hanya aktifkan rework dan defect jika R, B, atau C grade dipilih
+        if (gradeCategory === 'r-grade' || gradeCategory === 'b-grade' || gradeCategory === 'c-grade') {
+            enableReworkAndDefects = true;
+        }
     }
+
+    // Terapkan status aktif/nonaktif ke tombol rework dan defect
+    // Jika enableReworkAndDefects true (R/B/C dipilih), maka state untuk toggleButtonState adalah false (aktifkan)
+    // Jika enableReworkAndDefects false (A atau tidak ada yg dipilih), maka state untuk toggleButtonState adalah true (nonaktifkan)
+    toggleButtonState(!enableReworkAndDefects);
 }
 
 // Setup event listener untuk memilih grade
 document.querySelectorAll('.input-button').forEach(button => {
     button.addEventListener('click', (event) => {
-        const gradeCategory = event.target.classList[1]; // Mengambil kelas kategori (a-grade, r-grade, b-grade, c-grade)
-        handleGradeSelection(gradeCategory); // Proses pemilihan grade
+        let targetButton = event.target;
+        // Pastikan target adalah tombol itu sendiri, bukan elemen anak di dalamnya (jika ada)
+        while (targetButton && !targetButton.classList.contains('input-button')) {
+            targetButton = targetButton.parentElement;
+        }
+
+        if (targetButton) {
+            const gradeCategory = targetButton.classList[1]; // Mengambil kelas kategori (a-grade, r-grade, b-grade, c-grade)
+            if (gradeCategory) { // Pastikan gradeCategory ada
+                handleGradeSelection(gradeCategory); // Proses pemilihan grade
+            } else {
+                console.warn("Grade category class (e.g., a-grade) not found on button:", targetButton);
+            }
+        }
     });
 });
 
