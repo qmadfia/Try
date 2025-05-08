@@ -67,7 +67,7 @@ h1:hover {
         "form-section qty-section"
         "summary-defect rework-section"
         "summary-defect defect-menu";
-    grid-template-columns: 1fr 1.5fr; /* Kedua kolom memiliki lebar yang sama secara default */
+    grid-template-columns: 1fr 1.3fr; /* Kedua kolom memiliki lebar yang sama secara default */
 }
 
 /* ============================= */
