@@ -634,7 +634,6 @@ h1:hover {
     border-bottom: 2px solid #ddd;
     padding-bottom: 5px;
 }
-
 .summary-item {
     background-color: #ffffff;
     border-radius: 10px;
@@ -642,7 +641,8 @@ h1:hover {
     padding: 10px 15px;
     margin: 8px 0;
     display: grid; /* Menggunakan CSS Grid */
-    grid-template-columns: 2fr 1fr 1fr auto; /* Lebar kolom: Defect (fleksibel lebih lebar), Position, Level, Count */
+    /* Ubah lebar kolom "Position" */
+    grid-template-columns: 2fr 1.2fr 1.5fr auto; /* Lebar kolom: Defect, Position (lebih lebar), Level, Count */
     gap: 10px; /* Jarak antar kolom */
     align-items: center; /* Vertikal align tengah */
     width: 100%;
@@ -670,6 +670,7 @@ h1:hover {
     gap: 8px; /* JARAK ANTARA GRADE DAN COUNT */
 }
 
+
 .count {
     background-color: #ff6b6b;
     color: #fff;
@@ -688,6 +689,7 @@ h1:hover {
     transform: scale(1.1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
+
 /* ============================= */
 /* 10. Enhanced Plus and Minus Buttons   */
 /* ============================= */
