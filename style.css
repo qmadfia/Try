@@ -59,11 +59,15 @@ h1:hover {
 /* ============================= */
 .dashboard {
     display: grid;
-    grid-template-columns: 1fr 2fr;
-    grid-template-rows: auto auto; /* Flexible row height */
     gap: 10px;
     padding: 1px;
     box-sizing: border-box;
+    grid-template-areas:
+        "form-section ftt-container"
+        "form-section qty-section"
+        "summary-defect rework-section"
+        "summary-defect defect-menu";
+    grid-template-columns: 1fr 1.5fr; /* Kedua kolom memiliki lebar yang sama secara default */
 }
 
 /* ============================= */
