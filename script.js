@@ -149,88 +149,120 @@ const defectCounts = {
     "LOGO / AIR BAG": 0
 };
 
-// Setup defect buttons (MODIFIED)
+// Setup defect buttons (MODIFIED) - INI SATU-SATUNYA DEFINISI YANG TERSISA
 function setupDefectButtons() {
-    const defectButtons = document.querySelectorAll('.defect-button');
-    const summaryContainer = document.getElementById('summary-list');
+    const defectButtons = document.querySelectorAll('.defect-button');
+    const summaryContainer = document.getElementById('summary-list');
 
-    defectButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const defectType = button.textContent.trim();
-            addDefectToSummary(defectType, summaryContainer);
-            button.classList.add('active');
-            setTimeout(() => button.classList.remove('active'), 200);
-        });
-    });
+    defectButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const defectType = button.textContent.trim();
+            addDefectToSummary(defectType, summaryContainer); // Akan memanggil addDefectToSummary di bawah
+            button.classList.add('active');
+            setTimeout(() => button.classList.remove('active'), 200);
+        });
+    });
 }
 
 // Function to handle defect button clicks (DIALIHKAN KE addDefectToSummary)
-function handleDefectClick(defectName) {
-    // MODIFIKASI - PART CODE 6: Periksa apakah grade R, B, atau C aktif
-    const rGradeActive = document.querySelector('.r-grade.active');
-    const bGradeActive = document.querySelector('.b-grade.active');
-    const cGradeActive = document.querySelector('.c-grade.active');
+// Fungsi ini lebih berfungsi sebagai validator sekarang, bisa dipanggil di awal addDefectToSummary
+// atau logikanya diintegrasikan langsung.
+function handleDefectClick(defectName) { // Sebenarnya fungsi ini tidak dipanggil langsung dari event listener lagi
+    const rGradeActive = document.querySelector('.r-grade.active');
+    const bGradeActive = document.querySelector('.b-grade.active');
+    const cGradeActive = document.querySelector('.c-grade.active');
 
-    if (!rGradeActive && !bGradeActive && !cGradeActive) {
-        console.warn("Defect hanya dapat ditambahkan setelah memilih R-Grade, B-Grade, atau C-Grade.");
-        return; // Jangan lakukan update defect jika grade R/B/C tidak aktif
-    }
-
-    // Penambahan dan pengurangan defect ditangani di addDefectToSummary
+    if (!rGradeActive && !bGradeActive && !cGradeActive) {
+        console.warn("Defect hanya dapat ditambahkan setelah memilih R-Grade, B-Grade, atau C-Grade.");
+        return false; // Kembalikan status validasi
+    }
+    return true; // Validasi lolos
 }
 
 // Update the defect summary (MODIFIED)
+// Fungsi ini mungkin tidak lagi diperlukan jika addDefectToSummary memanipulasi DOM secara langsung
+// dan menghapus item ketika count-nya 0.
 function updateDefectSummary() {
-    const summaryList = document.getElementById('summary-list');
-    summaryList.innerHTML = ''; // Clear previous content
+    const summaryList = document.getElementById('summary-list');
+    summaryList.innerHTML = ''; // Clear previous content
 
-    // Loop through defect counts and display them
-    for (const [defect, count] of Object.entries(defectCounts)) {
-        if (count !== 0) {
-            const summaryItem = document.createElement('div');
-            summaryItem.className = 'summary-item';
-            summaryItem.dataset.defect = defect; // Tambahkan data-defect
-            summaryItem.innerHTML = `${defect}: <span class="count">${count}</span>`; // Tambahkan span untuk count
-            summaryList.appendChild(summaryItem);
-        }
-    }
+    for (const [defect, count] of Object.entries(defectCounts)) {
+        if (count > 0) { // Hanya tampilkan yang countnya lebih dari 0
+            const summaryItem = document.createElement('div');
+            summaryItem.className = 'summary-item';
+            summaryItem.dataset.defect = defect;
+            summaryItem.innerHTML = `${defect}: <span class="count">${count}</span>`;
+            summaryList.appendChild(summaryItem);
+        }
+    }
 }
 
-// Fungsi untuk menambahkan atau mengupdate defect di summary (MIRIP JS 2)
+// Fungsi addDefectToSummary (versi dari Bagian 6, setelah diperbaiki) - INI SATU-SATUNYA DEFINISI YANG TERSISA
 function addDefectToSummary(defectType, container) {
-    const rGradeActive = document.querySelector('.r-grade.active');
-    const bGradeActive = document.querySelector('.b-grade.active');
-    const cGradeActive = document.querySelector('.c-grade.active');
+    const rGradeActive = document.querySelector('.r-grade.active');
+    const bGradeActive = document.querySelector('.b-grade.active');
+    const cGradeActive = document.querySelector('.c-grade.active');
 
-    if (!rGradeActive && !bGradeActive && !cGradeActive) {
-        console.warn("Defect hanya dapat ditambahkan setelah memilih R-Grade, B-Grade, atau C-Grade.");
-        return;
-    }
+    if (!rGradeActive && !bGradeActive && !cGradeActive) {
+        console.warn("Defect hanya dapat ditambahkan setelah memilih R-Grade, B-Grade, atau C-Grade.");
+        return; // Keluar jika grade tidak sesuai
+    }
 
-    const existingItem = container.querySelector(`[data-defect="${defectType}"]`);
-    if (existingItem) {
-        // Update jumlah jika sudah ada
-        const countSpan = existingItem.querySelector('.count');
-        let currentCount = parseInt(countSpan.textContent);
-        if (isAdding) {
-            currentCount++;
-        } else if (isSubtracting && currentCount > 0) {
-            currentCount--;
+    const existingItem = container.querySelector(`div[data-defect="${defectType}"]`);
+    let currentCount;
+
+    if (existingItem) {
+        const countSpan = existingItem.querySelector('.count');
+        currentCount = parseInt(countSpan.textContent);
+
+        if (isAdding) {
+            currentCount++;
+        } else if (isSubtracting && currentCount > 0) {
+            currentCount--;
+        } else if (!isAdding && !isSubtracting) {
+            // Jika tidak ada mode +/- aktif dan item sudah ada:
+            // Anda bisa memilih untuk menambah (currentCount++) atau tidak melakukan apa-apa.
+            // Asumsi: tidak melakukan apa-apa agar pengguna eksplisit memilih mode.
+        }
+
+        if (isNaN(currentCount)) { // Handle jika parsing gagal
+            console.error("Gagal parse jumlah defect yang ada:", defectType);
+            currentCount = defectCounts[defectType] || 0; // Fallback ke nilai dari defectCounts
+             if (isAdding) currentCount++;
+             else if (isSubtracting && currentCount > 0) currentCount --;
         }
-        countSpan.textContent = currentCount;
-        defectCounts[defectType] = currentCount; // Update object defectCounts
-    } else {
-        // Tambah item baru
-        const item = document.createElement('div');
-        item.className = 'summary-item';
-        item.dataset.defect = defectType;
-        item.innerHTML = `${defectType}: <span class="count">1</span>`;
-        container.appendChild(item);
-        defectCounts[defectType] = 1; // Inisialisasi count di object
-    }
 
-    // Tidak perlu memanggil updateDefectSummary lagi di sini,
-    // karena perubahan DOM terjadi langsung.
+
+        countSpan.textContent = currentCount;
+        defectCounts[defectType] = currentCount;
+
+        if (currentCount === 0) { // Hapus dari DOM jika jumlahnya 0
+            existingItem.remove();
+            // delete defectCounts[defectType]; // Opsional: hapus key dari defectCounts
+        }
+
+    } else { // Item defect BARU
+        if (isAdding) {
+            currentCount = 1;
+        } else if (isSubtracting) {
+            // Mencoba mengurangi defect yang belum ada, jangan lakukan apa-apa
+            return;
+        } else { // Tidak ada mode aktif (isAdding false, isSubtracting false)
+            // Default: tambahkan defect baru dengan jumlah 1
+            currentCount = 1;
+        }
+
+        if (currentCount > 0) { // Hanya tambahkan jika jumlahnya positif
+            const item = document.createElement('div');
+            item.className = 'summary-item';
+            item.dataset.defect = defectType;
+            item.innerHTML = `${defectType}: <span class="count">${currentCount}</span>`; // << SINTAKS HTML SUDAH BENAR
+            container.appendChild(item); // INI YANG MENAMPILKAN KE SUMMARY LIST
+            defectCounts[defectType] = currentCount;
+        }
+    }
+    console.log("defectCounts diupdate:", JSON.stringify(defectCounts));
+    updateFTT();
 }
 
 // =============================
@@ -269,83 +301,69 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // =============================
-// 8. Inisialisasi Aplikasi
+// 8. Inisialisasi Aplikasi (Struktur yang diharapkan)
 // =============================
 
 // Fungsi untuk mengaktifkan atau menonaktifkan tombol berdasarkan kategori
 function toggleButtonState(state) {
-    const reworkButtons = document.querySelectorAll('.rework-button');
-    const defectButtons = document.querySelectorAll('.defect-button');
+    const reworkButtons = document.querySelectorAll('.rework-button');
+    const defectButtons = document.querySelectorAll('.defect-button');
 
-    reworkButtons.forEach(button => {
-        button.disabled = state;
-        button.classList.toggle('inactive', state);
-    });
+    reworkButtons.forEach(button => {
+        button.disabled = state;
+        button.classList.toggle('inactive', state);
+    });
 
-    defectButtons.forEach(button => {
-        button.disabled = state;
-        button.classList.toggle('inactive', state);
-    });
+    defectButtons.forEach(button => {
+        button.disabled = state;
+        button.classList.toggle('inactive', state);
+    });
 }
 
 // Fungsi untuk mengelola status tombol berdasarkan kategori yang dipilih
 function handleGradeSelection(gradeCategory) {
-    const gradeButtons = document.querySelectorAll('.input-button');
-    let enableReworkAndDefects = false; // Default nonaktif
+    const gradeButtons = document.querySelectorAll('.input-button');
+    let enableReworkAndDefects = false;
 
-    // Hapus status aktif dari semua tombol grade
-    gradeButtons.forEach(button => {
-        button.classList.remove('active');
-    });
+    gradeButtons.forEach(button => {
+        button.classList.remove('active');
+    });
 
-    // Aktifkan tombol grade yang dipilih
-    const selectedButton = document.querySelector(`.${gradeCategory}`);
-    if (selectedButton) {
-        selectedButton.classList.add('active');
-
-        if (gradeCategory === 'r-grade' || gradeCategory === 'b-grade' || gradeCategory === 'c-grade') {
-            enableReworkAndDefects = true;
-        }
-    }
-
-    toggleButtonState(!enableReworkAndDefects);
+    const selectedButton = document.querySelector(`.${gradeCategory}`);
+    if (selectedButton) {
+        selectedButton.classList.add('active');
+        if (gradeCategory === 'r-grade' || gradeCategory === 'b-grade' || gradeCategory === 'c-grade') {
+            enableReworkAndDefects = true;
+        }
+    }
+    toggleButtonState(!enableReworkAndDefects);
 }
 
-// =============================
-// Defect Summary Handling
-// =============================
-function setupDefectButtons() {
-    const defectButtons = document.querySelectorAll('.defect-button');
-    const summaryContainer = document.getElementById('summary-list');
-
-    defectButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const defectType = button.textContent.trim();
-            addDefectToSummary(defectType, summaryContainer);
-            button.classList.add('active');
-            setTimeout(() => button.classList.remove('active'), 200);
+// Fungsi init() Anda yang memanggil setupDefectButtons()
+// (Pastikan ini ada di akhir script atau dalam DOMContentLoaded)
+function init() {
+    setupDefectButtons(); // Akan memanggil versi MODIFIED yang sudah benar
+    // setupQuantityButtons(); // Jika ada
+    // Event listener untuk grade selection (jika belum ada di tempat lain)
+    document.querySelectorAll('.input-button.a-grade, .input-button.r-grade, .input-button.b-grade, .input-button.c-grade').forEach(button => {
+        button.addEventListener('click', (event) => {
+            let targetButton = event.target;
+            while (targetButton && !targetButton.classList.contains('input-button')) {
+                targetButton = targetButton.parentElement;
+            }
+            if (targetButton) {
+                const gradeClass = Array.from(targetButton.classList).find(cls => cls.endsWith('-grade'));
+                if (gradeClass) {
+                    handleGradeSelection(gradeClass);
+                }
+            }
         });
     });
+    toggleButtonState(true); // Nonaktifkan rework & defect saat awal
 }
 
-function addDefectToSummary(defectType, container) {
-    const existingItem = container.querySelector(`[data-defect="${defectType}"]`);
-    if (existingItem) {
-        // Update jumlah jika sudah ada
-        const countSpan = existingItem.querySelector('.count');
-        countSpan.textContent = parseInt(countSpan.textContent) + 1;
-    } else {
-        // Tambah item baru dengan class dan style yang mendukung box shadow
-        const item = document.createElement('div');
-        item.dataset.defect = defectType;
-        item.classList.add('summary-item'); // penting agar CSS aktif
-        item.innerHTML = `
-            <span class="defect-name">${defectType}</span>
-            <span class="count">1</span>
-        `;
-        container.appendChild(item);
-    }
-}
+document.addEventListener('DOMContentLoaded', init);
+
 
 // =============================
 // Quantity Buttons Setup (opsional kalau kamu pakai ini sebelumnya)
