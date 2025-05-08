@@ -606,30 +606,22 @@ h1:hover {
 /* 9. Summary Defect Section    */
 /* ============================= */
 .summary-defect {
+    /* Style yang sudah ada */
     grid-column: 1 / 2;
     margin-top: 0;
     background: linear-gradient(145deg, #ffffff, #f7f7f7);
     border-radius: 15px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     padding: 25px;
-    height: 400px; /* Adjust height as needed */
-    overflow-y: auto; /* Add scroll if content exceeds max height */
-    overflow-x: hidden; /* Hilangkan scroll horizontal */
+    height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
     transition: box-shadow 0.3s ease, transform 0.3s ease;
     text-align: center;
 }
-.summary-defect:hover {
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-    transform: translateY(-5px);
-}
-
-.defect-name {
-    font-weight: bold;
-    color: #333;
-    text-align: left;
-}
 
 .summary-defect h3 {
+    /* Style yang sudah ada */
     margin: 0 0 15px 0;
     font-size: 18px;
     font-weight: bold;
@@ -642,20 +634,36 @@ h1:hover {
 .summary-item {
     background-color: #ffffff;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     padding: 10px 15px;
     margin: 8px 0;
-    display: flex;
-    justify-content: space-between; /* penting: jarakkan kiri-kanan */
-    align-items: center;
+    display: grid; /* Menggunakan CSS Grid */
+    grid-template-columns: 2fr 1fr 1fr auto; /* Lebar kolom: Defect (fleksibel lebih lebar), Position, Level, Count */
+    gap: 10px; /* Jarak antar kolom */
+    align-items: center; /* Vertikal align tengah */
     width: 100%;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-
 .summary-item:hover {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     transform: translateY(-3px);
+}
+
+.defect-col {
+    text-align: left;
+    white-space: normal; /* IZINKAN TEKS MULTI-BARIS */
+    overflow: visible; /* TIDAK POTONG TEKS */
+    text-overflow: unset; /* HILANGKAN ELLIPSIS */
+    word-break: break-word; /* PECahkan KATA JIKA PERLU */
+}
+
+.level-col {
+    text-align: right;
+    display: flex; /* FLEX UNTUK SUSUN GRADE + COUNT */
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px; /* JARAK ANTARA GRADE DAN COUNT */
 }
 
 .count {
@@ -667,17 +675,15 @@ h1:hover {
     text-align: center;
     font-weight: bold;
     font-size: 14px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     border: 2px solid #ff4c4c;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-
 .count:hover {
     transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
-
 /* ============================= */
 /* 10. Enhanced Plus and Minus Buttons   */
 /* ============================= */
