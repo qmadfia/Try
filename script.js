@@ -469,9 +469,6 @@ document.querySelector(".save-button").addEventListener("click", async () => {
 
         // Reset semua input jika berhasil
         resetAllFields();
-    } catch (error) {
-        alert("Terjadi kesalahan saat menyimpan data.");
-        console.error(error);
     } finally {
         // Aktifkan kembali tombol simpan
         document.querySelector(".save-button").disabled = false;
@@ -488,31 +485,33 @@ function resetAllFields() {
     document.getElementById("model-name").value = "";
     document.getElementById("style-number").value = "";
 
-    // Reset counters and output sections
+    // Reset numeric output displays
     document.getElementById("qtyInspectOutput").textContent = "0";
     document.getElementById("left-counter").textContent = "0";
     document.getElementById("right-counter").textContent = "0";
     document.getElementById("pairs-counter").textContent = "0";
     document.getElementById("fttOutput").textContent = "0%";
-    document.getElementById("redoRateOutput").textContent = "0.00%"; // Reset redo rate
+    document.getElementById("redoRateOutput").textContent = "0.00%";
 
-    // Reset defect summary
+    // Reset output grade boxes (A, Rework, B, C)
+    ["a", "r", "b", "c"].forEach(grade => {
+        const el = document.getElementById(`output-${grade}-grade`);
+        if (el) el.textContent = "0";
+    });
+
+    // Reset summary defect display
     const summaryList = document.getElementById("summary-list");
-    summaryList.innerHTML = "";
+    if (summaryList) summaryList.innerHTML = "";
 
-    // Reset defect counts
-    defectCounts = {}; // Reset objek defectCounts menjadi kosong
-
-    // Reset posisi defect sementara
-    currentDefectPosition = "LEFT";
-
-    // Reset global counters
+    // Reset global counters and state
+    defectCounts = {};              // object yang melacak jenis defect
+    currentDefectPosition = "LEFT"; // default posisi defect
     totalInspected = 0;
     totalReworkLeft = 0;
     totalReworkRight = 0;
     totalReworkPairs = 0;
 
-    // Reset qty inspect outputs
+    // Reset qty inspect yang diupdate oleh A/B/C/Rework button
     resetQtyInspectOutputs();
 
     console.log("All fields have been reset.");
@@ -577,16 +576,6 @@ function validateDefects() {
     return true;
 }
 
-// =============================
-// Fungsi Reset Qty Inspect Outputs (pastikan ini ada jika dipanggil di resetAllFields)
-// =============================
-function resetQtyInspectOutputs() {
-    document.getElementById("output-a-grade").textContent = "0";
-    document.getElementById("output-r-grade").textContent = "0";
-    document.getElementById("output-b-grade").textContent = "0";
-    document.getElementById("output-c-grade").textContent = "0";
-}
-
 // Pastikan init() dipanggil setelah semua definisi fungsi
 
 
@@ -636,55 +625,8 @@ qtyInspectButtons.forEach(button => {
     });
 });
 
-// Tambahkan fungsi untuk reset qty inspect outputs saat reset
-function resetQtyInspectOutputs() {
-    for (const category in qtyInspectOutputs) {
-        qtyInspectOutputs[category] = 0;
-        outputElements[category].textContent = '0';
-    }
 
-    // Reset total qty inspect
-    document.getElementById('qtyInspectOutput').textContent = '0';
-    updateFTT(); // Pastikan FTT direset ke 0% saat semua qty direset
-}
 
-// Tambahkan pemanggilan reset ke fungsi resetAllFields
-function extendedResetAllFields() {
-    resetAllFields(); // Panggil fungsi asli
-    resetQtyInspectOutputs(); // Tambahkan reset untuk qty inspect outputs
-}
-
-// Override fungsi resetAllFields dengan versi yang diperluas
-resetAllFields = extendedResetAllFields;
-
-// Setup event listener untuk setiap tombol qty inspect
-qtyInspectButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        const category = button.classList[1].replace('-grade', '');
-        updateOutput(category);
-    });
-});
-
-// Tambahkan fungsi untuk reset qty inspect outputs saat reset
-function resetQtyInspectOutputs() {
-    for (const category in qtyInspectOutputs) {
-        qtyInspectOutputs[category] = 0;
-        outputElements[category].textContent = '0';
-    }
-
-    // Reset total qty inspect
-    document.getElementById('qtyInspectOutput').textContent = '0';
-    updateFTT(); // Pastikan FTT direset ke 0% saat semua qty direset
-}
-
-// Tambahkan pemanggilan reset ke fungsi resetAllFields
-function extendedResetAllFields() {
-    resetAllFields(); // Panggil fungsi asli
-    resetQtyInspectOutputs(); // Tambahkan reset untuk qty inspect outputs
-}
-
-// Override fungsi resetAllFields dengan versi yang diperluas
-resetAllFields = extendedResetAllFields;
 
 // =============================
 // 15. Akumulasi Qty Inspect dari Semua Grade
