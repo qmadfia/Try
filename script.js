@@ -469,6 +469,9 @@ document.querySelector(".save-button").addEventListener("click", async () => {
 
         // Reset semua input jika berhasil
         resetAllFields();
+            } catch (error) {
+        alert("Terjadi kesalahan saat menyimpan data.");
+        console.error(error);
     } finally {
         // Aktifkan kembali tombol simpan
         document.querySelector(".save-button").disabled = false;
