@@ -2,21 +2,19 @@
 // 1. Deklarasi Variabel Global
 // =============================
 // Variabel State Aplikasi
-let totalInspected = 0;       // Total barang yang diinspeksi (akan diupdate oleh updateTotalQtyInspect)
-let totalReworkLeft = 0;      // Total rework kiri
-let totalReworkRight = 0;     // Total rework kanan
-let totalReworkPairs = 0;     // Total rework pairs
-let isAdding = false;         // Flag untuk menandakan mode penambahan (dikontrol oleh tombol +/-)
-let isSubtracting = false;    // Flag untuk menandakan mode pengurangan (dikontrol oleh tombol +/-)
-let currentDefectPosition = "LEFT"; // Default posisi defect untuk defect menu
-// Variabel untuk menyimpan data defect
-let defectCounts = {};        // Objek untuk melacak jumlah setiap jenis defect { defectType: { position: { grade: count } } }
-// Variabel untuk menyimpan jumlah per grade (A, R, B, C)
+let totalInspected = 0;
+let totalReworkLeft = 0;
+let totalReworkRight = 0;
+let totalReworkPairs = 0;
+let isAdding = false;      // Default false
+let isSubtracting = false; // Default false
+let currentDefectPosition = "LEFT";
+let defectCounts = {};
 const qtyInspectOutputs = {
-    'a-grade': 0,
-    'r-grade': 0,
-    'b-grade': 0,
-    'c-grade': 0
+    'a-grade': 0,
+    'r-grade': 0,
+    'b-grade': 0,
+    'c-grade': 0
 };
 
 // Referensi Elemen DOM Utama (Variabel Dideklarasikan di sini, Nilai Diisi di initApp)
@@ -70,7 +68,7 @@ function updateFTT() {
 // =============================
 // 5. (Bagian 5 dari Part 1) - Fungsi untuk Mengupdate Kuantitas Rework (Kiri, Kanan, Pasangan)
 // =============================
-function updateQuantity(counterId, change) { // Parameter 'change' saat ini tidak dominan, isAdding/isSubtracting lebih utama
+function updateQuantity(counterId) { // Hapus parameter 'change'
     const counterElement = document.getElementById(counterId);
 
     if (!counterElement) {
@@ -79,30 +77,35 @@ function updateQuantity(counterId, change) { // Parameter 'change' saat ini tida
     }
     let currentValue = parseInt(counterElement.textContent) || 0;
 
-    // Validasi: Rework hanya bisa ditambahkan jika R/B/C grade aktif
     const rGradeActive = document.querySelector('.r-grade.active');
     const bGradeActive = document.querySelector('.b-grade.active');
     const cGradeActive = document.querySelector('.c-grade.active');
 
     if (!rGradeActive && !bGradeActive && !cGradeActive &&
         (counterId === 'left-counter' || counterId === 'right-counter' || counterId === 'pairs-counter')) {
-        console.warn("Rework hanya dapat ditambahkan setelah memilih R-Grade, B-Grade, atau C-Grade.");
-        // alert("Pilih R-Grade, B-Grade, atau C-Grade terlebih dahulu untuk mencatat rework.");
+        console.warn("Rework hanya dapat diubah setelah memilih R-Grade, B-Grade, atau C-Grade.");
         return;
     }
+
+    // === LOGIKA BARU BERDASARKAN isAdding / isSubtracting ===
+    if (!isAdding && !isSubtracting) {
+        console.log("Mode +/- tidak aktif. Nilai rework tidak diubah.");
+        // Anda bisa menambahkan feedback visual di sini jika diinginkan saat tombol diklik tanpa mode +/-
+        // Namun, nilai tidak akan berubah.
+        // updateRedoRate(); // Panggil jika perubahan posisi rework (tanpa nilai) mempengaruhi redo rate
+        return; // Keluar jika tidak ada mode +/- yang aktif
+    }
+    // =======================================================
 
     if (isAdding) {
         currentValue++;
     } else if (isSubtracting && currentValue > 0) {
         currentValue--;
-    } else if (!isAdding && !isSubtracting) { // Jika tidak dalam mode +/- (klik langsung)
-        currentValue += change; // Gunakan parameter 'change' jika ada
     }
 
-    currentValue = Math.max(0, currentValue); // Pastikan tidak kurang dari 0
+    currentValue = Math.max(0, currentValue);
     counterElement.textContent = currentValue;
 
-    // Perbarui total rework global
     if (counterId === 'left-counter') {
         totalReworkLeft = currentValue;
     } else if (counterId === 'right-counter') {
@@ -110,8 +113,7 @@ function updateQuantity(counterId, change) { // Parameter 'change' saat ini tida
     } else if (counterId === 'pairs-counter') {
         totalReworkPairs = currentValue;
     }
-
-    updateRedoRate(); // Perbarui Redo Rate setiap ada perubahan rework
+    updateRedoRate();
 }
 // =============================
 // 6. (Bagian 6 dari Part 1) - Fungsi terkait Defect
@@ -121,24 +123,28 @@ function addDefectToSummary(defectType, container) {
     const bGradeActive = document.querySelector('.b-grade.active');
     const cGradeActive = document.querySelector('.c-grade.active');
 
-    // const aGradeActive = document.querySelector('.a-grade.active'); // A-Grade biasanya tidak ada defect rework
     let currentGrade = "";
     if (rGradeActive) currentGrade = "R-GRADE";
     else if (bGradeActive) currentGrade = "B-GRADE";
     else if (cGradeActive) currentGrade = "C-GRADE";
-    // else if (aGradeActive) currentGrade = "A-GRADE"; // Logika untuk A-Grade defect jika perlu
 
     if (!currentGrade) {
-        console.warn("Pilih grade (R, B, atau C) sebelum menambahkan defect.");
-        // alert("Pilih R-Grade, B-Grade, atau C-Grade terlebih dahulu untuk mencatat defect.");
+        console.warn("Pilih grade (R, B, atau C) sebelum mengubah defect.");
         return;
     }
-    // Pastikan currentDefectPosition (LEFT, RIGHT, PAIRS) sudah diatur
     if (!["LEFT", "RIGHT", "PAIRS"].includes(currentDefectPosition)) {
         console.warn("Posisi defect (Kiri/Kanan/Pasangan) belum dipilih dengan benar.");
-        // alert("Pilih posisi defect (Kiri/Kanan/Pasangan) terlebih dahulu.");
         return;
     }
+
+    // === LOGIKA BARU BERDASARKAN isAdding / isSubtracting ===
+    if (!isAdding && !isSubtracting) {
+        console.log("Mode +/- tidak aktif. Nilai defect tidak diubah.");
+        // updateDefectSummaryDisplay(container); // Panggil jika hanya ingin refresh display tanpa mengubah data
+        // updateFTT();
+        return; // Keluar jika tidak ada mode +/- yang aktif
+    }
+    // =======================================================
 
     if (!defectCounts[defectType]) {
         defectCounts[defectType] = { "LEFT": {}, "PAIRS": {}, "RIGHT": {} };
@@ -154,25 +160,22 @@ function addDefectToSummary(defectType, container) {
         defectCounts[defectType][currentDefectPosition][currentGrade]++;
     } else if (isSubtracting && defectCounts[defectType][currentDefectPosition][currentGrade] > 0) {
         defectCounts[defectType][currentDefectPosition][currentGrade]--;
-        // Hapus entri jika jumlahnya menjadi 0 untuk kebersihan data
         if (defectCounts[defectType][currentDefectPosition][currentGrade] === 0) {
             delete defectCounts[defectType][currentDefectPosition][currentGrade];
             if (Object.keys(defectCounts[defectType][currentDefectPosition]).length === 0) {
                 delete defectCounts[defectType][currentDefectPosition];
             }
             if (Object.keys(defectCounts[defectType]).filter(pos => Object.keys(defectCounts[defectType][pos]).length > 0).length === 0) {
-                 delete defectCounts[defectType];
+                delete defectCounts[defectType];
             }
         }
-    } else if (!isAdding && !isSubtracting) { // Klik langsung pada tombol defect (default tambah 1)
-        defectCounts[defectType][currentDefectPosition][currentGrade]++;
     }
-
 
     console.log("defectCounts diupdate:", JSON.stringify(defectCounts));
     updateDefectSummaryDisplay(container);
-    updateFTT(); // Defect mempengaruhi FTT
+    updateFTT();
 }
+
 // =============================
 // 7. (Bagian 7 dari Part 1) - Setup Tombol Plus dan Minus
 // =============================
@@ -184,21 +187,27 @@ function updateDefectSummaryDisplay(container) {
     if (!container) return;
 
     container.innerHTML = ''; // Bersihkan summary list
-    const gradeOrder = ["R-GRADE", "B-GRADE", "C-GRADE"]; // Urutan tampilan grade
+    const gradeOrder = ["REWORK", "B-GRADE", "C-GRADE"]; // Urutan tampilan grade
     const positionOrder = ["LEFT", "PAIRS", "RIGHT"]; // Urutan tampilan posisi
+
+    // Buat array untuk menampung item summary yang akan diurutkan
+    const summaryItems = [];
 
     for (const defectType in defectCounts) {
         for (const position of positionOrder) {
             if (defectCounts[defectType][position]) {
-                for (const grade of gradeOrder) {
-                    if (defectCounts[defectType][position][grade] && defectCounts[defectType][position][grade] > 0) {
-                        const count = defectCounts[defectType][position][grade];
-                        let displayGrade = grade; // Default, tampilkan apa adanya
-                        if (grade === "R-GRADE") {
-                            displayGrade = "REWORK";
-                        }
-                        // Tidak perlu lagi menghapus "-GRADE" untuk B dan C
+                for (const displayGrade of gradeOrder) {
+                    let internalGradeKey = "";
+                    if (displayGrade === "REWORK") {
+                        internalGradeKey = "R-GRADE";
+                    } else if (displayGrade === "B-GRADE") {
+                        internalGradeKey = "B-GRADE";
+                    } else if (displayGrade === "C-GRADE") {
+                        internalGradeKey = "C-GRADE";
+                    }
 
+                    if (defectCounts[defectType][position][internalGradeKey] && defectCounts[defectType][position][internalGradeKey] > 0) {
+                        const count = defectCounts[defectType][position][internalGradeKey];
                         const item = document.createElement('div');
                         item.className = 'summary-item';
                         item.innerHTML = `
@@ -206,12 +215,43 @@ function updateDefectSummaryDisplay(container) {
                             <div class="position-col">${position}</div>
                             <div class="level-col">${displayGrade} <span class="count">${count}</span></div>
                         `;
-                        container.appendChild(item);
+                        summaryItems.push({
+                            defectType: defectType,
+                            grade: displayGrade,
+                            position: position,
+                            element: item
+                        });
                     }
                 }
             }
         }
     }
+
+    // Urutkan array summaryItems berdasarkan kriteria
+    summaryItems.sort((a, b) => {
+        // Urutan berdasarkan jenis defect (alfabetis)
+        if (a.defectType < b.defectType) return -1;
+        if (a.defectType > b.defectType) return 1;
+
+        // Urutan berdasarkan grade (REWORK, B-GRADE, C-GRADE)
+        const gradeOrderIndexA = gradeOrder.indexOf(a.grade);
+        const gradeOrderIndexB = gradeOrder.indexOf(b.grade);
+        if (gradeOrderIndexA < gradeOrderIndexB) return -1;
+        if (gradeOrderIndexA > gradeOrderIndexB) return 1;
+
+        // Urutan berdasarkan posisi (LEFT, PAIRS, RIGHT)
+        const positionOrderIndexA = positionOrder.indexOf(a.position);
+        const positionOrderIndexB = positionOrder.indexOf(b.position);
+        if (positionOrderIndexA < positionOrderIndexB) return -1;
+        if (positionOrderIndexA > positionOrderIndexB) return 1;
+
+        return 0; // Jika semua sama
+    });
+
+    // Tambahkan item yang sudah diurutkan ke dalam container
+    summaryItems.forEach(itemData => {
+        container.appendChild(itemData.element);
+    });
 }
 // =============================
 // 9. (Bagian 10 dari Part 1) - Kirim Data ke Google Sheets
@@ -320,7 +360,7 @@ async function saveData() {
 
     } catch (error) {
         console.error("Error saat mengirim data:", error);
-        alert("Terjadi kesalahan saat menyimpan data. Cek koneksi internet atau hubungi administrator.");
+        alert("Terjadi kesalahan saat menyimpan data. Cek koneksi internet atau hubungi Team QM System.");
     } finally {
         saveButton.disabled = false;
         saveButton.textContent = "SIMPAN";
@@ -382,16 +422,16 @@ function resetAllFields() {
     isAdding = false;
     isSubtracting = false;
 
-    // 4. Reset State UI Tambahan
+    // Update visual tombol plus/minus
     const plusButton = document.getElementById('plus-button');
     const minusButton = document.getElementById('minus-button');
     if (plusButton) {
         plusButton.classList.remove('active');
-        plusButton.classList.add('inactive');
+        plusButton.classList.add('inactive'); // Pastikan class inactive ditambahkan
     }
     if (minusButton) {
         minusButton.classList.remove('active');
-        minusButton.classList.add('inactive');
+        minusButton.classList.add('inactive'); // Pastikan class inactive ditambahkan
     }
 
     const gradeInputButtons = document.querySelectorAll('.qty-item .input-button');
@@ -425,7 +465,7 @@ function validateInputs() {
     const styleNumberInput = document.getElementById("style-number");
     const styleNumber = styleNumberInput.value.trim();
     if (!auditor || !ncvs || !modelName || !styleNumber) {
-        alert("Harap isi semua input dasar (Auditor, NCVS, Model, Style) sebelum menyimpan data!");
+        alert("Harap isi semua input dasar (Auditor, NCVS, Model, Style Number) sebelum menyimpan data!");
         return false;
     }
 
@@ -463,7 +503,7 @@ function validateDefects() {
     const cGradeActive = qtyInspectOutputs['c-grade'] > 0;
 
     if ((rGradeActive || bGradeActive || cGradeActive) && !hasDefect) {
-         alert("Jika ada item R-Grade, B-Grade, atau C-Grade, harap pilih setidaknya satu defect sebelum menyimpan data!");
+         alert("Jika ada item Re, B-Grade, atau C-Grade, harap pilih setidaknya satu defect sebelum menyimpan data!");
          return false;
     }
     // Jika hanya A-Grade, defect tidak wajib
@@ -472,24 +512,29 @@ function validateDefects() {
 
 // =============================
 // 13. (Bagian 14 dari Part 2) - Fungsi untuk mengupdate output qty inspect (A, R, B, C Grade)
-// (Pastikan kode di sini sudah diperbaiki seperti ini)
 // =============================
-function updateOutput(category, amount) { // <-- Harus menerima 2 argumen
-    // console.log(`Inside updateOutput for ${category} with amount ${amount}`); // Debugging log
+function updateOutput(category) { // Hapus parameter 'amount'
     if (!qtyInspectOutputs.hasOwnProperty(category) || !outputElements[category]) {
         console.error("updateOutput Error: Kategori grade tidak valid atau elemen output tidak ditemukan:", category);
         return;
     }
 
-    // Update kuantitas menggunakan 'amount' yang diterima
-    qtyInspectOutputs[category] = Math.max(0, qtyInspectOutputs[category] + amount);
+    // === LOGIKA BARU BERDASARKAN isAdding / isSubtracting ===
+    let amountToApply = 0;
+    if (isAdding) {
+        amountToApply = 1;
+    } else if (isSubtracting) {
+        amountToApply = -1;
+    } else {
+        console.log("Mode +/- tidak aktif. Nilai grade qty tidak diubah.");
+        // updateTotalQtyInspect(); // Panggil jika perubahan grade aktif (tanpa nilai) mempengaruhi total
+        return; // Keluar jika tidak ada mode +/- yang aktif
+    }
+    // =======================================================
 
-    // Update tampilan di HTML
+    qtyInspectOutputs[category] = Math.max(0, qtyInspectOutputs[category] + amountToApply);
     outputElements[category].textContent = qtyInspectOutputs[category];
-
-    console.log(`Updated ${category} to ${qtyInspectOutputs[category]}`); // Debugging log
-
-    // Panggil fungsi untuk update total dan FTT/Rework
+    console.log(`Updated ${category} to ${qtyInspectOutputs[category]}`);
     updateTotalQtyInspect();
 }
 // =============================
@@ -666,7 +711,7 @@ function validateQtySampleSet() {
 // 19. Inisialisasi Aplikasi & Event Listeners Utama
 // =============================
 function initApp() {
-    console.log("Menginisialisasi aplikasi...");
+    console.log("Menginisialisasi aplikasi dengan logika +/- baru...");
 
     // === PENTING: INISIALISASI outputElements DI SINI SETELAH DOM SIAP ===
     // Gunakan ID yang benar dari HTML: '-counter'
@@ -693,167 +738,108 @@ function initApp() {
 
     // === Letakkan SEMUA setup event listener dan inisialisasi UI awal di bawah sini ===
 
-    // Setup Tombol Defect (Bagian 6 dari Part 1 - pindahkan kodenya ke dalam initApp)
+     // Setup Tombol Defect (Bagian 6 dari Part 1)
     const defectButtons = document.querySelectorAll('.defect-button');
     defectButtons.forEach(button => {
         button.addEventListener('click', () => {
             const defectType = button.dataset.defect || button.textContent.trim();
-            addDefectToSummary(defectType, summaryContainer);
+            addDefectToSummary(defectType, summaryContainer); // addDefectToSummary akan cek isAdding/isSubtracting
             button.classList.add('active-feedback');
             setTimeout(() => button.classList.remove('active-feedback'), 200);
-             // Reset mode +/- setelah klik pada tombol Defect
-             isAdding = false;
-             isSubtracting = false;
-             const plusButton = document.getElementById('plus-button'); // Dapatkan referensi di sini jika belum
-             const minusButton = document.getElementById('minus-button'); // Dapatkan referensi di sini jika belum
-             if (plusButton) { plusButton.classList.remove('active'); plusButton.classList.add('inactive'); }
-             if (minusButton) { minusButton.classList.remove('active'); minusButton.classList.add('inactive'); }
+            // TIDAK PERLU reset isAdding/isSubtracting di sini
         });
     });
 
-    // Setup Tombol Rework (Kiri, Kanan, Pasangan) (Bagian 3 dari Part 1 - pindahkan kodenya ke dalam initApp)
+    // Setup Tombol Rework (Kiri, Kanan, Pasangan) (Bagian 3 dari Part 1)
     const reworkLeftButton = document.getElementById('rework-left');
     if (reworkLeftButton) {
         reworkLeftButton.addEventListener('click', () => {
-            currentDefectPosition = "LEFT";
-            updateQuantity('left-counter', 1); // Default tambah 1 jika tidak mode +/-
-             // Reset mode +/- setelah klik pada tombol Rework
-             isAdding = false;
-             isSubtracting = false;
-             const plusButton = document.getElementById('plus-button');
-             const minusButton = document.getElementById('minus-button');
-             if (plusButton) { plusButton.classList.remove('active'); plusButton.classList.add('inactive'); }
-             if (minusButton) { minusButton.classList.remove('active'); minusButton.classList.add('inactive'); }
+            currentDefectPosition = "LEFT"; // Ini tetap penting
+            updateQuantity('left-counter'); // updateQuantity akan cek isAdding/isSubtracting
+            // TIDAK PERLU reset isAdding/isSubtracting di sini
         });
     }
+    // (Hal yang sama untuk reworkRightButton dan reworkPairsButton)
     const reworkRightButton = document.getElementById('rework-right');
     if (reworkRightButton) {
         reworkRightButton.addEventListener('click', () => {
             currentDefectPosition = "RIGHT";
-            updateQuantity('right-counter', 1);
-             // Reset mode +/- setelah klik pada tombol Rework
-             isAdding = false;
-             isSubtracting = false;
-             const plusButton = document.getElementById('plus-button');
-             const minusButton = document.getElementById('minus-button');
-             if (plusButton) { plusButton.classList.remove('active'); plusButton.classList.add('inactive'); }
-             if (minusButton) { minusButton.classList.remove('active'); minusButton.classList.add('inactive'); }
+            updateQuantity('right-counter');
         });
     }
     const reworkPairsButton = document.getElementById('rework-pairs');
     if (reworkPairsButton) {
         reworkPairsButton.addEventListener('click', () => {
             currentDefectPosition = "PAIRS";
-            updateQuantity('pairs-counter', 1);
-             // Reset mode +/- setelah klik pada tombol Rework
-             isAdding = false;
-             isSubtracting = false;
-             const plusButton = document.getElementById('plus-button');
-             const minusButton = document.getElementById('minus-button');
-             if (plusButton) { plusButton.classList.remove('active'); plusButton.classList.add('inactive'); }
-             if (minusButton) { minusButton.classList.remove('active'); minusButton.classList.add('inactive'); }
+            updateQuantity('pairs-counter');
         });
     }
 
-    // Setup Tombol Plus dan Minus (Bagian 7 dari Part 1 - pindahkan kodenya ke dalam initApp)
-    const plusButton = document.getElementById('plus-button'); // Dapatkan referensi di sini
-    const minusButton = document.getElementById('minus-button'); // Dapatkan referensi di sini
+    // Setup Tombol Plus dan Minus (Bagian 7 dari Part 1)
+    const plusButton = document.getElementById('plus-button');
+    const minusButton = document.getElementById('minus-button');
+
     if (plusButton && minusButton) {
         plusButton.addEventListener('click', () => {
-            isAdding = !isAdding; // TOGGLE mode adding
-            isSubtracting = false; // Pastikan mode subtracting mati
-            console.log(`Plus button clicked. isAdding: ${isAdding}, isSubtracting: ${isSubtracting}`);
-            plusButton.classList.toggle('active', isAdding); // Toggle visual class
+            isAdding = !isAdding; // Toggle
+            if (isAdding) {
+                isSubtracting = false; // Nonaktifkan mode kurang
+                minusButton.classList.remove('active');
+                minusButton.classList.add('inactive');
+            }
+            plusButton.classList.toggle('active', isAdding);
             plusButton.classList.toggle('inactive', !isAdding);
-            minusButton.classList.remove('active');
-            minusButton.classList.add('inactive');
+            console.log(`Plus button. isAdding: ${isAdding}, isSubtracting: ${isSubtracting}`);
         });
+
         minusButton.addEventListener('click', () => {
-            isSubtracting = !isSubtracting; // TOGGLE mode subtracting
-            isAdding = false; // Pastikan mode adding mati
-             console.log(`Minus button clicked. isAdding: ${isAdding}, isSubtracting: ${isSubtracting}`);
-             minusButton.classList.toggle('active', isSubtracting); // Toggle visual class
-             minusButton.classList.toggle('inactive', !isSubtracting);
-             plusButton.classList.remove('active');
-             plusButton.classList.add('inactive');
+            isSubtracting = !isSubtracting; // Toggle
+            if (isSubtracting) {
+                isAdding = false; // Nonaktifkan mode tambah
+                plusButton.classList.remove('active');
+                plusButton.classList.add('inactive');
+            }
+            minusButton.classList.toggle('active', isSubtracting);
+            minusButton.classList.toggle('inactive', !isSubtracting);
+            console.log(`Minus button. isAdding: ${isAdding}, isSubtracting: ${isSubtracting}`);
         });
-        // Initial state (pindahkan ke sini atau biarkan di bawah kalau sudah ada)
-        plusButton.classList.add('inactive');
-        minusButton.classList.add('inactive');
+
+        // Initial state untuk tombol plus dan minus saat aplikasi dimuat
+        plusButton.classList.add('inactive'); // Mulai dengan inactive
+        minusButton.classList.add('inactive'); // Mulai dengan inactive
+        isAdding = false; // Eksplisit set false
+        isSubtracting = false; // Eksplisit set false
     }
 
-
-    // === Event listener tombol .input-button (pertahankan di sini, di dalam initApp) ===
+    // Event listener tombol .input-button (untuk Grade A,R,B,C)
     const inputButtons = document.querySelectorAll('.input-button');
-    inputButtons.forEach(button => {
-        button.addEventListener('click', (event) => {
-            console.log("Raw .input-button click event on:", event.target);
-            let targetButton = event.target;
-            // Pastikan kita mendapatkan elemen .input-button utama jika yang diklik adalah child (misal ikon)
-            while (targetButton && targetButton !== document && !targetButton.classList.contains('input-button')) {
-                targetButton = targetButton.parentElement;
-            }
+    inputButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+            let targetButton = event.target;
+            while (targetButton && targetButton !== document && !targetButton.classList.contains('input-button')) {
+                targetButton = targetButton.parentElement;
+            }
 
-            if (targetButton && targetButton !== document && targetButton.classList.contains('input-button')) {
-                console.log("Processed .input-button:", targetButton);
-                let gradeCategoryClass = Array.from(targetButton.classList).find(cls => cls.endsWith('-grade'));
+            if (targetButton && targetButton !== document && targetButton.classList.contains('input-button')) {
+                let gradeCategoryClass = Array.from(targetButton.classList).find(cls => cls.endsWith('-grade'));
 
-                if (gradeCategoryClass) {
-                    console.log(`Grade category found: ${gradeCategoryClass}`);
-                    // Pastikan handleGradeSelection didefinisikan dan tidak menyebabkan error
-                    // handleGradeSelection(gradeCategoryClass); // Panggil ini jika perlu menandai tombol grade aktif
+                if (gradeCategoryClass) {
+                    // Handle grade selection (mengaktifkan tombol grade secara visual dan mengelola tombol rework/defect)
+                    // Ini HARUS tetap dijalankan SELALU saat tombol grade diklik, terlepas dari mode +/-
+                    handleGradeSelection(gradeCategoryClass);
 
-                    const isQtyItemButton = targetButton.closest('.qty-item') !== null;
-                    console.log(`Is Qty Item button? ${isQtyItemButton}`);
-
-                    if (isQtyItemButton) {
-                        let amountToUpdate = 0;
-
-                        // Logika penentuan amountToUpdate berdasarkan isAdding/isSubtracting
-                        if (isAdding) {
-                            amountToUpdate = 1;
-                            console.log("Mode: Adding (isAdding=true)");
-                        } else if (isSubtracting) {
-                            amountToUpdate = -1;
-                            console.log("Mode: Subtracting (isSubtracting=true)");
-                        } else {
-                            amountToUpdate = 1; // Mode Default jika tidak ada plus/minus aktif
-                            console.log("Mode: Default (isAdding=false, isSubtracting=false)");
-                        }
-
-                        console.log(`Calling updateOutput for grade '${gradeCategoryClass}' with amount ${amountToUpdate}`);
-                        // Panggil updateOutput dengan kedua argumen (fungsi updateOutput sudah diperbaiki)
-                        updateOutput(gradeCategoryClass, amountToUpdate);
-
-                        // === PENTING: Reset mode +/- setelah KLIK TOMBOL GRADE ===
-                        // Ini memastikan setelah menambah/mengurangi grade, mode kembali normal
-                        isAdding = false;
-                        isSubtracting = false;
-                        // Update tampilan tombol plus/minus
-                        const plusButtonInListener = document.getElementById('plus-button');
-                        const minusButtonInListener = document.getElementById('minus-button');
-                        if (plusButtonInListener) { plusButtonInListener.classList.remove('active'); plusButtonInListener.classList.add('inactive'); }
-                        if (minusButtonInListener) { minusButtonInListener.classList.remove('active'); minusButtonInListener.classList.add('inactive'); }
-                        // ==========================================================
-
-                    } else {
-                        console.log("Bukan Qty Item button, tidak ada update kuantitas untuk:", targetButton);
-                        // Mungkin Anda tetap ingin me-reset mode +/- meskipun bukan Qty Item button, tergantung kebutuhan
-                        // isAdding = false; isSubtracting = false; // Jika ingin reset di sini juga
-                        // Update tampilan tombol plus/minus
-                        // ... (kode update class tombol +/- jika reset dilakukan di sini) ...
-                    }
-                     // Panggil handleGradeSelection di sini agar aktif state tombol grade diperbarui
-                     handleGradeSelection(gradeCategoryClass); // Pindah pemanggilan ke sini
-
-                } else {
-                    console.warn("Tombol .input-button yang diklik tidak memiliki class kategori grade (contoh: 'a-grade'):", targetButton);
-                }
-            } else {
-                console.warn("Tidak dapat mengidentifikasi elemen .input-button dari event klik.");
-            }
-        });
-    });
+                    const isQtyItemButton = targetButton.closest('.qty-item') !== null;
+                    if (isQtyItemButton) {
+                        // updateOutput akan memeriksa isAdding/isSubtracting secara internal
+                        updateOutput(gradeCategoryClass);
+                    }
+                    // TIDAK PERLU reset isAdding/isSubtracting di sini
+                } else {
+                    console.warn("Tombol .input-button diklik tanpa class kategori grade:", targetButton);
+                }
+            }
+        });
+    });
     // ===============================================================
 
 
