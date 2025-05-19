@@ -622,7 +622,7 @@ function updateRedoRate() {
 // (Dijalankan terpisah karena mungkin merupakan modul sendiri)
 document.addEventListener('DOMContentLoaded', () => {
     const announcements = [
-        // { date: "2024-10-26", text: "info a" },
+        { date: "2024-10-26", text: "info a" },
         // ... (tambahkan pengumuman Anda di sini) ...
     ];
     let currentAnnouncementIndex = 0;
