@@ -64,9 +64,9 @@ h1:hover {
     box-sizing: border-box;
     grid-template-areas:
         "form-section ftt-container"
-        "form-section qty-section"
+        "summary-defect defect-menu"        
         "summary-defect rework-section"
-        "summary-defect defect-menu";
+        "form-section qty-section";
     grid-template-columns: 1fr 1.3fr; /* Kedua kolom memiliki lebar yang sama secara default */
 }
 
@@ -198,6 +198,7 @@ h1:hover {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 20px;
+    margin-bottom: 1px;
     justify-content: center;
     align-items: center;
     padding: 20px;
@@ -318,6 +319,11 @@ h1:hover {
 /* ============================= */
 .qty-section {
     display: grid;
+         grid-column: 2 / 3;
+    grid-row: 4 / 5;
+        min-height: 110px;
+  max-height: 110px;
+        margin-top: 193px;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 15px;
     grid-auto-flow: row;
@@ -431,7 +437,9 @@ h1:hover {
 /* ============================= */
 .rework-section {
      grid-column: 2 / 3;
-    grid-row: 3 / 3;
+    grid-row: 4 / 5;
+    min-height: 110px;
+  max-height: 180px;
     display: flex;
     gap: 20px;
     justify-content: space-between;
@@ -549,8 +557,8 @@ h1:hover {
 /* ============================= */
 .defect-menu {
     grid-column: 2 / 3;
-    grid-row: 4 / 5;
-    margin-top: 0;
+    grid-row: 3 / 3;
+        margin-top: -13px;
     background: linear-gradient(145deg, #ffffff, #f3f3f3);
     border-radius: 15px;
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
@@ -617,7 +625,7 @@ h1:hover {
     border-radius: 15px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     padding: 25px;
-    height: 400px;
+    height: 313px;
     overflow-y: auto;
     overflow-x: hidden;
     transition: box-shadow 0.3s ease, transform 0.3s ease;
