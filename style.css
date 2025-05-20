@@ -558,14 +558,25 @@ h1:hover {
 .defect-menu {
     grid-column: 2 / 3;
     grid-row: 3 / 3;
-        margin-top: -13px;
+    margin-top: -13px;
     background: linear-gradient(145deg, #ffffff, #f3f3f3);
     border-radius: 15px;
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    padding: 20px;
+    padding: 16px 20px 20px 20px; /* Atur padding atas menjadi lebih kecil */
     transition: box-shadow 0.3s ease, transform 0.3s ease;
-  font-size: 20px;
-  text-align: center;
+    font-size: 20px;
+    text-align: center;
+}
+
+.defect-menu h3 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    text-transform: uppercase;
+    /* Hapus atau komentari baris ini untuk menghilangkan garis bawah */
+    /* border-bottom: 2px solid #ddd; */
+    padding-bottom: 5px;
 }
 
 .defect-menu:hover {
@@ -577,6 +588,7 @@ h1:hover {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 15px;
+    
 }
 
 .defect-button {
