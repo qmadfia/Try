@@ -313,12 +313,12 @@ h1:hover {
 /* 6. Qty Section - Stylish UI   */
 /* ============================= */
 .qty-section {
-    grid-column: 2 / 3;
-    grid-row: 4 / 5; /* Pastikan di baris 4 kolom 2 */
-    margin-top: 0;
-    min-height: unset; /* Biarkan tinggi diatur oleh grid-template-rows */
-    max-height: unset; /* Biarkan tinggi diatur oleh grid-template-rows */
     display: grid;
+         grid-column: 2 / 3;
+    grid-row: 4 / 5;
+        min-height: 110px;
+  max-height: 110px;
+        margin-top: 193px;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 15px;
     grid-auto-flow: row;
@@ -430,9 +430,10 @@ h1:hover {
 /* 7. Rework Section            */
 /* ============================= */
 .rework-section {
-    grid-column: 2 / 3;
-    grid-row: 3 / 4; /* Pastikan di baris 3 kolom 2 */
-    min-height: 110px; /* Tetapkan min-height 110px agar stabil */
+     grid-column: 2 / 3;
+    grid-row: 4 / 5;
+    min-height: 110px;
+  max-height: 180px;
     display: flex;
     gap: 20px;
     justify-content: space-between;
@@ -442,6 +443,7 @@ h1:hover {
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
     transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
+
 
 .rework-section:hover {
     box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
@@ -550,7 +552,7 @@ h1:hover {
 /* ============================= */
 .defect-menu {
     grid-column: 2 / 3;
-    grid-row: 2 / 3;     /* Tetap di baris 2, kolom 2 */
+    grid-row: 2 / 4;     /* Tetap di baris 2, kolom 2 */
     margin-top: 0;
     background: linear-gradient(145deg, #ffffff, #f3f3f3);
     border-radius: 15px;
