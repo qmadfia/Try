@@ -6,7 +6,7 @@ body {
     background: linear-gradient(to right, #e3f2fd, #bbdefb);
     color: #333;
     margin: 0;
-    padding: 0;
+    padding: 0; /* Pastikan tidak ada padding body yang tidak perlu */
 }
 
 /* ============================= */
@@ -16,7 +16,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: flex-start; /* Mengubah agar logo dan teks berada di kiri */
-    padding: 15px 30px; /* Mengurangi padding untuk kompak */
+    padding: 5px 30px; /* Mengurangi padding untuk kompak */
     background: linear-gradient(to right, #2196F3, #4CAF50); /* Gradient background */
     border-bottom: 4px solid #ffffff; /* Menambah garis bawah header */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Menambah shadow lebih tegas */
@@ -59,17 +59,12 @@ h1:hover {
 /* ============================= */
 .dashboard {
     display: grid;
-    gap: 10px;
-    padding: 1px;
+    gap: 10px; /* Jaga jarak 10px antar grid items */
+    padding: 1px; /* Mengurangi padding dashboard jika terlalu lebar */
     box-sizing: border-box;
-    grid-template-areas:
-        "form-section ftt-container"
-        "summary-defect defect-menu"        
-        "summary-defect rework-section"
-        "form-section qty-section";
-    grid-template-columns: 1fr 1.3fr; /* Kedua kolom memiliki lebar yang sama secara default */
-}
+    grid-template-columns: 1fr 1.3fr;
 
+}
 /* ============================= */
 /* 4. Form Section              */
 /* ============================= */
@@ -318,12 +313,12 @@ h1:hover {
 /* 6. Qty Section - Stylish UI   */
 /* ============================= */
 .qty-section {
+    grid-column: 2 / 3;
+    grid-row: 4 / 5; /* Pastikan di baris 4 kolom 2 */
+    margin-top: 0;
+    min-height: unset; /* Biarkan tinggi diatur oleh grid-template-rows */
+    max-height: unset; /* Biarkan tinggi diatur oleh grid-template-rows */
     display: grid;
-         grid-column: 2 / 3;
-    grid-row: 4 / 5;
-        min-height: 110px;
-  max-height: 110px;
-        margin-top: 193px;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 15px;
     grid-auto-flow: row;
@@ -334,7 +329,6 @@ h1:hover {
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
     transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
-
 /* Efek hover pada qty-section */
 .qty-section:hover {
     box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
@@ -436,10 +430,9 @@ h1:hover {
 /* 7. Rework Section            */
 /* ============================= */
 .rework-section {
-     grid-column: 2 / 3;
-    grid-row: 4 / 5;
-    min-height: 110px;
-  max-height: 180px;
+    grid-column: 2 / 3;
+    grid-row: 3 / 4; /* Pastikan di baris 3 kolom 2 */
+    min-height: 110px; /* Tetapkan min-height 110px agar stabil */
     display: flex;
     gap: 20px;
     justify-content: space-between;
@@ -553,21 +546,23 @@ h1:hover {
 }
 
 /* ============================= */
-/* 8. Defect Menu Section       */
+/* 8. Defect Menu Section        */
 /* ============================= */
 .defect-menu {
     grid-column: 2 / 3;
-    grid-row: 3 / 3;
-    margin-top: -13px;
+    grid-row: 2 / 3;     /* Tetap di baris 2, kolom 2 */
+    margin-top: 0;
     background: linear-gradient(145deg, #ffffff, #f3f3f3);
     border-radius: 15px;
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    padding: 16px 20px 20px 20px; /* Atur padding atas menjadi lebih kecil */
+    padding: 16px 20px 20px 20px;
     transition: box-shadow 0.3s ease, transform 0.3s ease;
     font-size: 20px;
     text-align: center;
+    /* Tambahkan kembali min-height untuk stabilitas, tapi nilai yang lebih wajar */
+    min-height: 200px; /* Minimal tinggi yang cukup untuk konten dan tetap stabil */
+    overflow: auto; /* Tambahkan kembali overflow agar scrollbar muncul jika konten melebihi min-height */
 }
-
 .defect-menu h3 {
     margin: 0 0 15px 0;
     font-size: 18px;
@@ -588,7 +583,6 @@ h1:hover {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 15px;
-    
 }
 
 .defect-button {
@@ -605,11 +599,9 @@ h1:hover {
     text-align: center;
     transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    
     min-width: 120px; /* Menentukan lebar minimal tombol */
     min-height: 50px; /* Menentukan tinggi minimal tombol */
     width: auto; /* Memungkinkan tombol menyesuaikan lebar, tetapi tidak lebih kecil dari min-width */
-
     overflow: hidden; /* Menyembunyikan teks yang keluar dari batas tombol */
     white-space: normal; /* Membiarkan teks membungkus ke baris berikutnya */
     word-wrap: break-word; /* Membiarkan teks panjang membungkus ke baris berikutnya */
@@ -624,8 +616,6 @@ h1:hover {
 .defect-button:active {
     transform: scale(0.95);
 }
-
-
 /* ============================= */
 /* 9. Summary Defect Section    */
 /* ============================= */
@@ -643,6 +633,7 @@ h1:hover {
     transition: box-shadow 0.3s ease, transform 0.3s ease;
     text-align: center;
 }
+
 
 .summary-defect h3 {
     /* Style yang sudah ada */
