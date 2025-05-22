@@ -1,5 +1,5 @@
 // ===========================================
-// 1. Deklarasi Variabel Global dan DOM References
+// 1. Deklarasi Variabel Global dan DOM References (Modifikasi)
 // ===========================================
 let totalInspected = 0;
 let totalReworkLeft = 0;
@@ -8,7 +8,7 @@ let totalReworkPairs = 0;
 let defectCounts = {}; // { defectType: { position: { grade: count } } }
 let activeDefectType = null;
 let activeReworkPosition = null;
-let currentSelectedGrade = null; // Tambahan untuk melacak grade yang sedang dipilih
+let currentSelectedGrade = null;
 
 const qtyInspectOutputs = {
     'a-grade': 0,
@@ -29,8 +29,22 @@ let redoRateOutput;
 let qtySampleSetInput;
 let defectButtons;
 let reworkButtons;
-let gradeInputButtons; // Semua tombol grade (A, R, B, C)
+let gradeInputButtons;
 
+// >>> TAMBAHAN UNTUK CONDITIONAL NCVS <<<
+let auditorSelect; // Referensi untuk dropdown Auditor
+let ncvsSelect;     // Referensi untuk dropdown NCVS
+
+// Data mapping Auditor ke NCVS
+const auditorNcvsMap = {
+    "Badrowi": ["109", "110", "111", "112", "113", "114", "115", "116"],
+    "Sopan Sopian": ["101", "102", "103", "104", "105", "106", "107", "108"],
+    "Bagas Rasyid Wicaksono": ["201", "202", "203", "204", "207", "210"]
+};
+
+// Kunci localStorage untuk menyimpan data NCVS yang sudah digunakan
+const USED_NCVS_STORAGE_KEY = 'usedNcvsPerDay';
+// >>> AKHIR TAMBAHAN UNTUK CONDITIONAL NCVS <<<
 
 // ===========================================
 // 2. Fungsi Pembantu: Mengatur Status Tombol
@@ -349,7 +363,7 @@ function handleGradeClick(button) {
 }
 
 // ===========================================
-// 10. Validasi Input dan Simpan Data
+// 10. Validasi Input dan Simpan Data (Modifikasi)
 // ===========================================
 async function saveData() {
     console.log("Memulai proses simpan data...");
@@ -445,6 +459,12 @@ async function saveData() {
         alert(resultText);
 
         if (response.ok && resultText.toLowerCase().includes("berhasil")) {
+            // >>> TAMBAHAN: Tandai NCVS yang baru saja digunakan <<<
+            markNcvsAsUsed(auditorSelect.value, ncvsSelect.value);
+            // Perbarui tampilan dropdown NCVS setelah menandai
+            updateNcvsOptions(auditorSelect.value);
+            // >>> AKHIR TAMBAHAN <<<
+
             resetAllFields();
         } else {
             console.warn("Server merespons OK, tapi pesan tidak mengandung 'berhasil' atau status tidak OK. Hasil:", resultText);
@@ -460,16 +480,27 @@ async function saveData() {
 }
 
 // ===========================================
-// 11. Validasi Input Form
+// 11. Validasi Input Form (Modifikasi)
 // ===========================================
 function validateInputs() {
-    const auditor = document.getElementById("auditor").value.trim();
-    const ncvs = document.getElementById("ncvs").value.trim();
+    const auditor = auditorSelect.value.trim(); // Ambil nilai dari select
+    const ncvs = ncvsSelect.value.trim();       // Ambil nilai dari select
     const modelName = document.getElementById("model-name").value.trim();
     const styleNumberInput = document.getElementById("style-number");
     const styleNumber = styleNumberInput.value.trim();
-    if (!auditor || !ncvs || !modelName || !styleNumber) {
-        alert("Harap isi semua form dasar (Auditor, NCVS, Model, Style Number) sebelum menyimpan data!");
+
+    // Pastikan auditor dan ncvs sudah dipilih
+    if (!auditor || auditor === "") {
+        alert("Harap pilih Auditor.");
+        return false;
+    }
+    if (!ncvs || ncvs === "") {
+        alert("Harap pilih NCVS.");
+        return false;
+    }
+
+    if (!modelName || !styleNumber) {
+        alert("Harap isi semua input dasar (Model, Style Number) sebelum menyimpan data!");
         return false;
     }
 
@@ -483,7 +514,6 @@ function validateInputs() {
     }
     return true;
 }
-
 // ===========================================
 // 12. Validasi Defect sebelum Simpan
 // ===========================================
@@ -540,13 +570,14 @@ function validateQtySampleSet() {
     return true;
 }
 // ===========================================
-// 14. Reset Semua Field Setelah Simpan
+// 14. Reset Semua Field Setelah Simpan (Modifikasi)
 // ===========================================
 function resetAllFields() {
     console.log("Memulai proses reset semua field dan data internal...");
     // Reset input form fields
-    document.getElementById("auditor").value = "";
-    document.getElementById("ncvs").value = "";
+    auditorSelect.value = ""; // Reset pilihan auditor
+    updateNcvsOptions(""); // Kosongkan dan nonaktifkan dropdown NCVS
+
     document.getElementById("model-name").value = "";
     const styleNumberInput = document.getElementById("style-number");
     if (styleNumberInput) {
@@ -598,8 +629,9 @@ function resetAllFields() {
     console.log("Semua field dan data internal telah berhasil direset.");
 }
 
+
 // ===========================================
-// 15. Inisialisasi Aplikasi dan Event Listeners
+// 15. Inisialisasi Aplikasi dan Event Listeners (Modifikasi)
 // ===========================================
 function initApp() {
     console.log("Menginisialisasi aplikasi dengan alur yang diperbarui...");
@@ -622,8 +654,20 @@ function initApp() {
 
     defectButtons = document.querySelectorAll('.defect-button');
     reworkButtons = document.querySelectorAll('.rework-button');
-    gradeInputButtons = document.querySelectorAll('.input-button'); // Mengambil semua input-button
+    gradeInputButtons = document.querySelectorAll('.input-button');
 
+    // >>> TAMBAHAN UNTUK CONDITIONAL NCVS <<<
+    auditorSelect = document.getElementById('auditor');
+    ncvsSelect = document.getElementById('ncvs');
+
+    // Event listener untuk dropdown Auditor
+    if (auditorSelect) {
+        auditorSelect.addEventListener('change', (event) => {
+            const selectedAuditor = event.target.value;
+            updateNcvsOptions(selectedAuditor);
+        });
+    }
+    // >>> AKHIR TAMBAHAN UNTUK CONDITIONAL NCVS <<<
 
     // Cek apakah elemen output ditemukan (debugging tambahan)
     for (const category in outputElements) {
@@ -632,7 +676,7 @@ function initApp() {
         }
     }
 
-    // Setup Event Listeners
+    // Setup Event Listeners untuk tombol (defect, rework, grade)
     defectButtons.forEach(button => {
         button.addEventListener('click', () => {
             handleDefectClick(button);
@@ -662,35 +706,30 @@ function initApp() {
     if (saveButton) {
         saveButton.addEventListener("click", saveData);
     }
-// Inisialisasi Qty Sample Set
-if (qtySampleSetInput) {
-    let storedQty = localStorage.getItem('qtySampleSet');
-    let qtySampleSetValue;
 
-    // Perubahan di sini: Hanya parsing jika ada nilai yang disimpan,
-    // dan pastikan itu angka positif. Jika tidak, set ke string kosong
-    // agar validasi nanti yang menanganinya.
-    if (storedQty && !isNaN(parseInt(storedQty, 10)) && parseInt(storedQty, 10) > 0) {
-        qtySampleSetValue = parseInt(storedQty, 10);
-    } else {
-        qtySampleSetValue = ''; // Set ke string kosong agar input terlihat kosong atau meminta input baru
-    }
+    // Inisialisasi Qty Sample Set (Sesuai modifikasi terakhir Anda)
+    if (qtySampleSetInput) {
+        let storedQty = localStorage.getItem('qtySampleSet');
+        let qtySampleSetValue;
 
-    qtySampleSetInput.value = qtySampleSetValue;
-
-    qtySampleSetInput.addEventListener('change', () => {
-        // Perubahan di sini: Hanya simpan ke localStorage jika valid
-        let newQty = parseInt(qtySampleSetInput.value, 10);
-        if (!isNaN(newQty) && newQty > 0) {
-            localStorage.setItem('qtySampleSet', newQty);
+        if (storedQty && !isNaN(parseInt(storedQty, 10)) && parseInt(storedQty, 10) > 0) {
+            qtySampleSetValue = parseInt(storedQty, 10);
         } else {
-            // Jika input tidak valid (misal: kosong atau 0), hapus dari localStorage
-            // agar pada refresh berikutnya user diminta mengisi lagi.
-            localStorage.removeItem('qtySampleSet');
+            qtySampleSetValue = '';
         }
-        updateTotalQtyInspect();
-    });
-}
+
+        qtySampleSetInput.value = qtySampleSetValue;
+
+        qtySampleSetInput.addEventListener('change', () => {
+            let newQty = parseInt(qtySampleSetInput.value, 10);
+            if (!isNaN(newQty) && newQty > 0) {
+                localStorage.setItem('qtySampleSet', newQty);
+            } else {
+                localStorage.removeItem('qtySampleSet');
+            }
+            updateTotalQtyInspect();
+        });
+    }
 
     // Hilangkan elemen tombol plus minus dari DOM (jika masih ada)
     const plusButtonElement = document.getElementById('plus-button');
@@ -706,11 +745,119 @@ if (qtySampleSetInput) {
     initButtonStates();
     updateTotalQtyInspect(); // Hitung dan tampilkan nilai awal
 
+    // >>> TAMBAHAN UNTUK CONDITIONAL NCVS & Coloring <<<
+    // Panggil ini di awal untuk memastikan dropdown NCVS diatur dengan benar (disabled)
+    // dan juga menerapkan warna berdasarkan data localStorage saat aplikasi dimuat.
+    updateNcvsOptions(auditorSelect.value);
+    // >>> AKHIR TAMBAHAN UNTUK CONDITIONAL NCVS & Coloring <<<
+
     console.log("Aplikasi berhasil diinisialisasi sepenuhnya.");
 }
 
 // === Event listener utama untuk menjalankan inisialisasi setelah DOM siap ===
 document.addEventListener('DOMContentLoaded', initApp);
+
+// >>> FUNGSI BARU UNTUK CONDITIONAL NCVS & Coloring <<<
+
+// Fungsi pembantu untuk mendapatkan tanggal hari ini dalam format YYYY-MM-DD
+function getTodayDateString() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Bulan dimulai dari 0
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// Fungsi untuk mendapatkan data NCVS yang sudah digunakan dari localStorage
+function getUsedNcvsData() {
+    const storedData = localStorage.getItem(USED_NCVS_STORAGE_KEY);
+    let usedNcvsPerDay = {};
+
+    if (storedData) {
+        try {
+            usedNcvsPerDay = JSON.parse(storedData);
+        } catch (e) {
+            console.error("Error parsing used NCVS data from localStorage:", e);
+            // Jika parsing gagal, reset data untuk menghindari masalah
+            usedNcvsPerDay = {};
+        }
+    }
+
+    const todayDate = getTodayDateString();
+
+    // Reset data jika tanggal di localStorage bukan hari ini
+    if (!usedNcvsPerDay[todayDate]) {
+        usedNcvsPerDay = {
+            [todayDate]: {}
+        }; // Buat objek baru untuk hari ini
+        localStorage.setItem(USED_NCVS_STORAGE_KEY, JSON.stringify(usedNcvsPerDay));
+    }
+
+    return usedNcvsPerDay[todayDate]; // Kembalikan data untuk hari ini
+}
+
+// Fungsi untuk menandai NCVS sebagai sudah digunakan
+function markNcvsAsUsed(auditor, ncvs) {
+    if (!auditor || !ncvs) return;
+
+    const todayDate = getTodayDateString();
+    let usedNcvsForToday = getUsedNcvsData(); // Ini sudah memastikan data untuk hari ini ada
+
+    if (!usedNcvsForToday[auditor]) {
+        usedNcvsForToday[auditor] = [];
+    }
+
+    // Pastikan NCVS belum ada di daftar sebelum menambahkannya
+    if (!usedNcvsForToday[auditor].includes(ncvs)) {
+        usedNcvsForToday[auditor].push(ncvs);
+    }
+
+    // Simpan kembali data yang diperbarui ke localStorage
+    const allUsedNcvsData = JSON.parse(localStorage.getItem(USED_NCVS_STORAGE_KEY) || '{}');
+    allUsedNcvsData[todayDate] = usedNcvsForToday;
+    localStorage.setItem(USED_NCVS_STORAGE_KEY, JSON.stringify(allUsedNcvsData));
+}
+
+
+function updateNcvsOptions(selectedAuditor) {
+    // Kosongkan opsi NCVS yang ada
+    ncvsSelect.innerHTML = '';
+
+    // Tambahkan opsi default "Pilih NCVS"
+    const defaultOption = document.createElement('option');
+    defaultOption.value = "";
+    defaultOption.textContent = "Pilih NCVS";
+    ncvsSelect.appendChild(defaultOption);
+
+    // Dapatkan data NCVS yang sudah digunakan untuk auditor hari ini
+    const usedNcvsForToday = getUsedNcvsData();
+    const usedNcvsBySelectedAuditor = usedNcvsForToday[selectedAuditor] || [];
+
+    // Jika ada auditor yang dipilih, isi opsi NCVS yang relevan
+    if (selectedAuditor && auditorNcvsMap[selectedAuditor]) {
+        const ncvsList = auditorNcvsMap[selectedAuditor];
+        ncvsList.forEach(ncvs => {
+            const option = document.createElement('option');
+            option.value = ncvs;
+            option.textContent = ncvs;
+
+            // >>> TAMBAHAN: Terapkan warna merah jika NCVS sudah digunakan <<<
+            if (usedNcvsBySelectedAuditor.includes(ncvs)) {
+                option.classList.add('used-ncvs'); // Tambahkan kelas CSS
+                // Atau bisa juga style inline: option.style.color = 'red';
+            }
+            // >>> AKHIR TAMBAHAN <<<
+
+            ncvsSelect.appendChild(option);
+        });
+        ncvsSelect.disabled = false; // Aktifkan dropdown NCVS
+    } else {
+        ncvsSelect.disabled = true; // Nonaktifkan dropdown NCVS jika tidak ada auditor yang dipilih
+        defaultOption.textContent = "Pilih NCVS (pilih Auditor dahulu)"; // Kembali ke teks awal
+    }
+    ncvsSelect.value = ""; // Reset pilihan NCVS setelah perubahan auditor
+}
+// >>> AKHIR FUNGSI BARU UNTUK CONDITIONAL NCVS & Coloring <<<
 
 // ===========================================
 // 16. (Bagian 18 dari Part 2) - Announcement Logic
