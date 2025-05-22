@@ -469,7 +469,7 @@ function validateInputs() {
     const styleNumberInput = document.getElementById("style-number");
     const styleNumber = styleNumberInput.value.trim();
     if (!auditor || !ncvs || !modelName || !styleNumber) {
-        alert("Harap isi semua input dasar (Auditor, NCVS, Model, Style Number) sebelum menyimpan data!");
+        alert("Harap isi semua form dasar (Auditor, NCVS, Model, Style Number) sebelum menyimpan data!");
         return false;
     }
 
@@ -505,7 +505,7 @@ function validateDefects() {
     const hasRBCGradeInput = qtyInspectOutputs['r-grade'] > 0 || qtyInspectOutputs['b-grade'] > 0 || qtyInspectOutputs['c-grade'] > 0;
 
     if (hasRBCGradeInput && !hasDefectRecorded) {
-        alert("Jika ada item R-Grade, B-Grade, atau C-Grade, harap pastikan setidaknya ada satu defect yang tercatat sebelum menyimpan data!");
+        alert("Jika ada item Rework, B-Grade, atau C-Grade, harap pastikan setidaknya ada satu defect yang tercatat sebelum menyimpan data!");
         return false;
     }
     return true;
@@ -515,17 +515,30 @@ function validateDefects() {
 // 13. Validasi Qty Sample Set
 // ===========================================
 function validateQtySampleSet() {
-    if (!qtySampleSetInput) return true;
-    const qtySampleSetValue = parseInt(qtySampleSetInput.value, 10) || 0;
+    if (!qtySampleSetInput) { // Ini tetap penting jika elemen tidak ada
+        console.error("Elemen qty-sample-set tidak ditemukan!");
+        return false; // Mengembalikan false karena input esensial tidak ada
+    }
+
+    const qtySampleSetValue = parseInt(qtySampleSetInput.value, 10); // Hapus '|| 0'
+
+    // KASUS BARU: Validasi jika Qty Sample Set kosong atau 0 (dan bukan angka valid)
+    if (isNaN(qtySampleSetValue) || qtySampleSetValue <= 0) {
+        alert("Harap masukkan Jumlah Qty Sample Set yang valid dan lebih dari 0.");
+        return false;
+    }
+
     const currentTotalInspect = totalInspected;
 
-    if (qtySampleSetValue > 0 && currentTotalInspect !== qtySampleSetValue) {
+    // KASUS YANG SAMA DENGAN SEBELUMNYA: Qty Sample Set tidak cocok dengan Qty Inspect
+    if (currentTotalInspect !== qtySampleSetValue) {
         alert(`Jumlah total Qty Inspect (${currentTotalInspect}) harus sama dengan Qty Sample Set (${qtySampleSetValue}).`);
         return false;
     }
+
+    // Jika semua validasi berhasil
     return true;
 }
-
 // ===========================================
 // 14. Reset Semua Field Setelah Simpan
 // ===========================================
@@ -649,17 +662,35 @@ function initApp() {
     if (saveButton) {
         saveButton.addEventListener("click", saveData);
     }
+// Inisialisasi Qty Sample Set
+if (qtySampleSetInput) {
+    let storedQty = localStorage.getItem('qtySampleSet');
+    let qtySampleSetValue;
 
-    // Inisialisasi Qty Sample Set
-    if (qtySampleSetInput) {
-        let qtySampleSetValue = parseInt(localStorage.getItem('qtySampleSet')) || 0;
-        qtySampleSetInput.value = qtySampleSetValue;
-        qtySampleSetInput.addEventListener('change', () => {
-            qtySampleSetValue = parseInt(qtySampleSetInput.value, 10) || 0;
-            localStorage.setItem('qtySampleSet', qtySampleSetValue);
-            updateTotalQtyInspect();
-        });
+    // Perubahan di sini: Hanya parsing jika ada nilai yang disimpan,
+    // dan pastikan itu angka positif. Jika tidak, set ke string kosong
+    // agar validasi nanti yang menanganinya.
+    if (storedQty && !isNaN(parseInt(storedQty, 10)) && parseInt(storedQty, 10) > 0) {
+        qtySampleSetValue = parseInt(storedQty, 10);
+    } else {
+        qtySampleSetValue = ''; // Set ke string kosong agar input terlihat kosong atau meminta input baru
     }
+
+    qtySampleSetInput.value = qtySampleSetValue;
+
+    qtySampleSetInput.addEventListener('change', () => {
+        // Perubahan di sini: Hanya simpan ke localStorage jika valid
+        let newQty = parseInt(qtySampleSetInput.value, 10);
+        if (!isNaN(newQty) && newQty > 0) {
+            localStorage.setItem('qtySampleSet', newQty);
+        } else {
+            // Jika input tidak valid (misal: kosong atau 0), hapus dari localStorage
+            // agar pada refresh berikutnya user diminta mengisi lagi.
+            localStorage.removeItem('qtySampleSet');
+        }
+        updateTotalQtyInspect();
+    });
+}
 
     // Hilangkan elemen tombol plus minus dari DOM (jika masih ada)
     const plusButtonElement = document.getElementById('plus-button');
