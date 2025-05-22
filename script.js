@@ -718,8 +718,7 @@ document.addEventListener('DOMContentLoaded', initApp);
 // (Kode Announcement Anda yang sudah ada, tetap di sini atau pisahkan jika memang terpisah di file lain)
 document.addEventListener('DOMContentLoaded', () => {
     const announcements = [
-        { date: "2024-10-26", text: "info a" },
-        { date: "2024-10-26", text: "info B" },
+        { date: "05-22-2025", text: "E-QMS kini hadir dalam versi web sebagai upgrade dari sistem berbasis Google Spreadsheet, menawarkan kemudahan input bagi auditor, akurasi data yang lebih baik, serta mengurangi risiko human error maupun kendala teknis pada sistem lama. Implementasi E-QMS Web App merupakan bagian dari komitmen kami dalam digitalisasi proses mutu, sejalan dengan visi untuk menciptakan operasional yang agile, data-driven, dan berkelanjutan." },
     ];
     let currentAnnouncementIndex = 0;
     let viewedAnnouncements = JSON.parse(localStorage.getItem('viewedAnnouncements')) || [];
