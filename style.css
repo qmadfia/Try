@@ -66,7 +66,7 @@ h1:hover {
 
 }
 /* ============================= */
-/* 4. Form Section              */
+/* 4. Form Section             */
 /* ============================= */
 .form-section {
     grid-column: 1 / 2;
@@ -111,6 +111,24 @@ h1:hover {
     box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
     outline: none;
 }
+
+/* --- STYLING UNTUK NCVS YANG SUDAH DIGUNAKAN --- */
+/* Ini akan mewarnai opsi individual di dropdown saat dibuka */
+#ncvs option.used-ncvs {
+    color: red;
+    font-weight: bold;
+    /* Anda bisa menambahkan gaya lain di sini jika diperlukan */
+    /* background-color: #ffebeb; */
+}
+
+/* Ini akan mencoba mewarnai teks yang terlihat di kotak select saat tertutup.
+   Efeknya mungkin tidak konsisten di semua browser karena keterbatasan styling <select> native. */
+#ncvs.used-selected-ncvs {
+    color: red;
+    font-weight: bold;
+}
+/* --- AKHIR STYLING NCVS --- */
+
 
 .button-wrapper {
     display: flex;
@@ -183,7 +201,6 @@ h1:hover {
         letter-spacing: 0.3px;
     }
 }
-
 
 
 /* ============================= */
