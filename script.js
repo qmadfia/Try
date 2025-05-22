@@ -436,7 +436,7 @@ async function saveData() {
     saveButton.textContent = "MENYIMPAN...";
 
     try {
-        const response = await fetch("https://script.google.com/macros/s/AKfycbyW34fK_1aWF6U7-7-5XocVI0PVC1qJdjdSLiW9FiLy4H4gkJHk3lQltuLtArQoqi6X/exec", { // Perhatikan URL ini, saya ganti satu karakter saja agar unik untuk pengujian
+        const response = await fetch("https://script.google.com/macros/s/AKfycbz8uyEU-5MXA5-2TeOOlis8HvXOQ0kgwIcpyERu5lzivRxEfbCXMg1GOZHOBq-Qr2ND/exec", { // Perhatikan URL ini, saya ganti satu karakter saja agar unik untuk pengujian
             method: "POST",
             body: JSON.stringify(dataToSend),
         });
