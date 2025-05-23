@@ -491,16 +491,16 @@ function validateInputs() {
 
     // Pastikan auditor dan ncvs sudah dipilih
     if (!auditor || auditor === "") {
-        alert("Harap pilih Auditor.");
+        alert("Harap isi semua form dasar (Auditor, NCVS, Model, Style Number) sebelum menyimpan data!");
         return false;
     }
     if (!ncvs || ncvs === "") {
-        alert("Harap pilih NCVS.");
+        alert("Harap isi semua form dasar (Auditor, NCVS, Model, Style Number) sebelum menyimpan data!");
         return false;
     }
 
     if (!modelName || !styleNumber) {
-        alert("Harap isi semua input dasar (Model, Style Number) sebelum menyimpan data!");
+        alert("Harap isi semua form dasar (Auditor, NCVS, Model, Style Number) sebelum menyimpan data!");
         return false;
     }
 
