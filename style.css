@@ -7,6 +7,7 @@ body {
     color: #333;
     margin: 0;
     padding: 0; /* Pastikan tidak ada padding body yang tidak perlu */
+    overscroll-behavior: none;
 }
 
 /* ============================= */
@@ -62,7 +63,7 @@ h1:hover {
     gap: 10px; /* Jaga jarak 10px antar grid items */
     padding: 1px; /* Mengurangi padding dashboard jika terlalu lebar */
     box-sizing: border-box;
-    grid-template-columns: 1fr 1.3fr;
+    grid-template-columns: 1fr 3.5fr;
 
 }
 /* ============================= */
@@ -404,7 +405,7 @@ h1:hover {
 }
 
 .r-grade {
-    background: linear-gradient(135deg, #00008B);
+    background: linear-gradient(135deg, #00008B, #00008B);
 }
 
 .b-grade {
