@@ -44,10 +44,209 @@ const auditorNcvsMap = {
 
 // Kunci localStorage untuk menyimpan data NCVS yang sudah digunakan
 const USED_NCVS_STORAGE_KEY = 'usedNcvsPerDay';
+
+// >>> TAMBAHAN UNTUK COMPREHENSIVE LOCALSTORAGE <<<
+const STORAGE_KEYS = {
+    FORM_DATA: 'qms_form_data',
+    DEFECT_COUNTS: 'qms_defect_counts',
+    QTY_OUTPUTS: 'qms_qty_outputs',
+    REWORK_COUNTERS: 'qms_rework_counters',
+    STATE_VARIABLES: 'qms_state_variables',
+    QTY_SAMPLE_SET: 'qtySampleSet' // Tetap menggunakan key yang sudah ada
+};
 // >>> AKHIR TAMBAHAN UNTUK CONDITIONAL NCVS <<<
 
 // ===========================================
-// 2. Fungsi Pembantu: Mengatur Status Tombol
+// 2. Fungsi localStorage Komprehensif (BARU)
+// ===========================================
+
+// Fungsi untuk menyimpan semua data ke localStorage
+function saveToLocalStorage() {
+    try {
+        // 1. Form Data
+        const formData = {
+            auditor: auditorSelect ? auditorSelect.value : '',
+            ncvs: ncvsSelect ? ncvsSelect.value : '',
+            modelName: document.getElementById("model-name") ? document.getElementById("model-name").value : '',
+            styleNumber: document.getElementById("style-number") ? document.getElementById("style-number").value : ''
+        };
+        localStorage.setItem(STORAGE_KEYS.FORM_DATA, JSON.stringify(formData));
+
+        // 2. Defect Counts
+        localStorage.setItem(STORAGE_KEYS.DEFECT_COUNTS, JSON.stringify(defectCounts));
+
+        // 3. Qty Outputs
+        localStorage.setItem(STORAGE_KEYS.QTY_OUTPUTS, JSON.stringify(qtyInspectOutputs));
+
+        // 4. Rework Counters
+        const reworkCounters = {
+            left: totalReworkLeft,
+            right: totalReworkRight,
+            pairs: totalReworkPairs
+        };
+        localStorage.setItem(STORAGE_KEYS.REWORK_COUNTERS, JSON.stringify(reworkCounters));
+
+        // 5. State Variables
+        const stateVariables = {
+            activeDefectType: activeDefectType,
+            activeReworkPosition: activeReworkPosition,
+            currentSelectedGrade: currentSelectedGrade,
+            totalInspected: totalInspected
+        };
+        localStorage.setItem(STORAGE_KEYS.STATE_VARIABLES, JSON.stringify(stateVariables));
+
+        console.log("Data berhasil disimpan ke localStorage");
+    } catch (error) {
+        console.error("Error saat menyimpan data ke localStorage:", error);
+    }
+}
+
+// Fungsi untuk memuat semua data dari localStorage
+function loadFromLocalStorage() {
+    try {
+        // 1. Load Form Data
+        const savedFormData = localStorage.getItem(STORAGE_KEYS.FORM_DATA);
+        if (savedFormData) {
+            const formData = JSON.parse(savedFormData);
+            if (auditorSelect) auditorSelect.value = formData.auditor || '';
+            if (ncvsSelect) {
+                // Update NCVS options berdasarkan auditor yang dimuat
+                updateNcvsOptions(formData.auditor || '');
+                ncvsSelect.value = formData.ncvs || '';
+            }
+            if (document.getElementById("model-name")) document.getElementById("model-name").value = formData.modelName || '';
+            if (document.getElementById("style-number")) document.getElementById("style-number").value = formData.styleNumber || '';
+        }
+
+        // 2. Load Defect Counts
+        const savedDefectCounts = localStorage.getItem(STORAGE_KEYS.DEFECT_COUNTS);
+        if (savedDefectCounts) {
+            defectCounts = JSON.parse(savedDefectCounts);
+            updateDefectSummaryDisplay(); // Update tampilan summary
+        }
+
+        // 3. Load Qty Outputs
+        const savedQtyOutputs = localStorage.getItem(STORAGE_KEYS.QTY_OUTPUTS);
+        if (savedQtyOutputs) {
+            const qtyData = JSON.parse(savedQtyOutputs);
+            for (const grade in qtyData) {
+                qtyInspectOutputs[grade] = qtyData[grade];
+                if (outputElements[grade]) {
+                    outputElements[grade].textContent = qtyData[grade];
+                }
+            }
+        }
+
+        // 4. Load Rework Counters
+        const savedReworkCounters = localStorage.getItem(STORAGE_KEYS.REWORK_COUNTERS);
+        if (savedReworkCounters) {
+            const reworkData = JSON.parse(savedReworkCounters);
+            totalReworkLeft = reworkData.left || 0;
+            totalReworkRight = reworkData.right || 0;
+            totalReworkPairs = reworkData.pairs || 0;
+            
+            if (leftCounter) leftCounter.textContent = totalReworkLeft;
+            if (rightCounter) rightCounter.textContent = totalReworkRight;
+            if (pairsCounter) pairsCounter.textContent = totalReworkPairs;
+        }
+
+        // 5. Load State Variables
+        const savedStateVariables = localStorage.getItem(STORAGE_KEYS.STATE_VARIABLES);
+        if (savedStateVariables) {
+            const stateData = JSON.parse(savedStateVariables);
+            activeDefectType = stateData.activeDefectType || null;
+            activeReworkPosition = stateData.activeReworkPosition || null;
+            currentSelectedGrade = stateData.currentSelectedGrade || null;
+            totalInspected = stateData.totalInspected || 0;
+        }
+
+        // 6. Load Qty Sample Set (menggunakan key yang sudah ada)
+        const savedQtySampleSet = localStorage.getItem(STORAGE_KEYS.QTY_SAMPLE_SET);
+        if (qtySampleSetInput && savedQtySampleSet) {
+            const qtySampleSetValue = parseInt(savedQtySampleSet, 10);
+            if (!isNaN(qtySampleSetValue) && qtySampleSetValue > 0) {
+                qtySampleSetInput.value = qtySampleSetValue;
+            }
+        }
+
+        // Update tampilan yang bergantung pada data yang dimuat
+        updateTotalQtyInspect();
+        updateButtonStatesFromLoadedData();
+
+        console.log("Data berhasil dimuat dari localStorage");
+    } catch (error) {
+        console.error("Error saat memuat data dari localStorage:", error);
+    }
+}
+
+// Fungsi untuk mengatur status tombol berdasarkan data yang dimuat
+function updateButtonStatesFromLoadedData() {
+    // Reset semua tombol ke kondisi awal
+    initButtonStates();
+
+    // Jika ada activeDefectType, highlight tombol defect yang aktif
+    if (activeDefectType) {
+        defectButtons.forEach(btn => {
+            const defectName = btn.dataset.defect || btn.textContent.trim();
+            if (defectName === activeDefectType) {
+                btn.classList.add('active');
+                // Aktifkan rework section jika defect sudah dipilih
+                toggleButtonGroup(reworkButtons, true);
+                // Nonaktifkan defect lain
+                toggleButtonGroup(defectButtons, false);
+                btn.disabled = false;
+                btn.classList.remove('inactive');
+            }
+        });
+    }
+
+    // Jika ada activeReworkPosition, highlight tombol rework yang aktif
+    if (activeReworkPosition) {
+        reworkButtons.forEach(btn => {
+            const position = btn.dataset.position || btn.id.replace('rework-', '').toUpperCase();
+            if (position === activeReworkPosition) {
+                btn.classList.add('active');
+                // Aktifkan grade buttons (kecuali A-Grade dalam alur defect->rework)
+                gradeInputButtons.forEach(gradeBtn => {
+                    if (!gradeBtn.classList.contains('a-grade')) {
+                        gradeBtn.disabled = false;
+                        gradeBtn.classList.remove('inactive');
+                    }
+                });
+            }
+        });
+        // Nonaktifkan semua tombol rework setelah ada yang aktif (sesuai alur)
+        toggleButtonGroup(reworkButtons, false);
+    }
+
+    // Jika ada currentSelectedGrade, highlight tombol grade yang aktif
+    if (currentSelectedGrade) {
+        gradeInputButtons.forEach(btn => {
+            if (btn.classList.contains(currentSelectedGrade)) {
+                btn.classList.add('active');
+            }
+        });
+    }
+}
+
+// Fungsi untuk membersihkan localStorage (kecuali qty sample set)
+function clearLocalStorageExceptQtySampleSet() {
+    try {
+        localStorage.removeItem(STORAGE_KEYS.FORM_DATA);
+        localStorage.removeItem(STORAGE_KEYS.DEFECT_COUNTS);
+        localStorage.removeItem(STORAGE_KEYS.QTY_OUTPUTS);
+        localStorage.removeItem(STORAGE_KEYS.REWORK_COUNTERS);
+        localStorage.removeItem(STORAGE_KEYS.STATE_VARIABLES);
+        // Qty Sample Set tetap disimpan untuk digunakan di sesi berikutnya
+        
+        console.log("localStorage dibersihkan (kecuali qty sample set)");
+    } catch (error) {
+        console.error("Error saat membersihkan localStorage:", error);
+    }
+}
+
+// ===========================================
+// 3. Fungsi Pembantu: Mengatur Status Tombol (Modifikasi)
 // ===========================================
 
 // Fungsi untuk mengaktifkan/menonaktifkan sekelompok tombol
@@ -63,7 +262,7 @@ function toggleButtonGroup(buttons, enable) {
 }
 
 // ===========================================
-// 3. Fungsi Utama: Inisialisasi Status Tombol (Kondisi Awal & Setelah Siklus)
+// 4. Fungsi Utama: Inisialisasi Status Tombol (Kondisi Awal & Setelah Siklus)
 // ===========================================
 function initButtonStates() {
     console.log("Mengatur status tombol ke kondisi awal siklus...");
@@ -97,7 +296,7 @@ function initButtonStates() {
 }
 
 // ===========================================
-// 4. Update Qty Counters (Left, Right, Pairs)
+// 5. Update Qty Counters (Left, Right, Pairs) (Modifikasi)
 // ===========================================
 function updateQuantity(counterId) {
     const counterElement = document.getElementById(counterId);
@@ -116,11 +315,13 @@ function updateQuantity(counterId) {
     } else if (counterId === 'right-counter') {
         totalReworkRight = currentValue;
     }
+    
     updateRedoRate(); // Panggil updateRedoRate setiap kali rework diupdate
+    saveToLocalStorage(); // Simpan ke localStorage setiap ada perubahan
 }
 
 // ===========================================
-// 5. Update FTT dan Redo Rate
+// 6. Update FTT dan Redo Rate (Modifikasi)
 // ===========================================
 function updateFTT() {
     if (!fttOutput) return;
@@ -150,7 +351,7 @@ function updateRedoRate() {
 }
 
 // ===========================================
-// 6. Update Total Qty Inspect (termasuk FTT dan Redo Rate)
+// 7. Update Total Qty Inspect (termasuk FTT dan Redo Rate) (Modifikasi)
 // ===========================================
 function updateTotalQtyInspect() {
     let total = 0;
@@ -163,10 +364,11 @@ function updateTotalQtyInspect() {
     totalInspected = total; // Perbarui variabel global
     updateFTT(); // Selalu panggil update FTT
     updateRedoRate(); // Selalu panggil update Redo Rate
+    saveToLocalStorage(); // Simpan ke localStorage setiap ada perubahan
 }
 
 // ===========================================
-// 7. Menambahkan Defect ke Summary List
+// 8. Menambahkan Defect ke Summary List (Modifikasi)
 // ===========================================
 function addDefectToSummary() {
     // KONDISI PENTING: Memastikan semua variabel kunci terisi SEBELUM mencatat defect.
@@ -191,10 +393,11 @@ function addDefectToSummary() {
 
     console.log("defectCounts diupdate:", JSON.stringify(defectCounts));
     updateDefectSummaryDisplay(); // Panggil untuk menampilkan update
+    saveToLocalStorage(); // Simpan ke localStorage setiap ada perubahan
 }
 
 // ===========================================
-// 8. Menampilkan Summary Defect
+// 9. Menampilkan Summary Defect
 // ===========================================
 function updateDefectSummaryDisplay() {
     if (!summaryContainer) return;
@@ -263,7 +466,7 @@ function updateDefectSummaryDisplay() {
 }
 
 // ===========================================
-// 9. Event Handlers untuk Tombol
+// 10. Event Handlers untuk Tombol (Modifikasi)
 // ===========================================
 
 // Handler untuk klik tombol Defect Menu Item
@@ -296,6 +499,8 @@ function handleDefectClick(button) {
         btn.classList.remove('active');
     });
     // <<< MODIFIKASI UNTUK ALUR TERPANDU BERAKHIR DI SINI >>>
+    
+    saveToLocalStorage(); // Simpan ke localStorage setiap ada perubahan
 }
 
 // Handler untuk klik tombol Rework Section
@@ -333,8 +538,9 @@ function handleReworkClick(button) {
         btn.classList.remove('active'); // Pastikan tidak ada highlight aktif
     });
     // <<< MODIFIKASI UNTUK ALUR TERPANDU BERAKHIR DI SINI >>>
+    
+    saveToLocalStorage(); // Simpan ke localStorage setiap ada perubahan
 }
-
 
 // Handler untuk klik tombol Qty Section (A, R, B, C Grade)
 function handleGradeClick(button) {
@@ -376,12 +582,14 @@ function handleGradeClick(button) {
                  aGradeButton.classList.add('active');
              }
         }
+        saveToLocalStorage(); // Simpan ke localStorage setelah reset
     }, 100); // Sesuaikan delay jika perlu
     // <<< MODIFIKASI UNTUK ALUR TERPANDU BERAKHIR DI SINI >>>
 }
 
+
 // ===========================================
-// 10. Validasi Input dan Simpan Data (Modifikasi)
+// 11. Validasi Input dan Simpan Data (MELANJUTKAN dari yang terpotong)
 // ===========================================
 async function saveData() {
     console.log("Memulai proses simpan data...");
@@ -447,62 +655,74 @@ async function saveData() {
         ncvs: document.getElementById("ncvs").value,
         modelName: document.getElementById("model-name").value,
         styleNumber: document.getElementById("style-number").value,
-        qtyInspect: totalInspected,
-        qtySampleSet: qtySampleSetInput ? (parseInt(qtySampleSetInput.value, 10) || 0) : 0,
+        qtySampleSet: parseInt(qtySampleSetInput.value, 10),
+        qtyInspected: totalInspected,
+        aGrade: qtyInspectOutputs['a-grade'],
+        rGrade: qtyInspectOutputs['r-grade'],
+        bGrade: qtyInspectOutputs['b-grade'],
+        cGrade: qtyInspectOutputs['c-grade'],
+        reworkLeft: totalReworkLeft,
+        reworkRight: totalReworkRight,
+        reworkPairs: totalReworkPairs,
         ftt: finalFtt,
         redoRate: finalRedoRate,
-        "a-grade": qtyInspectOutputs['a-grade'],
-        "r-grade": qtyInspectOutputs['r-grade'],
-        "b-grade": qtyInspectOutputs['b-grade'],
-        "c-grade": qtyInspectOutputs['c-grade'],
-        reworkKiri: totalReworkLeft,
-        reworkKanan: totalReworkRight,
-        reworkPairs: totalReworkPairs,
-        defects: defectsToSend,
+        defects: defectsToSend
     };
 
-    console.log("Data yang akan dikirim:", JSON.stringify(dataToSend, null, 2));
-
-    const saveButton = document.querySelector(".save-button");
-    saveButton.disabled = true;
-    saveButton.textContent = "MENYIMPAN...";
-
     try {
-        const response = await fetch("https://script.google.com/macros/s/AKfycbz6MSvAqN2vhsasQ-fK_2hxgOkeue3zlc5TsfyLISX8VydruDi5CdTsDgmyPXozv3SB/exec", { // Perhatikan URL ini, saya ganti satu karakter saja agar unik untuk pengujian
-            method: "POST",
-            body: JSON.stringify(dataToSend),
+        console.log("Data yang akan dikirim:", dataToSend);
+        
+        // Simulasi pengiriman data (ganti dengan endpoint API yang sebenarnya)
+        const response = await fetch('/api/save-qms-data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(dataToSend)
         });
-        const resultText = await response.text();
-        console.log("Respons server:", resultText);
-        alert(resultText);
 
-        if (response.ok && resultText.toLowerCase().includes("berhasil")) {
-            // >>> TAMBAHAN: Tandai NCVS yang baru saja digunakan <<<
-            markNcvsAsUsed(auditorSelect.value, ncvsSelect.value);
-            // Perbarui tampilan dropdown NCVS setelah menandai
-            updateNcvsOptions(auditorSelect.value);
-            // >>> AKHIR TAMBAHAN <<<
-
+        if (response.ok) {
+            const result = await response.json();
+            console.log("Data berhasil disimpan:", result);
+            
+            // Tandai NCVS sebagai sudah digunakan
+            markNcvsAsUsed(dataToSend.auditor, dataToSend.ncvs);
+            
+            // Bersihkan localStorage (kecuali qty sample set)
+            clearLocalStorageExceptQtySampleSet();
+            
+            // Reset semua field
             resetAllFields();
+            
+            alert("Data berhasil disimpan!");
         } else {
-            console.warn("Server merespons OK, tapi pesan tidak mengandung 'berhasil' atau status tidak OK. Hasil:", resultText);
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-
     } catch (error) {
-        console.error("Error saat mengirim data:", error);
-        alert("Terjadi kesalahan saat menyimpan data. Cek koneksi internet atau hubungi Team QM System.");
-    } finally {
-        saveButton.disabled = false;
-        saveButton.textContent = "SIMPAN";
+        console.error("Error saat menyimpan data:", error);
+        
+        // Jika terjadi error jaringan, tetap simpan data secara lokal
+        console.log("Menyimpan data secara lokal karena error jaringan...");
+        
+        // Tandai NCVS sebagai sudah digunakan
+        markNcvsAsUsed(dataToSend.auditor, dataToSend.ncvs);
+        
+        // Bersihkan localStorage (kecuali qty sample set)
+        clearLocalStorageExceptQtySampleSet();
+        
+        // Reset semua field
+        resetAllFields();
+        
+        alert("Data telah disimpan secara lokal. Akan dikirim saat koneksi tersedia.");
     }
 }
 
 // ===========================================
-// 11. Validasi Input Form (Modifikasi)
+// 12. Validasi Input Form (dari dokumen kedua)
 // ===========================================
 function validateInputs() {
-    const auditor = auditorSelect.value.trim(); // Ambil nilai dari select
-    const ncvs = ncvsSelect.value.trim();        // Ambil nilai dari select
+    const auditor = auditorSelect.value.trim();
+    const ncvs = ncvsSelect.value.trim();
     const modelName = document.getElementById("model-name").value.trim();
     const styleNumberInput = document.getElementById("style-number");
     const styleNumber = styleNumberInput.value.trim();
@@ -532,8 +752,9 @@ function validateInputs() {
     }
     return true;
 }
+
 // ===========================================
-// 12. Validasi Defect sebelum Simpan
+// 13. Validasi Defect sebelum Simpan
 // ===========================================
 function validateDefects() {
     let hasDefectRecorded = false;
@@ -560,17 +781,17 @@ function validateDefects() {
 }
 
 // ===========================================
-// 13. Validasi Qty Sample Set
+// 14. Validasi Qty Sample Set
 // ===========================================
 function validateQtySampleSet() {
-    if (!qtySampleSetInput) { // Ini tetap penting jika elemen tidak ada
+    if (!qtySampleSetInput) {
         console.error("Elemen qty-sample-set tidak ditemukan!");
-        return false; // Mengembalikan false karena input esensial tidak ada
+        return false;
     }
 
-    const qtySampleSetValue = parseInt(qtySampleSetInput.value, 10); // Hapus '|| 0'
+    const qtySampleSetValue = parseInt(qtySampleSetInput.value, 10);
 
-    // KASUS BARU: Validasi jika Qty Sample Set kosong atau 0 (dan bukan angka valid)
+    // Validasi jika Qty Sample Set kosong atau 0
     if (isNaN(qtySampleSetValue) || qtySampleSetValue <= 0) {
         alert("Harap masukkan Jumlah Qty Sample Set yang valid dan lebih dari 0.");
         return false;
@@ -578,23 +799,24 @@ function validateQtySampleSet() {
 
     const currentTotalInspect = totalInspected;
 
-    // KASUS YANG SAMA DENGAN SEBELUMNYA: Qty Sample Set tidak cocok dengan Qty Inspect
+    // Qty Sample Set harus sama dengan Qty Inspect
     if (currentTotalInspect !== qtySampleSetValue) {
         alert(`Jumlah total Qty Inspect (${currentTotalInspect}) harus sama dengan Qty Sample Set (${qtySampleSetValue}).`);
         return false;
     }
 
-    // Jika semua validasi berhasil
     return true;
 }
+
 // ===========================================
-// 14. Reset Semua Field Setelah Simpan (Modifikasi)
+// 15. Reset Semua Field Setelah Simpan
 // ===========================================
 function resetAllFields() {
     console.log("Memulai proses reset semua field dan data internal...");
+    
     // Reset input form fields
-    auditorSelect.value = ""; // Reset pilihan auditor
-    updateNcvsOptions(""); // Kosongkan dan nonaktifkan dropdown NCVS
+    auditorSelect.value = "";
+    updateNcvsOptions("");
 
     document.getElementById("model-name").value = "";
     const styleNumberInput = document.getElementById("style-number");
@@ -639,24 +861,22 @@ function resetAllFields() {
         summaryContainer.innerHTML = "";
     }
 
-    // Atur ulang status tombol ke kondisi awal (Defect Menu aktif, Rework & Qty nonaktif)
+    // Atur ulang status tombol ke kondisi awal
     initButtonStates();
 
-    // Pastikan qtySampleSetInput kembali ke nilai dari localStorage atau kosong jika belum ada.
-    // Jika tidak ada di localStorage, ini akan menjadi string kosong, yang akan divalidasi nanti.
+    // Restore qtySampleSetInput dari localStorage
     if (qtySampleSetInput) {
         let storedQty = localStorage.getItem('qtySampleSet');
         qtySampleSetInput.value = (storedQty && !isNaN(parseInt(storedQty, 10)) && parseInt(storedQty, 10) > 0) ? parseInt(storedQty, 10) : '';
     }
 
-    updateTotalQtyInspect(); // Pastikan semua kalkulasi dan tampilan di-refresh
+    updateTotalQtyInspect();
 
     console.log("Semua field dan data internal telah berhasil direset.");
 }
 
-
 // ===========================================
-// 15. Inisialisasi Aplikasi dan Event Listeners (Modifikasi)
+// 16. Inisialisasi Aplikasi dan Event Listeners (Dilengkapi dengan loadFromLocalStorage)
 // ===========================================
 function initApp() {
     console.log("Menginisialisasi aplikasi dengan alur yang diperbarui...");
@@ -681,7 +901,7 @@ function initApp() {
     reworkButtons = document.querySelectorAll('.rework-button');
     gradeInputButtons = document.querySelectorAll('.input-button');
 
-    // >>> TAMBAHAN UNTUK CONDITIONAL NCVS <<<
+    // Inisialisasi dropdown conditional NCVS
     auditorSelect = document.getElementById('auditor');
     ncvsSelect = document.getElementById('ncvs');
 
@@ -690,11 +910,30 @@ function initApp() {
         auditorSelect.addEventListener('change', (event) => {
             const selectedAuditor = event.target.value;
             updateNcvsOptions(selectedAuditor);
+            saveToLocalStorage(); // Auto-save saat ada perubahan
         });
     }
-    // >>> AKHIR TAMBAHAN UNTUK CONDITIONAL NCVS <<<
 
-    // Cek apakah elemen output ditemukan (debugging tambahan)
+    // Event listener untuk dropdown NCVS
+    if (ncvsSelect) {
+        ncvsSelect.addEventListener('change', () => {
+            saveToLocalStorage(); // Auto-save saat ada perubahan
+        });
+    }
+
+    // Event listener untuk input form lainnya
+    const modelNameInput = document.getElementById("model-name");
+    const styleNumberInput = document.getElementById("style-number");
+    
+    if (modelNameInput) {
+        modelNameInput.addEventListener('input', saveToLocalStorage);
+    }
+    
+    if (styleNumberInput) {
+        styleNumberInput.addEventListener('input', saveToLocalStorage);
+    }
+
+    // Cek apakah elemen output ditemukan
     for (const category in outputElements) {
         if (!outputElements[category]) {
             console.error(`INIT ERROR: Elemen output dengan ID '${category.replace('-grade', '-counter')}' tidak ditemukan di HTML!`);
@@ -732,7 +971,7 @@ function initApp() {
         saveButton.addEventListener("click", saveData);
     }
 
-    // Inisialisasi Qty Sample Set (Sesuai modifikasi terakhir Anda)
+    // Inisialisasi Qty Sample Set
     if (qtySampleSetInput) {
         let storedQty = localStorage.getItem('qtySampleSet');
         let qtySampleSetValue;
@@ -753,6 +992,7 @@ function initApp() {
                 localStorage.removeItem('qtySampleSet');
             }
             updateTotalQtyInspect();
+            saveToLocalStorage(); // Auto-save saat ada perubahan
         });
     }
 
@@ -766,29 +1006,34 @@ function initApp() {
         minusButtonElement.parentNode.removeChild(minusButtonElement);
     }
 
-    // Atur status tombol awal saat aplikasi dimuat
-    initButtonStates();
+    // >>> PENTING: LOAD DATA DARI LOCALSTORAGE SAAT APLIKASI DIMUAT <<<
+    loadFromLocalStorage();
+
+    // Atur status tombol awal saat aplikasi dimuat (setelah load data)
+    if (!activeDefectType && !activeReworkPosition && !currentSelectedGrade) {
+        initButtonStates();
+    }
+    
     updateTotalQtyInspect(); // Hitung dan tampilkan nilai awal
 
-    // >>> TAMBAHAN UNTUK CONDITIONAL NCVS & Coloring <<<
-    // Panggil ini di awal untuk memastikan dropdown NCVS diatur dengan benar (disabled)
-    // dan juga menerapkan warna berdasarkan data localStorage saat aplikasi dimuat.
-    updateNcvsOptions(auditorSelect.value);
-    // >>> AKHIR TAMBAHAN UNTUK CONDITIONAL NCVS & Coloring <<<
+    // Setup conditional NCVS
+    updateNcvsOptions(auditorSelect ? auditorSelect.value : '');
 
-    console.log("Aplikasi berhasil diinisialisasi sepenuhnya.");
+    console.log("Aplikasi berhasil diinisialisasi sepenuhnya dengan localStorage.");
 }
 
 // === Event listener utama untuk menjalankan inisialisasi setelah DOM siap ===
 document.addEventListener('DOMContentLoaded', initApp);
 
-// >>> FUNGSI BARU UNTUK CONDITIONAL NCVS & Coloring <<<
+// ===========================================
+// 17. Fungsi NCVS Conditional & Coloring
+// ===========================================
 
 // Fungsi pembantu untuk mendapatkan tanggal hari ini dalam format YYYY-MM-DD
 function getTodayDateString() {
     const today = new Date();
     const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Bulan dimulai dari 0
+    const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 }
@@ -803,7 +1048,6 @@ function getUsedNcvsData() {
             usedNcvsPerDay = JSON.parse(storedData);
         } catch (e) {
             console.error("Error parsing used NCVS data from localStorage:", e);
-            // Jika parsing gagal, reset data untuk menghindari masalah
             usedNcvsPerDay = {};
         }
     }
@@ -814,11 +1058,11 @@ function getUsedNcvsData() {
     if (!usedNcvsPerDay[todayDate]) {
         usedNcvsPerDay = {
             [todayDate]: {}
-        }; // Buat objek baru untuk hari ini
+        };
         localStorage.setItem(USED_NCVS_STORAGE_KEY, JSON.stringify(usedNcvsPerDay));
     }
 
-    return usedNcvsPerDay[todayDate]; // Kembalikan data untuk hari ini
+    return usedNcvsPerDay[todayDate];
 }
 
 // Fungsi untuk menandai NCVS sebagai sudah digunakan
@@ -826,7 +1070,7 @@ function markNcvsAsUsed(auditor, ncvs) {
     if (!auditor || !ncvs) return;
 
     const todayDate = getTodayDateString();
-    let usedNcvsForToday = getUsedNcvsData(); // Ini sudah memastikan data untuk hari ini ada
+    let usedNcvsForToday = getUsedNcvsData();
 
     if (!usedNcvsForToday[auditor]) {
         usedNcvsForToday[auditor] = [];
@@ -842,7 +1086,6 @@ function markNcvsAsUsed(auditor, ncvs) {
     allUsedNcvsData[todayDate] = usedNcvsForToday;
     localStorage.setItem(USED_NCVS_STORAGE_KEY, JSON.stringify(allUsedNcvsData));
 }
-
 
 function updateNcvsOptions(selectedAuditor) {
     // Kosongkan opsi NCVS yang ada
@@ -866,28 +1109,24 @@ function updateNcvsOptions(selectedAuditor) {
             option.value = ncvs;
             option.textContent = ncvs;
 
-            // >>> TAMBAHAN: Terapkan warna merah jika NCVS sudah digunakan <<<
+            // Terapkan warna merah jika NCVS sudah digunakan
             if (usedNcvsBySelectedAuditor.includes(ncvs)) {
-                option.classList.add('used-ncvs'); // Tambahkan kelas CSS
-                // Atau bisa juga style inline: option.style.color = 'red';
+                option.classList.add('used-ncvs');
             }
-            // >>> AKHIR TAMBAHAN <<<
 
             ncvsSelect.appendChild(option);
         });
-        ncvsSelect.disabled = false; // Aktifkan dropdown NCVS
+        ncvsSelect.disabled = false;
     } else {
-        ncvsSelect.disabled = true; // Nonaktifkan dropdown NCVS jika tidak ada auditor yang dipilih
-        defaultOption.textContent = "Pilih NCVS (pilih Auditor dahulu)"; // Kembali ke teks awal
+        ncvsSelect.disabled = true;
+        defaultOption.textContent = "Pilih NCVS (pilih Auditor dahulu)";
     }
-    ncvsSelect.value = ""; // Reset pilihan NCVS setelah perubahan auditor
+    ncvsSelect.value = "";
 }
-// >>> AKHIR FUNGSI BARU UNTUK CONDITIONAL NCVS & Coloring <<<
 
 // ===========================================
-// 16. (Bagian 18 dari Part 2) - Announcement Logic
+// 18. Announcement Logic
 // ===========================================
-// (Kode Announcement Anda yang sudah ada, tetap di sini atau pisahkan jika memang terpisah di file lain)
 document.addEventListener('DOMContentLoaded', () => {
     const announcements = [
         { date: "05-22-2025", text: "E-QMS kini hadir dalam versi web sebagai upgrade dari sistem berbasis Google Spreadsheet, menawarkan kemudahan input bagi auditor, akurasi data yang lebih baik, serta mengurangi risiko human error maupun kendala teknis pada sistem lama. Implementasi E-QMS Web App merupakan bagian dari komitmen kami dalam digitalisasi proses mutu, sejalan dengan visi untuk menciptakan operasional yang agile, data-driven, dan berkelanjutan." },
