@@ -1150,7 +1150,7 @@ document.addEventListener('DOMContentLoaded', () => {
             date: "06-03-2025", 
             text: `E-QMS kini hadir dalam versi web sebagai upgrade dari sistem berbasis Google Spreadsheet, menawarkan kemudahan input bagi auditor, akurasi data yang lebih baik, serta mengurangi risiko human error maupun kendala teknis pada sistem lama. Implementasi E-QMS Web App merupakan bagian dari komitmen kami dalam digitalisasi proses mutu, sejalan dengan visi untuk menciptakan operasional yang agile, data-driven, dan berkelanjutan.
 
-Apabila terdapat kendala teknis, silakan hubungi nomor berikut: 0889 7274 5194.`
+Apabila terdapat kendala teknis, silakan hubungi nomor berikut: 088972745194.`
         },
     ];
     let currentAnnouncementIndex = 0;
