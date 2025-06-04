@@ -655,65 +655,52 @@ async function saveData() {
         ncvs: document.getElementById("ncvs").value,
         modelName: document.getElementById("model-name").value,
         styleNumber: document.getElementById("style-number").value,
-        qtySampleSet: parseInt(qtySampleSetInput.value, 10),
-        qtyInspected: totalInspected,
-        aGrade: qtyInspectOutputs['a-grade'],
-        rGrade: qtyInspectOutputs['r-grade'],
-        bGrade: qtyInspectOutputs['b-grade'],
-        cGrade: qtyInspectOutputs['c-grade'],
-        reworkLeft: totalReworkLeft,
-        reworkRight: totalReworkRight,
-        reworkPairs: totalReworkPairs,
+        qtyInspect: totalInspected, // Gunakan kembali qtyInspect
+        qtySampleSet: qtySampleSetInput ? (parseInt(qtySampleSetInput.value, 10) || 0) : 0, // Pastikan ada fallback jika qtySampleSetInput null
         ftt: finalFtt,
         redoRate: finalRedoRate,
-        defects: defectsToSend
+        "a-grade": qtyInspectOutputs['a-grade'],
+        "r-grade": qtyInspectOutputs['r-grade'],
+        "b-grade": qtyInspectOutputs['b-grade'],
+        "c-grade": qtyInspectOutputs['c-grade'],
+        reworkKiri: totalReworkLeft,
+        reworkKanan: totalReworkRight,
+        reworkPairs: totalReworkPairs,
+        defects: defectsToSend,
     };
 
-    try {
-        console.log("Data yang akan dikirim:", dataToSend);
-        
-        // Simulasi pengiriman data (ganti dengan endpoint API yang sebenarnya)
-        const response = await fetch('/api/save-qms-data', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(dataToSend)
-        });
+    console.log("Data yang akan dikirim:", JSON.stringify(dataToSend, null, 2));
 
-        if (response.ok) {
-            const result = await response.json();
-            console.log("Data berhasil disimpan:", result);
-            
-            // Tandai NCVS sebagai sudah digunakan
-            markNcvsAsUsed(dataToSend.auditor, dataToSend.ncvs);
-            
-            // Bersihkan localStorage (kecuali qty sample set)
-            clearLocalStorageExceptQtySampleSet();
-            
-            // Reset semua field
+    const saveButton = document.querySelector(".save-button");
+    saveButton.disabled = true;
+    saveButton.textContent = "MENYIMPAN...";
+
+    try {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbxTRHNPQfH0Dg_4r1EJTmeRdr_qJMZaEADTn4ek5PvK4BeYYc9eT_Zp4EXHgkpeZUyQ/exec", {
+            method: "POST",
+            body: JSON.stringify(dataToSend),
+        });
+        const resultText = await response.text();
+        console.log("Respons server:", resultText);
+        alert(resultText);
+
+        if (response.ok && resultText.toLowerCase().includes("berhasil")) {
+            // Tandai NCVS yang baru saja digunakan
+            markNcvsAsUsed(auditorSelect.value, ncvsSelect.value);
+            // Perbarui tampilan dropdown NCVS setelah menandai
+            updateNcvsOptions(auditorSelect.value);
+
             resetAllFields();
-            
-            alert("Data berhasil disimpan!");
         } else {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            console.warn("Server merespons OK, tapi pesan tidak mengandung 'berhasil' atau status tidak OK. Hasil:", resultText);
         }
+
     } catch (error) {
-        console.error("Error saat menyimpan data:", error);
-        
-        // Jika terjadi error jaringan, tetap simpan data secara lokal
-        console.log("Menyimpan data secara lokal karena error jaringan...");
-        
-        // Tandai NCVS sebagai sudah digunakan
-        markNcvsAsUsed(dataToSend.auditor, dataToSend.ncvs);
-        
-        // Bersihkan localStorage (kecuali qty sample set)
-        clearLocalStorageExceptQtySampleSet();
-        
-        // Reset semua field
-        resetAllFields();
-        
-        alert("Data telah disimpan secara lokal. Akan dikirim saat koneksi tersedia.");
+        console.error("Error saat mengirim data:", error);
+        alert("Terjadi kesalahan saat menyimpan data. Cek koneksi internet atau hubungi Team QM System.");
+    } finally {
+        saveButton.disabled = false;
+        saveButton.textContent = "SIMPAN";
     }
 }
 
@@ -1129,7 +1116,12 @@ function updateNcvsOptions(selectedAuditor) {
 // ===========================================
 document.addEventListener('DOMContentLoaded', () => {
     const announcements = [
-        { date: "05-22-2025", text: "E-QMS kini hadir dalam versi web sebagai upgrade dari sistem berbasis Google Spreadsheet, menawarkan kemudahan input bagi auditor, akurasi data yang lebih baik, serta mengurangi risiko human error maupun kendala teknis pada sistem lama. Implementasi E-QMS Web App merupakan bagian dari komitmen kami dalam digitalisasi proses mutu, sejalan dengan visi untuk menciptakan operasional yang agile, data-driven, dan berkelanjutan." },
+        { 
+            date: "06-03-2025", 
+            text: `E-QMS kini hadir dalam versi web sebagai upgrade dari sistem berbasis Google Spreadsheet, menawarkan kemudahan input bagi auditor, akurasi data yang lebih baik, serta mengurangi risiko human error maupun kendala teknis pada sistem lama. Implementasi E-QMS Web App merupakan bagian dari komitmen kami dalam digitalisasi proses mutu, sejalan dengan visi untuk menciptakan operasional yang agile, data-driven, dan berkelanjutan.
+
+Apabila terdapat kendala teknis, silakan hubungi nomor berikut: 0889 7274 5194.`
+        },
     ];
     let currentAnnouncementIndex = 0;
     let viewedAnnouncements = JSON.parse(localStorage.getItem('viewedAnnouncements')) || [];
@@ -1146,7 +1138,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         currentAnnouncementIndex = index;
         announcementDateElement.textContent = announcements[index].date;
-        announcementTextElement.textContent = announcements[index].text;
+        // Menggunakan innerHTML dan mengganti '\n' dengan '<br>' untuk menampilkan baris baru
+        announcementTextElement.innerHTML = announcements[index].text.replace(/\n/g, '<br>'); 
         announcementPopup.style.display = 'block';
 
         const announcementIdentifier = `${announcements[index].date}-${announcements[index].text.substring(0, 20)}`;
