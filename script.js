@@ -39,7 +39,7 @@ let ncvsSelect;      // Referensi untuk dropdown NCVS
 const auditorNcvsMap = {
     "Badrowi": ["109", "110", "111", "112", "113", "114", "115", "116"],
     "Sopan Sopian": ["101", "102", "103", "104", "105", "106", "107", "108"],
-    "Bagas Rasyid Wicaksono": ["201", "202", "203", "204", "207", "210"]
+    "Iksan": ["201", "202", "203", "204", "207", "210"]
 };
 
 // Kunci localStorage untuk menyimpan data NCVS yang sudah digunakan
