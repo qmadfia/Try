@@ -39,7 +39,7 @@ let ncvsSelect;      // Referensi untuk dropdown NCVS
 const auditorNcvsMap = {
     "Badrowi": ["109", "110", "111", "112", "113", "114", "115", "116"],
     "Sopan Sopian": ["101", "102", "103", "104", "105", "106", "107", "108"],
-    "Iksan": ["201", "202", "203", "204", "207", "210"]
+    "Bagas Rasyid Wicaksono": ["201", "202", "203", "204", "207", "210"]
 };
 
 // Kunci localStorage untuk menyimpan data NCVS yang sudah digunakan
@@ -55,6 +55,8 @@ const STORAGE_KEYS = {
     QTY_SAMPLE_SET: 'qtySampleSet' // Tetap menggunakan key yang sudah ada
 };
 // >>> AKHIR TAMBAHAN UNTUK CONDITIONAL NCVS <<<
+
+const MAX_INSPECTION_LIMIT = 50; // Konstanta untuk batas maksimum inspeksi
 
 // ===========================================
 // 2. Fungsi localStorage Komprehensif (BARU)
@@ -262,39 +264,48 @@ function toggleButtonGroup(buttons, enable) {
 }
 
 // ===========================================
-// 4. Fungsi Utama: Inisialisasi Status Tombol (Kondisi Awal & Setelah Siklus)
+// 4. Fungsi Utama: Inisialisasi Status Tombol (Kondisi Awal & Setelah Siklus) (Perbaikan)
 // ===========================================
 function initButtonStates() {
     console.log("Mengatur status tombol ke kondisi awal siklus...");
-    // Defect Menu = AKTIF (semua tombol defect)
-    toggleButtonGroup(defectButtons, true);
-    // Rework Section = NONAKTIF
-    toggleButtonGroup(reworkButtons, false);
 
-    // Qty Section (R, B, C Grade) = NONAKTIF, A-Grade = AKTIF
-    // <<< MODIFIKASI UNTUK ALUR TERPANDU DIMULAI DI SINI >>>
-    gradeInputButtons.forEach(button => {
-        button.disabled = true; // Nonaktifkan semua grade
-        button.classList.add('inactive');
-        button.classList.remove('active'); // Pastikan tidak ada highlight aktif
-    });
-    // Khusus A-Grade, biarkan tetap aktif sebagai pilihan independen untuk memulai siklus
-    if (outputElements['a-grade'] && gradeInputButtons.length > 0) {
-        const aGradeButton = Array.from(gradeInputButtons).find(btn => btn.classList.contains('a-grade'));
-        if (aGradeButton) {
-            aGradeButton.disabled = false;
-            aGradeButton.classList.remove('inactive');
-        }
+    // Hanya aktifkan tombol defect secara default.
+    // Tombol rework dan grade akan aktif berdasarkan pilihan selanjutnya.
+    toggleButtonGroup(defectButtons, true); // Aktifkan semua tombol defect
+    toggleButtonGroup(reworkButtons, false); // Nonaktifkan tombol rework
+    toggleButtonGroup(gradeInputButtons, false); // Nonaktifkan tombol grade (kecuali A-Grade nanti)
+
+    // Hapus highlight dari semua tombol
+    defectButtons.forEach(btn => btn.classList.remove('active'));
+    reworkButtons.forEach(btn => btn.classList.remove('active'));
+    gradeInputButtons.forEach(btn => btn.classList.remove('active'));
+
+    // Aktifkan kembali hanya tombol A-Grade secara default untuk siklus baru
+    const aGradeButton = Array.from(gradeInputButtons).find(btn => btn.classList.contains('a-grade'));
+    if (aGradeButton) {
+        aGradeButton.disabled = false;
+        aGradeButton.classList.remove('inactive');
     }
-    // <<< MODIFIKASI UNTUK ALUR TERPANDU BERAKHIR DI SINI >>>
 
-    // Reset internal state
+    // Reset hanya variabel yang mengontrol pilihan aktif, BUKAN data counter
     activeDefectType = null;
     activeReworkPosition = null;
-    currentSelectedGrade = null; // Reset grade yang sedang aktif
-    console.log("Status tombol diatur ke awal siklus.");
-}
+    currentSelectedGrade = null;
+    
+    // !!! PENTING: Jangan reset totalReworkLeft/Right/Pairs di sini.
+    // Reset ini hanya terjadi di handleDefectClick atau resetAllFields.
 
+    console.log("Status tombol diatur ke awal siklus.");
+
+    // Terakhir, jika sudah mencapai batas, pastikan semua tombol dinonaktifkan setelah init.
+    // Ini menangani kasus loadFromLocalStorage di mana totalInspected sudah >= 50.
+    if (totalInspected >= MAX_INSPECTION_LIMIT) {
+        toggleButtonGroup(defectButtons, false);
+        toggleButtonGroup(reworkButtons, false);
+        toggleButtonGroup(gradeInputButtons, false);
+        console.log(`Batas inspeksi ${MAX_INSPECTION_LIMIT} telah tercapai saat inisialisasi. Tombol input dinonaktifkan.`);
+    }
+}
 // ===========================================
 // 5. Update Qty Counters (Left, Right, Pairs) (Modifikasi)
 // ===========================================
@@ -351,7 +362,7 @@ function updateRedoRate() {
 }
 
 // ===========================================
-// 7. Update Total Qty Inspect (termasuk FTT dan Redo Rate) (Modifikasi)
+// 7. Update Total Qty Inspect (termasuk FTT dan Redo Rate) (Perbaikan)
 // ===========================================
 function updateTotalQtyInspect() {
     let total = 0;
@@ -365,6 +376,25 @@ function updateTotalQtyInspect() {
     updateFTT(); // Selalu panggil update FTT
     updateRedoRate(); // Selalu panggil update Redo Rate
     saveToLocalStorage(); // Simpan ke localStorage setiap ada perubahan
+
+    // --- LOGIKA BATAS INSPEKSI 50 YANG DIPERBAIKI ---
+    if (totalInspected >= MAX_INSPECTION_LIMIT) {
+        // Menonaktifkan SEMUA tombol input yang relevan secara PERMANEN
+        // (sampai aplikasi di-reset)
+        toggleButtonGroup(defectButtons, false);
+        toggleButtonGroup(reworkButtons, false);
+        toggleButtonGroup(gradeInputButtons, false);
+        console.log(`Batas inspeksi ${MAX_INSPECTION_LIMIT} telah tercapai. Input dinonaktifkan.`);
+        // Pastikan tidak ada tombol yang ter-highlight saat ini
+        defectButtons.forEach(btn => btn.classList.remove('active'));
+        reworkButtons.forEach(btn => btn.classList.remove('active'));
+        gradeInputButtons.forEach(btn => btn.classList.remove('active'));
+    } else {
+        // JANGAN panggil initButtonStates di sini, karena itu mereset state.
+        // initButtonStates akan dipanggil pada tempat yang tepat (setelah siklus input selesai).
+        // Biarkan alur handleDefectClick, handleReworkClick, handleGradeClick yang mengatur status tombol dinamis.
+    }
+    // --- AKHIR LOGIKA BATAS INSPEKSI 50 ---
 }
 
 // ===========================================
@@ -1120,7 +1150,7 @@ document.addEventListener('DOMContentLoaded', () => {
             date: "06-03-2025", 
             text: `E-QMS kini hadir dalam versi web sebagai upgrade dari sistem berbasis Google Spreadsheet, menawarkan kemudahan input bagi auditor, akurasi data yang lebih baik, serta mengurangi risiko human error maupun kendala teknis pada sistem lama. Implementasi E-QMS Web App merupakan bagian dari komitmen kami dalam digitalisasi proses mutu, sejalan dengan visi untuk menciptakan operasional yang agile, data-driven, dan berkelanjutan.
 
-Apabila terdapat kendala teknis, silakan hubungi nomor berikut: 088972745194.`
+Apabila terdapat kendala teknis, silakan hubungi nomor berikut: 0889 7274 5194.`
         },
     ];
     let currentAnnouncementIndex = 0;
