@@ -409,12 +409,12 @@ h1:hover {
 }
 
 .b-grade {
-    background: linear-gradient(135deg, #FFFF00);
+    background: linear-gradient(135deg, #FFFF00, #e6c200);
     color: black;
 }
 
 .c-grade {
-    background: linear-gradient(135deg, #FF0000);
+    background: linear-gradient(135deg, #FF0000, #cc0000);
 }
 
 /* Efek hover pada tombol */
