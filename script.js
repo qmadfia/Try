@@ -341,7 +341,8 @@ function updateFTT() {
     const totalCGrade = qtyInspectOutputs['c-grade'] || 0;
 
     // FTT = (Total Inspect - Total R/B/C) / Total Inspect
-    const fttValue = totalInspected > 0 ? ((totalInspected - (totalRGrade + totalBGrade + totalCGrade)) / totalInspected) * 100 : 0;
+    const calculatedTotalRework = ((totalReworkLeft + totalReworkRight) / 2) + totalReworkPairs;
+    const fttValue = totalInspected > 0 ? ((totalInspected - (calculatedTotalRework + totalBGrade + totalCGrade)) / totalInspected) * 100 : 0;
     fttOutput.textContent = `${Math.max(0, fttValue).toFixed(2)}%`; // Pastikan tidak negatif
 
     if (fttValue >= 92) {
