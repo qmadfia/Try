@@ -5,10 +5,14 @@ let totalInspected = 0;
 let totalReworkLeft = 0;
 let totalReworkRight = 0;
 let totalReworkPairs = 0;
-let defectCounts = {}; // { defectType: { position: { grade: count } } }
-let activeDefectType = null;
-let activeReworkPosition = null;
-let currentSelectedGrade = null;
+let defectCounts = {}; 
+
+// --- VARIABEL BARU UNTUK POLA MULTIPLE DEFECT ---
+// Menyimpan defect yang sedang di-highlight sebelum lokasi dipilih
+let selectedDefects = []; 
+// Mengakumulasi pasangan {defect, posisi} yang sudah dikonfirmasi untuk satu item inspeksi
+let currentInspectionPairs = []; 
+// ---------------------------------------------
 
 const qtyInspectOutputs = {
     'a-grade': 0,
@@ -30,10 +34,8 @@ let qtySampleSetInput;
 let defectButtons;
 let reworkButtons;
 let gradeInputButtons;
-
-// >>> TAMBAHAN UNTUK CONDITIONAL NCVS <<<
-let auditorSelect; // Referensi untuk dropdown Auditor
-let ncvsSelect;      // Referensi untuk dropdown NCVS
+let ncvsSelect;
+let auditorSelect;
 
 // Data mapping Auditor ke NCVS
 const auditorNcvsMap = {
@@ -42,30 +44,25 @@ const auditorNcvsMap = {
     "Iksan": ["201", "202", "203", "204", "207", "210"]
 };
 
-// Kunci localStorage untuk menyimpan data NCVS yang sudah digunakan
+// Kunci localStorage
 const USED_NCVS_STORAGE_KEY = 'usedNcvsPerDay';
-
-// >>> TAMBAHAN UNTUK COMPREHENSIVE LOCALSTORAGE <<<
 const STORAGE_KEYS = {
     FORM_DATA: 'qms_form_data',
     DEFECT_COUNTS: 'qms_defect_counts',
     QTY_OUTPUTS: 'qms_qty_outputs',
     REWORK_COUNTERS: 'qms_rework_counters',
     STATE_VARIABLES: 'qms_state_variables',
-    QTY_SAMPLE_SET: 'qtySampleSet' // Tetap menggunakan key yang sudah ada
+    QTY_SAMPLE_SET: 'qtySampleSet'
 };
-// >>> AKHIR TAMBAHAN UNTUK CONDITIONAL NCVS <<<
 
-const MAX_INSPECTION_LIMIT = 50; // Konstanta untuk batas maksimum inspeksi
+const MAX_INSPECTION_LIMIT = 50;
 
 // ===========================================
-// 2. Fungsi localStorage Komprehensif (BARU)
+// 2. Fungsi localStorage Komprehensif (Modifikasi)
 // ===========================================
 
-// Fungsi untuk menyimpan semua data ke localStorage
 function saveToLocalStorage() {
     try {
-        // 1. Form Data
         const formData = {
             auditor: auditorSelect ? auditorSelect.value : '',
             ncvs: ncvsSelect ? ncvsSelect.value : '',
@@ -73,14 +70,9 @@ function saveToLocalStorage() {
             styleNumber: document.getElementById("style-number") ? document.getElementById("style-number").value : ''
         };
         localStorage.setItem(STORAGE_KEYS.FORM_DATA, JSON.stringify(formData));
-
-        // 2. Defect Counts
         localStorage.setItem(STORAGE_KEYS.DEFECT_COUNTS, JSON.stringify(defectCounts));
-
-        // 3. Qty Outputs
         localStorage.setItem(STORAGE_KEYS.QTY_OUTPUTS, JSON.stringify(qtyInspectOutputs));
 
-        // 4. Rework Counters
         const reworkCounters = {
             left: totalReworkLeft,
             right: totalReworkRight,
@@ -88,31 +80,26 @@ function saveToLocalStorage() {
         };
         localStorage.setItem(STORAGE_KEYS.REWORK_COUNTERS, JSON.stringify(reworkCounters));
 
-        // 5. State Variables
+        // Menyimpan state baru untuk multiple defect
         const stateVariables = {
-            activeDefectType: activeDefectType,
-            activeReworkPosition: activeReworkPosition,
-            currentSelectedGrade: currentSelectedGrade,
+            selectedDefects: selectedDefects,
+            currentInspectionPairs: currentInspectionPairs,
             totalInspected: totalInspected
         };
         localStorage.setItem(STORAGE_KEYS.STATE_VARIABLES, JSON.stringify(stateVariables));
 
-        console.log("Data berhasil disimpan ke localStorage");
     } catch (error) {
         console.error("Error saat menyimpan data ke localStorage:", error);
     }
 }
 
-// Fungsi untuk memuat semua data dari localStorage
 function loadFromLocalStorage() {
     try {
-        // 1. Load Form Data
         const savedFormData = localStorage.getItem(STORAGE_KEYS.FORM_DATA);
         if (savedFormData) {
             const formData = JSON.parse(savedFormData);
             if (auditorSelect) auditorSelect.value = formData.auditor || '';
             if (ncvsSelect) {
-                // Update NCVS options berdasarkan auditor yang dimuat
                 updateNcvsOptions(formData.auditor || '');
                 ncvsSelect.value = formData.ncvs || '';
             }
@@ -120,118 +107,89 @@ function loadFromLocalStorage() {
             if (document.getElementById("style-number")) document.getElementById("style-number").value = formData.styleNumber || '';
         }
 
-        // 2. Load Defect Counts
         const savedDefectCounts = localStorage.getItem(STORAGE_KEYS.DEFECT_COUNTS);
         if (savedDefectCounts) {
             defectCounts = JSON.parse(savedDefectCounts);
-            updateDefectSummaryDisplay(); // Update tampilan summary
         }
 
-        // 3. Load Qty Outputs
         const savedQtyOutputs = localStorage.getItem(STORAGE_KEYS.QTY_OUTPUTS);
         if (savedQtyOutputs) {
             const qtyData = JSON.parse(savedQtyOutputs);
             for (const grade in qtyData) {
                 qtyInspectOutputs[grade] = qtyData[grade];
-                if (outputElements[grade]) {
-                    outputElements[grade].textContent = qtyData[grade];
-                }
             }
         }
 
-        // 4. Load Rework Counters
         const savedReworkCounters = localStorage.getItem(STORAGE_KEYS.REWORK_COUNTERS);
         if (savedReworkCounters) {
             const reworkData = JSON.parse(savedReworkCounters);
             totalReworkLeft = reworkData.left || 0;
             totalReworkRight = reworkData.right || 0;
             totalReworkPairs = reworkData.pairs || 0;
-            
-            if (leftCounter) leftCounter.textContent = totalReworkLeft;
-            if (rightCounter) rightCounter.textContent = totalReworkRight;
-            if (pairsCounter) pairsCounter.textContent = totalReworkPairs;
         }
 
-        // 5. Load State Variables
         const savedStateVariables = localStorage.getItem(STORAGE_KEYS.STATE_VARIABLES);
         if (savedStateVariables) {
             const stateData = JSON.parse(savedStateVariables);
-            activeDefectType = stateData.activeDefectType || null;
-            activeReworkPosition = stateData.activeReworkPosition || null;
-            currentSelectedGrade = stateData.currentSelectedGrade || null;
+            selectedDefects = stateData.selectedDefects || [];
+            currentInspectionPairs = stateData.currentInspectionPairs || [];
             totalInspected = stateData.totalInspected || 0;
         }
-
-        // 6. Load Qty Sample Set (menggunakan key yang sudah ada)
+        
+        // Memuat Qty Sample Set
         const savedQtySampleSet = localStorage.getItem(STORAGE_KEYS.QTY_SAMPLE_SET);
         if (qtySampleSetInput && savedQtySampleSet) {
-            const qtySampleSetValue = parseInt(savedQtySampleSet, 10);
-            if (!isNaN(qtySampleSetValue) && qtySampleSetValue > 0) {
-                qtySampleSetInput.value = qtySampleSetValue;
-            }
+             qtySampleSetInput.value = parseInt(savedQtySampleSet, 10) > 0 ? savedQtySampleSet : '';
         }
-
-        // Update tampilan yang bergantung pada data yang dimuat
-        updateTotalQtyInspect();
+        
+        // Update semua tampilan berdasarkan data yang dimuat
+        updateAllDisplays();
         updateButtonStatesFromLoadedData();
 
-        console.log("Data berhasil dimuat dari localStorage");
     } catch (error) {
         console.error("Error saat memuat data dari localStorage:", error);
+        resetAllFields(); // Jika ada error, reset semuanya untuk menghindari state korup
     }
 }
 
-// Fungsi untuk mengatur status tombol berdasarkan data yang dimuat
+function updateAllDisplays() {
+    // Update counter grade
+    for (const grade in qtyInspectOutputs) {
+        if (outputElements[grade]) {
+            outputElements[grade].textContent = qtyInspectOutputs[grade];
+        }
+    }
+    // Update rework counters
+    if (leftCounter) leftCounter.textContent = totalReworkLeft;
+    if (rightCounter) rightCounter.textContent = totalReworkRight;
+    if (pairsCounter) pairsCounter.textContent = totalReworkPairs;
+    
+    // Update summary dan statistik utama
+    updateDefectSummaryDisplay();
+    updateTotalQtyInspect();
+}
+
+
 function updateButtonStatesFromLoadedData() {
-    // Reset semua tombol ke kondisi awal
-    initButtonStates();
+    // Reset semua highlight dan state
+    defectButtons.forEach(btn => btn.classList.remove('active'));
+    
+    // Highlight defect yang sedang dipilih dari data yang di-load
+    selectedDefects.forEach(defectName => {
+        const button = Array.from(defectButtons).find(btn => (btn.dataset.defect || btn.textContent.trim()) === defectName);
+        if (button) {
+            button.classList.add('active');
+        }
+    });
 
-    // Jika ada activeDefectType, highlight tombol defect yang aktif
-    if (activeDefectType) {
-        defectButtons.forEach(btn => {
-            const defectName = btn.dataset.defect || btn.textContent.trim();
-            if (defectName === activeDefectType) {
-                btn.classList.add('active');
-                // Aktifkan rework section jika defect sudah dipilih
-                toggleButtonGroup(reworkButtons, true);
-                // Nonaktifkan defect lain
-                toggleButtonGroup(defectButtons, false);
-                btn.disabled = false;
-                btn.classList.remove('inactive');
-            }
-        });
-    }
+    // Atur status Rework Section
+    const enableRework = selectedDefects.length > 0;
+    toggleButtonGroup(reworkButtons, enableRework);
 
-    // Jika ada activeReworkPosition, highlight tombol rework yang aktif
-    if (activeReworkPosition) {
-        reworkButtons.forEach(btn => {
-            const position = btn.dataset.position || btn.id.replace('rework-', '').toUpperCase();
-            if (position === activeReworkPosition) {
-                btn.classList.add('active');
-                // Aktifkan grade buttons (kecuali A-Grade dalam alur defect->rework)
-                gradeInputButtons.forEach(gradeBtn => {
-                    if (!gradeBtn.classList.contains('a-grade')) {
-                        gradeBtn.disabled = false;
-                        gradeBtn.classList.remove('inactive');
-                    }
-                });
-            }
-        });
-        // Nonaktifkan semua tombol rework setelah ada yang aktif (sesuai alur)
-        toggleButtonGroup(reworkButtons, false);
-    }
-
-    // Jika ada currentSelectedGrade, highlight tombol grade yang aktif
-    if (currentSelectedGrade) {
-        gradeInputButtons.forEach(btn => {
-            if (btn.classList.contains(currentSelectedGrade)) {
-                btn.classList.add('active');
-            }
-        });
-    }
+    // Atur status Qty Section (R/B/C) sesuai aturan baru
+    updateQtySectionState();
 }
 
-// Fungsi untuk membersihkan localStorage (kecuali qty sample set)
 function clearLocalStorageExceptQtySampleSet() {
     try {
         localStorage.removeItem(STORAGE_KEYS.FORM_DATA);
@@ -239,8 +197,6 @@ function clearLocalStorageExceptQtySampleSet() {
         localStorage.removeItem(STORAGE_KEYS.QTY_OUTPUTS);
         localStorage.removeItem(STORAGE_KEYS.REWORK_COUNTERS);
         localStorage.removeItem(STORAGE_KEYS.STATE_VARIABLES);
-        // Qty Sample Set tetap disimpan untuk digunakan di sesi berikutnya
-        
         console.log("localStorage dibersihkan (kecuali qty sample set)");
     } catch (error) {
         console.error("Error saat membersihkan localStorage:", error);
@@ -264,48 +220,38 @@ function toggleButtonGroup(buttons, enable) {
 }
 
 // ===========================================
-// 4. Fungsi Utama: Inisialisasi Status Tombol (Kondisi Awal & Setelah Siklus) (Perbaikan)
+// 4. Fungsi Utama: Inisialisasi Status Tombol (Modifikasi)
 // ===========================================
 function initButtonStates() {
     console.log("Mengatur status tombol ke kondisi awal siklus...");
 
-    // Hanya aktifkan tombol defect secara default.
-    // Tombol rework dan grade akan aktif berdasarkan pilihan selanjutnya.
-    toggleButtonGroup(defectButtons, true); // Aktifkan semua tombol defect
-    toggleButtonGroup(reworkButtons, false); // Nonaktifkan tombol rework
-    toggleButtonGroup(gradeInputButtons, false); // Nonaktifkan tombol grade (kecuali A-Grade nanti)
+    // Reset variabel state untuk siklus baru
+    selectedDefects = [];
+    currentInspectionPairs = [];
 
-    // Hapus highlight dari semua tombol
+    // Reset tampilan visual tombol
     defectButtons.forEach(btn => btn.classList.remove('active'));
-    reworkButtons.forEach(btn => btn.classList.remove('active'));
-    gradeInputButtons.forEach(btn => btn.classList.remove('active'));
-
-    // Aktifkan kembali hanya tombol A-Grade secara default untuk siklus baru
+    
+    // Aktifkan semua tombol defect dan A-Grade
+    toggleButtonGroup(defectButtons, true);
     const aGradeButton = Array.from(gradeInputButtons).find(btn => btn.classList.contains('a-grade'));
     if (aGradeButton) {
         aGradeButton.disabled = false;
         aGradeButton.classList.remove('inactive');
     }
 
-    // Reset hanya variabel yang mengontrol pilihan aktif, BUKAN data counter
-    activeDefectType = null;
-    activeReworkPosition = null;
-    currentSelectedGrade = null;
+    // Nonaktifkan Rework dan Qty (R/B/C)
+    toggleButtonGroup(reworkButtons, false);
+    updateQtySectionState(); // Ini akan menonaktifkan Qty (R/B/C) karena state kosong
     
-    // !!! PENTING: Jangan reset totalReworkLeft/Right/Pairs di sini.
-    // Reset ini hanya terjadi di handleDefectClick atau resetAllFields.
-
-    console.log("Status tombol diatur ke awal siklus.");
-
-    // Terakhir, jika sudah mencapai batas, pastikan semua tombol dinonaktifkan setelah init.
-    // Ini menangani kasus loadFromLocalStorage di mana totalInspected sudah >= 50.
+    // Cek batas inspeksi
     if (totalInspected >= MAX_INSPECTION_LIMIT) {
         toggleButtonGroup(defectButtons, false);
-        toggleButtonGroup(reworkButtons, false);
-        toggleButtonGroup(gradeInputButtons, false);
-        console.log(`Batas inspeksi ${MAX_INSPECTION_LIMIT} telah tercapai saat inisialisasi. Tombol input dinonaktifkan.`);
+        toggleButtonGroup(gradeInputButtons, false); // Nonaktifkan semua grade termasuk A
+        console.log(`Batas inspeksi ${MAX_INSPECTION_LIMIT} tercapai. Input dinonaktifkan.`);
     }
 }
+
 // ===========================================
 // 5. Update Qty Counters (Left, Right, Pairs) (Modifikasi)
 // ===========================================
@@ -399,32 +345,36 @@ function updateTotalQtyInspect() {
 }
 
 // ===========================================
-// 8. Menambahkan Defect ke Summary List (Modifikasi)
+// 8. Menambahkan Defect ke Summary List (Logika Baru)
 // ===========================================
-function addDefectToSummary() {
-    // KONDISI PENTING: Memastikan semua variabel kunci terisi SEBELUM mencatat defect.
-    // Jika A-Grade, tidak perlu mencatat defect.
-    if (!activeDefectType || !activeReworkPosition || !currentSelectedGrade || currentSelectedGrade === 'a-grade') {
-        console.warn("addDefectToSummary: Kondisi tidak terpenuhi untuk menambah defect ke summary. Active Defect:", activeDefectType, "Active Rework:", activeReworkPosition, "Selected Grade:", currentSelectedGrade);
+function addAllDefectsToSummary(finalGrade) {
+    // Pastikan ada data pasangan yang akan dicatat dan grade sudah final
+    if (currentInspectionPairs.length === 0 || !finalGrade) {
+        console.warn("addDefectsToSummary: Tidak ada pasangan defect/posisi untuk dicatat.");
         return;
     }
 
-    // Pastikan struktur defectCounts sudah ada
-    if (!defectCounts[activeDefectType]) {
-        defectCounts[activeDefectType] = { "LEFT": {}, "PAIRS": {}, "RIGHT": {} };
-    }
-    if (!defectCounts[activeDefectType][activeReworkPosition]) {
-        defectCounts[activeDefectType][activeReworkPosition] = {};
-    }
-    if (!defectCounts[activeDefectType][activeReworkPosition][currentSelectedGrade]) {
-        defectCounts[activeDefectType][activeReworkPosition][currentSelectedGrade] = 0;
-    }
+    // Iterasi melalui setiap pasangan {defect, posisi} yang telah dikonfirmasi
+    currentInspectionPairs.forEach(pair => {
+        const { type, position } = pair;
 
-    defectCounts[activeDefectType][activeReworkPosition][currentSelectedGrade]++;
+        // Pastikan struktur defectCounts sudah ada
+        if (!defectCounts[type]) {
+            defectCounts[type] = { "LEFT": {}, "PAIRS": {}, "RIGHT": {} };
+        }
+        if (!defectCounts[type][position]) {
+            defectCounts[type][position] = {};
+        }
+        if (!defectCounts[type][position][finalGrade]) {
+            defectCounts[type][position][finalGrade] = 0;
+        }
+
+        // Tambahkan hitungan
+        defectCounts[type][position][finalGrade]++;
+    });
 
     console.log("defectCounts diupdate:", JSON.stringify(defectCounts));
-    updateDefectSummaryDisplay(); // Panggil untuk menampilkan update
-    saveToLocalStorage(); // Simpan ke localStorage setiap ada perubahan
+    saveToLocalStorage();
 }
 
 // ===========================================
@@ -497,125 +447,99 @@ function updateDefectSummaryDisplay() {
 }
 
 // ===========================================
-// 10. Event Handlers untuk Tombol (Modifikasi)
+// 10. Event Handlers untuk Tombol (LOGIKA INTI BARU)
 // ===========================================
+
+// --- FUNGSI PEMBANTU BARU UNTUK MENGONTROL QTY SECTION ---
+function updateQtySectionState() {
+    // Aturan: Qty (R/B/C) aktif HANYA JIKA tidak ada defect "menggantung"
+    // DAN sudah ada minimal satu cacat yang tercatat.
+    const enable = selectedDefects.length === 0 && currentInspectionPairs.length > 0;
+    
+    gradeInputButtons.forEach(btn => {
+        if (!btn.classList.contains('a-grade')) {
+            btn.disabled = !enable;
+            btn.classList.toggle('inactive', !enable);
+        }
+    });
+}
 
 // Handler untuk klik tombol Defect Menu Item
 function handleDefectClick(button) {
-    activeDefectType = button.dataset.defect || button.textContent.trim();
-    console.log(`Defect selected: ${activeDefectType}`);
+    const defectName = button.dataset.defect || button.textContent.trim();
+    const index = selectedDefects.indexOf(defectName);
 
-    // <<< MODIFIKASI UNTUK ALUR TERPANDU DIMULAI DI SINI >>>
-    // Set highlight pada tombol defect yang diklik dan nonaktifkan SEMUA defect lain
-    defectButtons.forEach(btn => {
-        btn.classList.remove('active');
-        if (btn === button) {
-            btn.classList.add('active');
-            btn.disabled = false; // Biarkan yang diklik tetap aktif
-            btn.classList.remove('inactive');
-        } else {
-            btn.disabled = true; // Nonaktifkan defect lain
-            btn.classList.add('inactive');
-        }
-    });
+    if (index > -1) {
+        // Jika sudah ada, hapus (batalkan pilihan)
+        selectedDefects.splice(index, 1);
+        button.classList.remove('active');
+    } else {
+        // Jika belum ada, tambahkan
+        selectedDefects.push(defectName);
+        button.classList.add('active');
+    }
 
-    // Aktifkan Rework Section
-    toggleButtonGroup(reworkButtons, true);
+    // Aktifkan Rework Section jika ada defect yang dipilih
+    const enableRework = selectedDefects.length > 0;
+    toggleButtonGroup(reworkButtons, enableRework);
 
-    // NONAKTIFKAN semua tombol grade (termasuk A-Grade) untuk sementara
-    // karena setelah defect dipilih, harus dilanjutkan ke rework
-    gradeInputButtons.forEach(btn => {
-        btn.disabled = true;
-        btn.classList.add('inactive');
-        btn.classList.remove('active');
-    });
-    // <<< MODIFIKASI UNTUK ALUR TERPANDU BERAKHIR DI SINI >>>
-    
-    saveToLocalStorage(); // Simpan ke localStorage setiap ada perubahan
+    // Nonaktifkan Qty Section karena ada defect "menggantung"
+    updateQtySectionState();
+    saveToLocalStorage();
 }
 
 // Handler untuk klik tombol Rework Section
 function handleReworkClick(button) {
-    activeReworkPosition = button.dataset.position || button.id.replace('rework-', '').toUpperCase();
-    console.log(`Rework position selected: ${activeReworkPosition}`);
+    const reworkPosition = button.id.replace('rework-', '').toUpperCase();
+    
+    // Pastikan ada defect yang dipilih sebelum memproses
+    if (selectedDefects.length === 0) return;
 
     // Update counter rework
     updateQuantity(button.id.replace('rework-', '') + '-counter');
 
-    // <<< MODIFIKASI UNTUK ALUR TERPANDU DIMULAI DI SINI >>>
-    // Nonaktifkan semua tombol rework setelah SATU diklik
-    reworkButtons.forEach(btn => {
-        btn.classList.remove('active');
-        if (btn === button) {
-            btn.classList.add('active'); // Highlight yang diklik
-        }
-        btn.disabled = true; // Langsung nonaktifkan SEMUA tombol rework (termasuk yang baru diklik, secara fungsional)
-        btn.classList.add('inactive');
+    // Pindahkan semua defect yang dipilih ke dalam pasangan yang dikonfirmasi
+    selectedDefects.forEach(defectName => {
+        currentInspectionPairs.push({ type: defectName, position: reworkPosition });
     });
 
-    // Pastikan tombol defect tetap nonaktif
-    toggleButtonGroup(defectButtons, false); // Akan menonaktifkan semua defect, termasuk yang aktif sebelumnya
+    // Reset defect yang dipilih
+    selectedDefects = [];
+    defectButtons.forEach(btn => btn.classList.remove('active'));
 
-    // Aktifkan tombol Qty Section (R, B, C Grade)
-    gradeInputButtons.forEach(btn => {
-        if (!btn.classList.contains('a-grade')) { // Hanya R, B, C Grade
-            btn.disabled = false;
-            btn.classList.remove('inactive');
-        } else {
-            // A-Grade tetap nonaktif pada alur defect -> rework
-            btn.disabled = true;
-            btn.classList.add('inactive');
-        }
-        btn.classList.remove('active'); // Pastikan tidak ada highlight aktif
-    });
-    // <<< MODIFIKASI UNTUK ALUR TERPANDU BERAKHIR DI SINI >>>
+    // Nonaktifkan kembali Rework Section (menunggu defect baru)
+    toggleButtonGroup(reworkButtons, false);
     
-    saveToLocalStorage(); // Simpan ke localStorage setiap ada perubahan
+    // Aktifkan Qty Section karena status kembali "bersih"
+    updateQtySectionState();
+    saveToLocalStorage();
 }
 
-// Handler untuk klik tombol Qty Section (A, R, B, C Grade)
+// Handler untuk klik tombol Qty Section (A, R, B, C Grade) -- VERSI LENGKAP DENGAN PERBAIKAN
 function handleGradeClick(button) {
-    const gradeCategoryClass = Array.from(button.classList).find(cls => cls.endsWith('-grade'));
-    if (!gradeCategoryClass) {
-        console.warn("Tombol grade diklik tanpa class kategori grade:", button);
-        return;
+    const gradeCategory = Array.from(button.classList).find(cls => cls.endsWith('-grade'));
+    if (!gradeCategory) return;
+
+    // Tambah hitungan Qty Inspect di memori
+    qtyInspectOutputs[gradeCategory]++;
+    
+    // Panggil fungsi ini untuk me-render SEMUA perubahan angka ke layar,
+    // termasuk counter A/R/B/C yang baru saja diubah.
+    updateAllDisplays(); 
+    
+    if (gradeCategory !== 'a-grade') {
+        // Jika bukan A-Grade, proses semua pasangan defect yang terkumpul
+        addAllDefectsToSummary(gradeCategory);
     }
-
-    currentSelectedGrade = gradeCategoryClass; // Simpan grade yang baru diklik
-    console.log(`Grade selected: ${currentSelectedGrade}`);
-
-    // Hapus highlight dari semua tombol grade, lalu tambahkan ke yang diklik
-    gradeInputButtons.forEach(btn => btn.classList.remove('active'));
-    button.classList.add('active');
-
-    // Update counter grade
-    qtyInspectOutputs[gradeCategoryClass]++;
-    if (outputElements[gradeCategoryClass]) {
-        outputElements[gradeCategoryClass].textContent = qtyInspectOutputs[gradeCategoryClass];
-    }
-    updateTotalQtyInspect(); // Perbarui total Qty Inspect, FTT, Redo Rate
-
-    // Jika grade adalah R, B, atau C, tambahkan defect ke summary
-    // Panggilan addDefectToSummary akan menggunakan activeDefectType, activeReworkPosition, currentSelectedGrade
-    if (gradeCategoryClass !== 'a-grade') {
-        addDefectToSummary();
-    }
-
-    // Setelah satu siklus (defect -> rework -> grade) selesai atau A-Grade diklik:
-    // Kembalikan semua tombol ke kondisi awal siklus baru
-    // <<< MODIFIKASI UNTUK ALUR TERPANDU DIMULAI DI SINI >>>
-    setTimeout(() => { // Memberi sedikit delay untuk efek visual active-feedback
-        initButtonStates(); // Mereset semua tombol ke kondisi awal
-        // Jika A-Grade yang diklik, pastikan A-Grade tetap ter-highlight SETELAH reset
-        if (gradeCategoryClass === 'a-grade') {
-             const aGradeButton = Array.from(gradeInputButtons).find(btn => btn.classList.contains('a-grade'));
-             if (aGradeButton) {
-                 aGradeButton.classList.add('active');
-             }
-        }
-        saveToLocalStorage(); // Simpan ke localStorage setelah reset
-    }, 100); // Sesuaikan delay jika perlu
-    // <<< MODIFIKASI UNTUK ALUR TERPANDU BERAKHIR DI SINI >>>
+    
+    // Update lagi tampilan ringkasan defect setelah ditambahkan
+    updateDefectSummaryDisplay(); 
+    saveToLocalStorage();
+    
+    // Reset seluruh alur untuk item berikutnya
+    setTimeout(() => {
+        initButtonStates();
+    }, 150);
 }
 
 
@@ -827,15 +751,14 @@ function validateQtySampleSet() {
 }
 
 // ===========================================
-// 15. Reset Semua Field Setelah Simpan
+// 15. Reset Semua Field Setelah Simpan (Modifikasi)
 // ===========================================
 function resetAllFields() {
     console.log("Memulai proses reset semua field dan data internal...");
     
-    // Reset input form fields
-    auditorSelect.value = "";
+    // Reset input form
+    if (auditorSelect) auditorSelect.value = "";
     updateNcvsOptions("");
-
     document.getElementById("model-name").value = "";
     const styleNumberInput = document.getElementById("style-number");
     if (styleNumberInput) {
@@ -843,26 +766,7 @@ function resetAllFields() {
         styleNumberInput.classList.remove('invalid-input');
     }
 
-    // Reset tampilan output numerik visual di DOM
-    if (qtyInspectOutput) qtyInspectOutput.textContent = "0";
-    if (leftCounter) leftCounter.textContent = "0";
-    if (rightCounter) rightCounter.textContent = "0";
-    if (pairsCounter) pairsCounter.textContent = "0";
-
-    if (fttOutput) {
-        fttOutput.textContent = "0%";
-        fttOutput.className = 'counter';
-    }
-    if (redoRateOutput) redoRateOutput.textContent = "0.00%";
-
-    // Reset tampilan visual untuk output grade (A, R, B, C)
-    for (const gradeKey in outputElements) {
-        if (outputElements[gradeKey]) {
-            outputElements[gradeKey].textContent = "0";
-        }
-    }
-
-    // RESET DATA INTERNAL UTAMA
+    // Reset data internal utama
     for (const categoryKey in qtyInspectOutputs) {
         qtyInspectOutputs[categoryKey] = 0;
     }
@@ -871,25 +775,25 @@ function resetAllFields() {
     totalReworkLeft = 0;
     totalReworkRight = 0;
     totalReworkPairs = 0;
-    activeDefectType = null;
-    activeReworkPosition = null;
-    currentSelectedGrade = null;
+    
+    // KOSONGKAN SEMUA DATA INTERNAL YANG BARU
+    selectedDefects = [];
+    currentInspectionPairs = [];
 
+    // Reset tampilan
+    updateAllDisplays();
+    
+    // Hapus summary
     if (summaryContainer) {
         summaryContainer.innerHTML = "";
     }
 
     // Atur ulang status tombol ke kondisi awal
-    initButtonStates();
-
-    // Restore qtySampleSetInput dari localStorage
-    if (qtySampleSetInput) {
-        let storedQty = localStorage.getItem('qtySampleSet');
-        qtySampleSetInput.value = (storedQty && !isNaN(parseInt(storedQty, 10)) && parseInt(storedQty, 10) > 0) ? parseInt(storedQty, 10) : '';
-    }
-
-    updateTotalQtyInspect();
-
+    initButtonStates(); 
+    
+    // Hapus semua data dari localStorage kecuali qty sample
+    clearLocalStorageExceptQtySampleSet();
+    
     console.log("Semua field dan data internal telah berhasil direset.");
 }
 
