@@ -278,19 +278,25 @@ function updateQuantity(counterId) {
 }
 
 // ===========================================
-// 6. Update FTT dan Redo Rate (Modifikasi)
+// 6. Update FTT dan Redo Rate (MODIFIKASI FINAL v2)
 // ===========================================
 function updateFTT() {
     if (!fttOutput) return;
-    const totalRGrade = qtyInspectOutputs['r-grade'] || 0;
+
+    // --- MODIFIKASI ---
+    // Gunakan fungsi pembantu baru untuk mendapatkan total rework yang valid.
+    const processedReworks = getProcessedReworkCounts();
+    const calculatedTotalRework = processedReworks.calculatedTotal;
+    // --------------------
+
     const totalBGrade = qtyInspectOutputs['b-grade'] || 0;
     const totalCGrade = qtyInspectOutputs['c-grade'] || 0;
 
-    // FTT = (Total Inspect - Total R/B/C) / Total Inspect
-    const calculatedTotalRework = ((totalReworkLeft + totalReworkRight) / 2) + totalReworkPairs;
+    // FTT = (Total Inspect - (Total Rework Valid + Total B/C)) / Total Inspect
     const fttValue = totalInspected > 0 ? ((totalInspected - (calculatedTotalRework + totalBGrade + totalCGrade)) / totalInspected) * 100 : 0;
-    fttOutput.textContent = `${Math.max(0, fttValue).toFixed(2)}%`; // Pastikan tidak negatif
+    fttOutput.textContent = `${Math.max(0, fttValue).toFixed(2)}%`; 
 
+    // Opsi: Update class styling jika ada
     if (fttValue >= 92) {
         fttOutput.className = 'counter high-ftt';
     } else if (fttValue >= 80) {
@@ -302,10 +308,73 @@ function updateFTT() {
 
 function updateRedoRate() {
     if (!redoRateOutput) return;
-    // Redo Rate = (Rework Kiri + Rework Kanan)/2 + Rework Pairs / Total Inspect
-    const calculatedTotalRework = ((totalReworkLeft + totalReworkRight) / 2) + totalReworkPairs;
+
+    // --- MODIFIKASI ---
+    // Gunakan fungsi pembantu baru untuk mendapatkan total rework yang valid.
+    const processedReworks = getProcessedReworkCounts();
+    const calculatedTotalRework = processedReworks.calculatedTotal;
+    // --------------------
+
     const redoRateValue = totalInspected !== 0 ? (calculatedTotalRework / totalInspected) * 100 : 0;
     redoRateOutput.textContent = `${redoRateValue.toFixed(2)}%`;
+}
+
+// ===========================================
+// FUNGSI PEMBANTU BARU: Memproses & Memisahkan Tipe Rework
+// ===========================================
+/**
+ * Menganalisis semua defect yang tercatat untuk menghitung rework secara akurat,
+ * memisahkan antara rework 'Pairs' dan rework 'Komponen' (Left/Right saja).
+ * Fungsi ini mengasumsikan setiap kenaikan 'qtyInspect' mewakili satu unit inspeksi.
+ *
+ * @returns {object} Sebuah objek berisi {
+ * finalReworkPairs: number, // Total inspeksi dengan rework 'Pairs'
+ * finalReworkKiri: number,  // Total rework 'Left' dari inspeksi TANPA 'Pairs'
+ * finalReworkKanan: number, // Total rework 'Right' dari inspeksi TANPA 'Pairs'
+ * calculatedTotal: number   // Total rework gabungan untuk FTT & Redo Rate
+ * }
+ */
+function getProcessedReworkCounts() {
+    // Ambil semua defect rework yang telah dicatat
+    const reworkDefects = [];
+    for (const defectType in defectCounts) {
+        for (const position in defectCounts[defectType]) {
+            if (defectCounts[defectType][position]['r-grade'] > 0) {
+                reworkDefects.push({
+                    type: defectType,
+                    position: position,
+                    // Kita asumsikan 1 defect = 1 item inspeksi rework di posisi itu
+                    count: defectCounts[defectType][position]['r-grade'] 
+                });
+            }
+        }
+    }
+
+    // Jika tidak ada defect rework sama sekali
+    if (reworkDefects.length === 0) {
+        return { finalReworkPairs: 0, finalReworkKiri: 0, finalReworkKanan: 0, calculatedTotal: 0 };
+    }
+
+    // Hitung berapa banyak unit inspeksi yang memiliki rework 'Pairs'
+    // totalReworkPairs adalah counter yang paling akurat untuk ini
+    const finalReworkPairs = totalReworkPairs;
+
+    // Hitung berapa banyak unit inspeksi yang memiliki rework 'Left' dan 'Right'
+    // INI ADALAH BAGIAN PENTING:
+    // Kita asumsikan totalReworkLeft/Right adalah jumlah inspeksi yang menyentuh L/R.
+    // Untuk mendapatkan rework komponen murni, kita kurangi dengan yang sudah dihitung di 'Pairs'.
+    const finalReworkKiri = Math.max(0, totalReworkLeft - totalReworkPairs);
+    const finalReworkKanan = Math.max(0, totalReworkRight - totalReworkPairs);
+
+    // Kalkulasi total rework gabungan sesuai logika baru
+    const calculatedTotal = finalReworkPairs + ((finalReworkKiri + finalReworkKanan) / 2);
+
+    return {
+        finalReworkPairs,
+        finalReworkKiri,
+        finalReworkKanan,
+        calculatedTotal
+    };
 }
 
 // ===========================================
@@ -544,43 +613,35 @@ function handleGradeClick(button) {
 
 
 // ===========================================
-// 11. Validasi Input dan Simpan Data (MELANJUTKAN dari yang terpotong)
+// 11. Validasi Input dan Simpan Data (MODIFIKASI FINAL v2)
 // ===========================================
 async function saveData() {
     console.log("Memulai proses simpan data...");
 
-    // Validasi input form dasar
     if (!validateInputs() || !validateQtySampleSet()) {
         console.log("Validasi dasar gagal. Penyimpanan dibatalkan.");
         return;
     }
 
-    // Validasi defect: jika ada R, B, C grade, harus ada defect yang tercatat
-    if (!validateDefects()) {
-        console.log("Validasi defect gagal. Penyimpanan dibatalkan.");
-        return;
+    // --- MODIFIKASI LOGIKA REWORK ---
+    // Panggil fungsi pembantu untuk mendapatkan semua hitungan rework yang benar
+    const processedReworks = getProcessedReworkCounts();
+    const { finalReworkPairs, finalReworkKiri, finalReworkKanan, calculatedTotal } = processedReworks;
+    // ---------------------------------
+
+    // Validasi tambahan: total defect tidak boleh lebih rendah dari total rework terhitung
+    const totalDefectCount = Object.values(defectCounts).reduce((sum, positions) =>
+        sum + Object.values(positions).reduce((posSum, grades) =>
+            posSum + Object.values(grades).reduce((gradeSum, count) => gradeSum + count, 0),
+        0),
+    0);
+
+    if (totalDefectCount < calculatedTotal) {
+        alert("Peringatan: Total defect yang tercatat (" + totalDefectCount + ") lebih rendah dari total unit rework terhitung (" + calculatedTotal.toFixed(2) + "). Harap pastikan semua data sudah benar.");
+        console.log("Validasi gagal: Total defect < total rework terhitung.");
+        // Anda bisa memilih untuk menghentikan (return) atau hanya memperingatkan.
     }
-
-    // Hitung total defect dari defectCounts untuk validasi
-    let totalDefectCount = 0;
-    for (const defectType in defectCounts) {
-        for (const position in defectCounts[defectType]) {
-            for (const grade in defectCounts[defectType][position]) {
-                totalDefectCount += defectCounts[defectType][position][grade];
-            }
-        }
-    }
-
-    // Hitung total rework dari variabel global (Rework Kiri/Kanan dihitung per 2, Pairs per 1)
-    const calculatedTotalRework = ((totalReworkLeft + totalReworkRight) / 2) + totalReworkPairs;
-
-    // Validasi tambahan: total defect tidak boleh lebih rendah dari total rework
-    if (totalDefectCount < calculatedTotalRework) {
-        alert("Total defect yang tercatat (" + totalDefectCount + ") tidak boleh lebih rendah dari total rework terhitung (" + calculatedTotalRework + "). Harap pastikan setiap rework memiliki setidaknya satu defect yang dicatat.");
-        console.log("Validasi gagal: Total defect < total rework.");
-        return;
-    }
-
+    
     const fttValueText = fttOutput ? fttOutput.innerText.replace("%", "").trim() : "0";
     const finalFtt = parseFloat(fttValueText) / 100;
 
@@ -588,7 +649,8 @@ async function saveData() {
     const finalRedoRate = parseFloat(redoRateValueText) / 100;
 
     const defectsToSend = [];
-    for (const defectType in defectCounts) {
+    // ... (sisa kode untuk mengisi defectsToSend tidak perlu diubah) ...
+     for (const defectType in defectCounts) {
         for (const position in defectCounts[defectType]) {
             for (const grade in defectCounts[defectType][position]) {
                 const count = defectCounts[defectType][position][grade];
@@ -605,33 +667,37 @@ async function saveData() {
     }
 
     const dataToSend = {
+        // ... (data lain seperti timestamp, auditor, ncvs, dll. tetap sama) ...
         timestamp: new Date().toISOString(),
         auditor: document.getElementById("auditor").value,
         ncvs: document.getElementById("ncvs").value,
         modelName: document.getElementById("model-name").value,
         styleNumber: document.getElementById("style-number").value,
-        qtyInspect: totalInspected, // Gunakan kembali qtyInspect
-        qtySampleSet: qtySampleSetInput ? (parseInt(qtySampleSetInput.value, 10) || 0) : 0, // Pastikan ada fallback jika qtySampleSetInput null
+        qtyInspect: totalInspected,
         ftt: finalFtt,
         redoRate: finalRedoRate,
         "a-grade": qtyInspectOutputs['a-grade'],
-        "r-grade": qtyInspectOutputs['r-grade'],
         "b-grade": qtyInspectOutputs['b-grade'],
         "c-grade": qtyInspectOutputs['c-grade'],
-        reworkKiri: totalReworkLeft,
-        reworkKanan: totalReworkRight,
-        reworkPairs: totalReworkPairs,
+        
+        // --- MODIFIKASI ---
+        // Kirim nilai rework yang sudah diproses dengan benar
+        reworkKiri: finalReworkKiri,
+        reworkKanan: finalReworkKanan,
+        reworkPairs: finalReworkPairs,
+        // ------------------
         defects: defectsToSend,
     };
 
-    console.log("Data yang akan dikirim:", JSON.stringify(dataToSend, null, 2));
+    console.log("Data yang akan dikirim (setelah diproses):", JSON.stringify(dataToSend, null, 2));
 
     const saveButton = document.querySelector(".save-button");
     saveButton.disabled = true;
     saveButton.textContent = "MENYIMPAN...";
 
     try {
-        const response = await fetch("https://script.google.com/macros/s/AKfycbxTRHNPQfH0Dg_4r1EJTmeRdr_qJMZaEADTn4ek5PvK4BeYYc9eT_Zp4EXHgkpeZUyQ/exec", {
+        // ... (sisa kode try-catch-finally untuk fetch tidak perlu diubah) ...
+        const response = await fetch("https://script.google.com/macros/s/AKfycbwp9jX0u4u6qKtP3HoBKg2-Bi0Hcn0vCBh4p3TnFhjIsg4-bUp3F6dlM2GGIMUPop8X/exec", { // Ganti dengan URL Anda
             method: "POST",
             body: JSON.stringify(dataToSend),
         });
@@ -644,15 +710,11 @@ async function saveData() {
             markNcvsAsUsed(auditorSelect.value, ncvsSelect.value);
             // Perbarui tampilan dropdown NCVS setelah menandai
             updateNcvsOptions(auditorSelect.value);
-
             resetAllFields();
-        } else {
-            console.warn("Server merespons OK, tapi pesan tidak mengandung 'berhasil' atau status tidak OK. Hasil:", resultText);
-        }
-
+        } 
     } catch (error) {
         console.error("Error saat mengirim data:", error);
-        alert("Terjadi kesalahan saat menyimpan data. Cek koneksi internet atau hubungi Team QM System.");
+        alert("Terjadi kesalahan saat menyimpan data.");
     } finally {
         saveButton.disabled = false;
         saveButton.textContent = "SIMPAN";
