@@ -2,17 +2,23 @@
 // 1. Deklarasi Variabel Global dan DOM References (Modifikasi)
 // ===========================================
 let totalInspected = 0;
+// Variabel lama ini masih berguna untuk tampilan UI, tapi tidak untuk kalkulasi final
 let totalReworkLeft = 0;
 let totalReworkRight = 0;
 let totalReworkPairs = 0;
 let defectCounts = {}; 
 
 // --- VARIABEL BARU UNTUK POLA MULTIPLE DEFECT ---
-// Menyimpan defect yang sedang di-highlight sebelum lokasi dipilih
 let selectedDefects = []; 
-// Mengakumulasi pasangan {defect, posisi} yang sudah dikonfirmasi untuk satu item inspeksi
 let currentInspectionPairs = []; 
+
+// --- VARIABEL BARU UNTUK LOGIKA REWORK AKURAT ---
+// Menyimpan array dari posisi rework untuk setiap item R-Grade
+// Contoh: [['PAIRS', 'LEFT'], ['LEFT'], ['RIGHT'], ['PAIRS']]
+let reworkLog = [];
 // ---------------------------------------------
+
+// ... (sisa variabel tetap sama) ...
 
 const qtyInspectOutputs = {
     'a-grade': 0,
@@ -81,10 +87,11 @@ function saveToLocalStorage() {
         localStorage.setItem(STORAGE_KEYS.REWORK_COUNTERS, JSON.stringify(reworkCounters));
 
         // Menyimpan state baru untuk multiple defect
-        const stateVariables = {
+       const stateVariables = {
             selectedDefects: selectedDefects,
             currentInspectionPairs: currentInspectionPairs,
-            totalInspected: totalInspected
+            totalInspected: totalInspected,
+            reworkLog: reworkLog // <-- TAMBAHKAN INI
         };
         localStorage.setItem(STORAGE_KEYS.STATE_VARIABLES, JSON.stringify(stateVariables));
 
@@ -128,12 +135,13 @@ function loadFromLocalStorage() {
             totalReworkPairs = reworkData.pairs || 0;
         }
 
-        const savedStateVariables = localStorage.getItem(STORAGE_KEYS.STATE_VARIABLES);
+ const savedStateVariables = localStorage.getItem(STORAGE_KEYS.STATE_VARIABLES);
         if (savedStateVariables) {
             const stateData = JSON.parse(savedStateVariables);
             selectedDefects = stateData.selectedDefects || [];
             currentInspectionPairs = stateData.currentInspectionPairs || [];
             totalInspected = stateData.totalInspected || 0;
+            reworkLog = stateData.reworkLog || []; // <-- TAMBAHKAN INI
         }
         
         // Memuat Qty Sample Set
@@ -320,54 +328,50 @@ function updateRedoRate() {
 }
 
 // ===========================================
-// FUNGSI PEMBANTU BARU: Memproses & Memisahkan Tipe Rework
+// FUNGSI PEMBANTU BARU: Memproses & Memisahkan Tipe Rework (REVISI TOTAL)
 // ===========================================
 /**
- * Menganalisis semua defect yang tercatat untuk menghitung rework secara akurat,
- * memisahkan antara rework 'Pairs' dan rework 'Komponen' (Left/Right saja).
- * Fungsi ini mengasumsikan setiap kenaikan 'qtyInspect' mewakili satu unit inspeksi.
+ * Menganalisis log rework per item untuk menghitung nilai rework secara akurat
+ * sesuai dengan logika baru.
  *
- * @returns {object} Sebuah objek berisi {
- * finalReworkPairs: number, // Total inspeksi dengan rework 'Pairs'
- * finalReworkKiri: number,  // Total rework 'Left' dari inspeksi TANPA 'Pairs'
- * finalReworkKanan: number, // Total rework 'Right' dari inspeksi TANPA 'Pairs'
- * calculatedTotal: number   // Total rework gabungan untuk FTT & Redo Rate
- * }
+ * Logika:
+ * 1. Jika item memiliki 'PAIRS', dihitung sebagai 1 rework unit (pairs dominan).
+ * 2. Jika item memiliki 'LEFT' DAN 'RIGHT' (tanpa 'PAIRS'), dihitung sebagai 1 rework unit.
+ * 3. Jika item HANYA memiliki 'LEFT', dihitung sebagai 0.5 rework unit.
+ * 4. Jika item HANYA memiliki 'RIGHT', dihitung sebagai 0.5 rework unit.
+ *
+ * @returns {object} Sebuah objek berisi nilai rework final untuk FTT, Redo Rate, dan database.
  */
 function getProcessedReworkCounts() {
-    // Ambil semua defect rework yang telah dicatat
-    const reworkDefects = [];
-    for (const defectType in defectCounts) {
-        for (const position in defectCounts[defectType]) {
-            if (defectCounts[defectType][position]['r-grade'] > 0) {
-                reworkDefects.push({
-                    type: defectType,
-                    position: position,
-                    // Kita asumsikan 1 defect = 1 item inspeksi rework di posisi itu
-                    count: defectCounts[defectType][position]['r-grade'] 
-                });
-            }
+    let finalReworkPairs = 0; // Untuk database: item yang dihitung sebagai 'Pairs'
+    let finalReworkKiri = 0;  // Untuk database: item yang HANYA 'Left'
+    let finalReworkKanan = 0; // Untuk database: item yang HANYA 'Right'
+    let calculatedTotal = 0;  // Untuk FTT & Redo Rate (contoh: 0.5, 1, 1.5, dst.)
+
+    // Iterasi melalui setiap item rework yang telah dicatat di log
+    for (const reworkPositions of reworkLog) {
+        const hasPairs = reworkPositions.includes('PAIRS');
+        const hasLeft = reworkPositions.includes('LEFT');
+        const hasRight = reworkPositions.includes('RIGHT');
+
+        if (hasPairs) {
+            // Aturan 1: Jika 'PAIRS' ada, hitung sebagai 1 & catat sebagai rework 'Pairs'.
+            calculatedTotal += 1;
+            finalReworkPairs += 1;
+        } else if (hasLeft && hasRight) {
+            // Aturan 2: Jika 'LEFT' dan 'RIGHT' ada (tanpa 'PAIRS'), hitung sebagai 1 & catat sebagai 'Pairs'.
+            calculatedTotal += 1;
+            finalReworkPairs += 1;
+        } else if (hasLeft) {
+            // Aturan 3: Jika HANYA 'LEFT' ada.
+            calculatedTotal += 0.5;
+            finalReworkKiri += 1;
+        } else if (hasRight) {
+            // Aturan 4: Jika HANYA 'RIGHT' ada.
+            calculatedTotal += 0.5;
+            finalReworkKanan += 1;
         }
     }
-
-    // Jika tidak ada defect rework sama sekali
-    if (reworkDefects.length === 0) {
-        return { finalReworkPairs: 0, finalReworkKiri: 0, finalReworkKanan: 0, calculatedTotal: 0 };
-    }
-
-    // Hitung berapa banyak unit inspeksi yang memiliki rework 'Pairs'
-    // totalReworkPairs adalah counter yang paling akurat untuk ini
-    const finalReworkPairs = totalReworkPairs;
-
-    // Hitung berapa banyak unit inspeksi yang memiliki rework 'Left' dan 'Right'
-    // INI ADALAH BAGIAN PENTING:
-    // Kita asumsikan totalReworkLeft/Right adalah jumlah inspeksi yang menyentuh L/R.
-    // Untuk mendapatkan rework komponen murni, kita kurangi dengan yang sudah dihitung di 'Pairs'.
-    const finalReworkKiri = Math.max(0, totalReworkLeft - totalReworkPairs);
-    const finalReworkKanan = Math.max(0, totalReworkRight - totalReworkPairs);
-
-    // Kalkulasi total rework gabungan sesuai logika baru
-    const calculatedTotal = finalReworkPairs + ((finalReworkKiri + finalReworkKanan) / 2);
 
     return {
         finalReworkPairs,
@@ -584,20 +588,33 @@ function handleReworkClick(button) {
     saveToLocalStorage();
 }
 
-// Handler untuk klik tombol Qty Section (A, R, B, C Grade) -- VERSI LENGKAP DENGAN PERBAIKAN
+// Handler untuk klik tombol Qty Section (A, R, B, C Grade)
 function handleGradeClick(button) {
     const gradeCategory = Array.from(button.classList).find(cls => cls.endsWith('-grade'));
     if (!gradeCategory) return;
 
+    // --- LOGIKA BARU DITAMBAHKAN DI SINI ---
+    // Jika item ini adalah R-Grade dan memiliki cacat yang tercatat...
+    if (gradeCategory === 'r-grade' && currentInspectionPairs.length > 0) {
+        // Ambil posisi rework yang unik dari pasangan cacat saat ini
+        const reworkPositionsForItem = [...new Set(currentInspectionPairs.map(pair => pair.position))];
+        
+        // Hanya tambahkan ke log jika ada posisi rework yang valid
+        if (reworkPositionsForItem.length > 0) {
+            reworkLog.push(reworkPositionsForItem);
+            console.log("Rework Log diupdate:", reworkLog);
+        }
+    }
+    // --- AKHIR LOGIKA BARU ---
+
     // Tambah hitungan Qty Inspect di memori
     qtyInspectOutputs[gradeCategory]++;
     
-    // Panggil fungsi ini untuk me-render SEMUA perubahan angka ke layar,
-    // termasuk counter A/R/B/C yang baru saja diubah.
-    updateAllDisplays(); 
+    // Panggil fungsi ini untuk me-render SEMUA perubahan angka ke layar
+    updateAllDisplays();  
     
     if (gradeCategory !== 'a-grade') {
-        // Jika bukan A-Grade, proses semua pasangan defect yang terkumpul
+        // Proses semua pasangan defect yang terkumpul
         addAllDefectsToSummary(gradeCategory);
     }
     
@@ -841,6 +858,7 @@ function resetAllFields() {
     // KOSONGKAN SEMUA DATA INTERNAL YANG BARU
     selectedDefects = [];
     currentInspectionPairs = [];
+    reworkLog = []; // <-- TAMBAHKAN INI
 
     // Reset tampilan
     updateAllDisplays();
