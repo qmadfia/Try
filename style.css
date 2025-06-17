@@ -1,3 +1,4 @@
+
 /* ============================= */
 /* 1. Global Styles              */
 /* ============================= */
@@ -1067,3 +1068,37 @@ h1:hover {
     background-color: rgba(255, 255, 255, 0.2); /* Latar belakang semi-transparan */
     border-radius: 10px;
 }
+
+/* ============================= */
+/* 13. Statistik Button Styles */
+/* ============================= */
+.statistic-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    top: 17px;
+    right: 80px; /* Geser kiri dari tombol announcement */
+    padding: 0;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.statistic-icon {
+    font-size: 30px;
+    color: #3f51b5; /* Warna biru keunguan */
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.statistic-button:hover .statistic-icon {
+    transform: scale(1.2);
+    color: #303f9f;
+}
+
+/* Responsif pada layar kecil */
+@media (max-width: 600px) {
+    .statistic-button {
+        top: 20px;
+        right: 70px;
+    }
+}
+
