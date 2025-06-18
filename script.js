@@ -228,8 +228,25 @@ function toggleButtonGroup(buttons, enable) {
 }
 
 // ===========================================
+// FUNGSI PEMBANTU BARU: Mengontrol Status Tombol A-Grade
+// ===========================================
+function updateAGradeButtonState() {
+    // Cari tombol A-Grade secara spesifik
+    const aGradeButton = Array.from(gradeInputButtons).find(btn => btn.classList.contains('a-grade'));
+    if (!aGradeButton) return; // Keluar jika tombol tidak ditemukan
+
+    // Tombol A-Grade harus nonaktif jika ada defect yang sedang dipilih
+    // ATAU jika sudah ada pasangan {defect, posisi} yang tercatat untuk item ini.
+    const shouldBeDisabled = selectedDefects.length > 0 || currentInspectionPairs.length > 0;
+
+    aGradeButton.disabled = shouldBeDisabled;
+    aGradeButton.classList.toggle('inactive', shouldBeDisabled);
+}
+
+// ===========================================
 // 4. Fungsi Utama: Inisialisasi Status Tombol (Modifikasi)
 // ===========================================
+// Fungsi Utama: Inisialisasi Status Tombol (Modifikasi)
 function initButtonStates() {
     console.log("Mengatur status tombol ke kondisi awal siklus...");
 
@@ -240,17 +257,17 @@ function initButtonStates() {
     // Reset tampilan visual tombol
     defectButtons.forEach(btn => btn.classList.remove('active'));
     
-    // Aktifkan semua tombol defect dan A-Grade
+    // Aktifkan semua tombol defect
     toggleButtonGroup(defectButtons, true);
-    const aGradeButton = Array.from(gradeInputButtons).find(btn => btn.classList.contains('a-grade'));
-    if (aGradeButton) {
-        aGradeButton.disabled = false;
-        aGradeButton.classList.remove('inactive');
-    }
+
+    // --- MODIFIKASI ---
+    // Panggil fungsi ini untuk mengaktifkan kembali A-Grade
+    updateAGradeButtonState();
+    // ------------------
 
     // Nonaktifkan Rework dan Qty (R/B/C)
     toggleButtonGroup(reworkButtons, false);
-    updateQtySectionState(); // Ini akan menonaktifkan Qty (R/B/C) karena state kosong
+    updateQtySectionState(); 
     
     // Cek batas inspeksi
     if (totalInspected >= MAX_INSPECTION_LIMIT) {
@@ -556,8 +573,14 @@ function handleDefectClick(button) {
     const enableRework = selectedDefects.length > 0;
     toggleButtonGroup(reworkButtons, enableRework);
 
-    // Nonaktifkan Qty Section karena ada defect "menggantung"
+    // Nonaktifkan Qty Section (R/B/C)
     updateQtySectionState();
+    
+    // --- MODIFIKASI BARU ---
+    // Update status tombol A-Grade setiap kali defect dipilih atau dibatalkan
+    updateAGradeButtonState();
+    // -----------------------
+
     saveToLocalStorage();
 }
 
@@ -585,6 +608,13 @@ function handleReworkClick(button) {
     
     // Aktifkan Qty Section karena status kembali "bersih"
     updateQtySectionState();
+
+    // --- MODIFIKASI BARU ---
+    // Update status tombol A-Grade. Meskipun defect sudah dikonfirmasi,
+    // A-Grade tetap harus nonaktif karena item ini memiliki defect.
+    updateAGradeButtonState();
+    // -----------------------
+
     saveToLocalStorage();
 }
 
