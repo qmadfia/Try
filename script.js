@@ -228,8 +228,25 @@ function toggleButtonGroup(buttons, enable) {
 }
 
 // ===========================================
+// FUNGSI PEMBANTU BARU: Mengontrol Status Tombol A-Grade
+// ===========================================
+function updateAGradeButtonState() {
+    // Cari tombol A-Grade secara spesifik
+    const aGradeButton = Array.from(gradeInputButtons).find(btn => btn.classList.contains('a-grade'));
+    if (!aGradeButton) return; // Keluar jika tombol tidak ditemukan
+
+    // Tombol A-Grade harus nonaktif jika ada defect yang sedang dipilih
+    // ATAU jika sudah ada pasangan {defect, posisi} yang tercatat untuk item ini.
+    const shouldBeDisabled = selectedDefects.length > 0 || currentInspectionPairs.length > 0;
+
+    aGradeButton.disabled = shouldBeDisabled;
+    aGradeButton.classList.toggle('inactive', shouldBeDisabled);
+}
+
+// ===========================================
 // 4. Fungsi Utama: Inisialisasi Status Tombol (Modifikasi)
 // ===========================================
+// Fungsi Utama: Inisialisasi Status Tombol (Modifikasi)
 function initButtonStates() {
     console.log("Mengatur status tombol ke kondisi awal siklus...");
 
@@ -240,17 +257,17 @@ function initButtonStates() {
     // Reset tampilan visual tombol
     defectButtons.forEach(btn => btn.classList.remove('active'));
     
-    // Aktifkan semua tombol defect dan A-Grade
+    // Aktifkan semua tombol defect
     toggleButtonGroup(defectButtons, true);
-    const aGradeButton = Array.from(gradeInputButtons).find(btn => btn.classList.contains('a-grade'));
-    if (aGradeButton) {
-        aGradeButton.disabled = false;
-        aGradeButton.classList.remove('inactive');
-    }
+
+    // --- MODIFIKASI ---
+    // Panggil fungsi ini untuk mengaktifkan kembali A-Grade
+    updateAGradeButtonState();
+    // ------------------
 
     // Nonaktifkan Rework dan Qty (R/B/C)
     toggleButtonGroup(reworkButtons, false);
-    updateQtySectionState(); // Ini akan menonaktifkan Qty (R/B/C) karena state kosong
+    updateQtySectionState(); 
     
     // Cek batas inspeksi
     if (totalInspected >= MAX_INSPECTION_LIMIT) {
@@ -556,8 +573,14 @@ function handleDefectClick(button) {
     const enableRework = selectedDefects.length > 0;
     toggleButtonGroup(reworkButtons, enableRework);
 
-    // Nonaktifkan Qty Section karena ada defect "menggantung"
+    // Nonaktifkan Qty Section (R/B/C)
     updateQtySectionState();
+    
+    // --- MODIFIKASI BARU ---
+    // Update status tombol A-Grade setiap kali defect dipilih atau dibatalkan
+    updateAGradeButtonState();
+    // -----------------------
+
     saveToLocalStorage();
 }
 
@@ -585,6 +608,13 @@ function handleReworkClick(button) {
     
     // Aktifkan Qty Section karena status kembali "bersih"
     updateQtySectionState();
+
+    // --- MODIFIKASI BARU ---
+    // Update status tombol A-Grade. Meskipun defect sudah dikonfirmasi,
+    // A-Grade tetap harus nonaktif karena item ini memiliki defect.
+    updateAGradeButtonState();
+    // -----------------------
+
     saveToLocalStorage();
 }
 
@@ -916,12 +946,13 @@ function initApp() {
         });
     }
 
-    // Event listener untuk dropdown NCVS
-    if (ncvsSelect) {
-        ncvsSelect.addEventListener('change', () => {
-            saveToLocalStorage(); // Auto-save saat ada perubahan
-        });
-    }
+// Di dalam fungsi initApp(), cari bagian ini dan modifikasi
+if (ncvsSelect) {
+    ncvsSelect.addEventListener('change', () => {
+        updateNcvsSelectColor(); // <-- PANGGIL FUNGSI DI SINI
+        saveToLocalStorage(); 
+    });
+}
 
     // Event listener untuk input form lainnya
     const modelNameInput = document.getElementById("model-name");
@@ -1124,6 +1155,24 @@ function updateNcvsOptions(selectedAuditor) {
         defaultOption.textContent = "Pilih NCVS (pilih Auditor dahulu)";
     }
     ncvsSelect.value = "";
+        updateNcvsSelectColor(); // <-- TAMBAHKAN PANGGILAN INI DI AKHIR
+}
+
+// Fungsi baru untuk memeriksa dan menerapkan style pada dropdown NCVS
+function updateNcvsSelectColor() {
+    if (!ncvsSelect) return;
+
+    // Dapatkan opsi yang sedang dipilih
+    const selectedOption = ncvsSelect.options[ncvsSelect.selectedIndex];
+
+    // Periksa apakah opsi yang dipilih memiliki class 'used-ncvs'
+    if (selectedOption && selectedOption.classList.contains('used-ncvs')) {
+        // Jika ya, tambahkan class ke elemen <select> utama
+        ncvsSelect.classList.add('used-selected-ncvs');
+    } else {
+        // Jika tidak, hapus class dari elemen <select> utama
+        ncvsSelect.classList.remove('used-selected-ncvs');
+    }
 }
 
 // ===========================================
