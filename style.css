@@ -117,7 +117,7 @@ h1:hover {
 /* --- STYLING UNTUK NCVS YANG SUDAH DIGUNAKAN --- */
 /* Ini akan mewarnai opsi individual di dropdown saat dibuka */
 #ncvs option.used-ncvs {
-    color: red;
+    color: #FF4C4C, #FF4C4C;
     font-weight: bold;
     /* Anda bisa menambahkan gaya lain di sini jika diperlukan */
     /* background-color: #ffebeb; */
@@ -126,7 +126,7 @@ h1:hover {
 /* Ini akan mencoba mewarnai teks yang terlihat di kotak select saat tertutup.
    Efeknya mungkin tidak konsisten di semua browser karena keterbatasan styling <select> native. */
 #ncvs.used-selected-ncvs {
-    color: red;
+    color: #FF4C4C, #FF4C4C;
     font-weight: bold;
 }
 /* --- AKHIR STYLING NCVS --- */
