@@ -1,1103 +1,1237 @@
+// ===========================================
+// 1. Deklarasi Variabel Global dan DOM References (Modifikasi)
+// ===========================================
+let totalInspected = 0;
+// Variabel lama ini masih berguna untuk tampilan UI, tapi tidak untuk kalkulasi final
+let totalReworkLeft = 0;
+let totalReworkRight = 0;
+let totalReworkPairs = 0;
+let defectCounts = {}; 
 
-/* ============================= */
-/* 1. Global Styles              */
-/* ============================= */
-body {
-    font-family: 'Roboto', sans-serif;
-    background: linear-gradient(to right, #e3f2fd, #bbdefb);
-    color: #333;
-    margin: 0;
-    padding: 0; /* Pastikan tidak ada padding body yang tidak perlu */
-    overscroll-behavior: none;
-}
+// --- VARIABEL BARU UNTUK POLA MULTIPLE DEFECT ---
+let selectedDefects = []; 
+let currentInspectionPairs = []; 
 
-/* ============================= */
-/* 2. Header Styling             */
-/* ============================= */
-.header {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start; /* Mengubah agar logo dan teks berada di kiri */
-    padding: 5px 30px; /* Mengurangi padding untuk kompak */
-    background: linear-gradient(to right, #2196F3, #4CAF50); /* Gradient background */
-    border-bottom: 4px solid #ffffff; /* Menambah garis bawah header */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Menambah shadow lebih tegas */
-    transition: all 0.3s ease-in-out; /* Efek transisi saat hover */
-}
+// --- VARIABEL BARU UNTUK LOGIKA REWORK AKURAT ---
+// Menyimpan array dari posisi rework untuk setiap item R-Grade
+// Contoh: [['PAIRS', 'LEFT'], ['LEFT'], ['RIGHT'], ['PAIRS']]
+let reworkLog = [];
+// ---------------------------------------------
 
-.header:hover {
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Efek hover untuk shadow */
-    transform: translateY(-5px); /* Efek header sedikit terangkat */
-}
+// ... (sisa variabel tetap sama) ...
 
-.logo {
-    max-width: 100px; /* Memperbesar logo */
-    height: auto;
-    margin-right: 20px; /* Memberikan jarak lebih pada logo */
-    transition: transform 0.3s ease; /* Efek saat logo dihover */
-}
+const qtyInspectOutputs = {
+    'a-grade': 0,
+    'r-grade': 0,
+    'b-grade': 0,
+    'c-grade': 0
+};
 
-.logo:hover {
-    transform: rotate(360deg); /* Efek rotasi pada logo saat hover */
-}
+// Referensi Elemen DOM Utama - Akan diisi di initApp
+let outputElements = {};
+let fttOutput;
+let qtyInspectOutput;
+let leftCounter;
+let rightCounter;
+let pairsCounter;
+let summaryContainer;
+let redoRateOutput;
+let qtySampleSetInput;
+let defectButtons;
+let reworkButtons;
+let gradeInputButtons;
+let ncvsSelect;
+let auditorSelect;
 
-h1 {
-    font-family: 'Poppins', sans-serif; /* Font modern dan elegan */
-    font-size: 2.5em; /* Membesarkan ukuran teks */
-    color: #ffffff;
-    margin: 0;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Memberikan efek bayangan pada teks */
-    letter-spacing: 2px; /* Memberikan jarak antar huruf */
-    transition: color 0.3s ease, transform 0.3s ease; /* Efek transisi saat hover */
-}
+// Data mapping Auditor ke NCVS
+const auditorNcvsMap = {
+    "Badrowi": ["109", "110", "111", "112", "113", "114", "115", "116"],
+    "Sopan Sopian": ["101", "102", "103", "104", "105", "106", "107", "108"],
+    "Iksan": ["201", "202", "203", "204", "207", "210"]
+};
 
-h1:hover {
-    color: #FFEB3B; /* Mengubah warna saat hover */
-    transform: scale(1.1); /* Efek pembesaran teks saat hover */
-}
+// Kunci localStorage
+const USED_NCVS_STORAGE_KEY = 'usedNcvsPerDay';
+const STORAGE_KEYS = {
+    FORM_DATA: 'qms_form_data',
+    DEFECT_COUNTS: 'qms_defect_counts',
+    QTY_OUTPUTS: 'qms_qty_outputs',
+    REWORK_COUNTERS: 'qms_rework_counters',
+    STATE_VARIABLES: 'qms_state_variables',
+    QTY_SAMPLE_SET: 'qtySampleSet'
+};
 
-/* ============================= */
-/* 3. Dashboard Layout           */
-/* ============================= */
-.dashboard {
-    display: grid;
-    gap: 10px; /* Jaga jarak 10px antar grid items */
-    padding: 1px; /* Mengurangi padding dashboard jika terlalu lebar */
-    box-sizing: border-box;
-    grid-template-columns: 1fr 3.5fr;
+const MAX_INSPECTION_LIMIT = 50;
 
-}
-/* ============================= */
-/* 4. Form Section             */
-/* ============================= */
-.form-section {
-    grid-column: 1 / 2;
-    grid-row: 1 / 4;
-    background: linear-gradient(145deg, #ffffff, #f1f1f1);
-    border-radius: 12px;
-    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
-    padding: 24px;
-    overflow-y: auto;
-    position: relative;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
+// ===========================================
+// 2. Fungsi localStorage Komprehensif (Modifikasi)
+// ===========================================
 
-.form-section:hover {
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-    transform: translateY(-3px);
-}
+function saveToLocalStorage() {
+    try {
+        const formData = {
+            auditor: auditorSelect ? auditorSelect.value : '',
+            ncvs: ncvsSelect ? ncvsSelect.value : '',
+            modelName: document.getElementById("model-name") ? document.getElementById("model-name").value : '',
+            styleNumber: document.getElementById("style-number") ? document.getElementById("style-number").value : ''
+        };
+        localStorage.setItem(STORAGE_KEYS.FORM_DATA, JSON.stringify(formData));
+        localStorage.setItem(STORAGE_KEYS.DEFECT_COUNTS, JSON.stringify(defectCounts));
+        localStorage.setItem(STORAGE_KEYS.QTY_OUTPUTS, JSON.stringify(qtyInspectOutputs));
 
-.form-section label {
-    font-weight: bold;
-    margin-bottom: 8px;
-    color: #444;
-    font-size: 20px;
-    display: block;
-}
+        const reworkCounters = {
+            left: totalReworkLeft,
+            right: totalReworkRight,
+            pairs: totalReworkPairs
+        };
+        localStorage.setItem(STORAGE_KEYS.REWORK_COUNTERS, JSON.stringify(reworkCounters));
 
-.form-section select,
-.form-section input {
-    width: calc(100% - 10px);
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    margin-bottom: 20px;
-    font-size: 15px;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
+        // Menyimpan state baru untuk multiple defect
+       const stateVariables = {
+            selectedDefects: selectedDefects,
+            currentInspectionPairs: currentInspectionPairs,
+            totalInspected: totalInspected,
+            reworkLog: reworkLog // <-- TAMBAHKAN INI
+        };
+        localStorage.setItem(STORAGE_KEYS.STATE_VARIABLES, JSON.stringify(stateVariables));
 
-.form-section select:focus,
-.form-section input:focus {
-    border-color: #4CAF50;
-    box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
-    outline: none;
-}
-
-/* --- STYLING UNTUK NCVS YANG SUDAH DIGUNAKAN --- */
-/* Ini akan mewarnai opsi individual di dropdown saat dibuka */
-#ncvs option.used-ncvs {
-    color: #FF4C4C, #FF4C4C;
-    font-weight: bold;
-    /* Anda bisa menambahkan gaya lain di sini jika diperlukan */
-    /* background-color: #ffebeb; */
-}
-
-/* Ini akan mencoba mewarnai teks yang terlihat di kotak select saat tertutup.
-   Efeknya mungkin tidak konsisten di semua browser karena keterbatasan styling <select> native. */
-#ncvs.used-selected-ncvs {
-    color: #FF4C4C, #FF4C4C;
-    font-weight: bold;
-}
-/* --- AKHIR STYLING NCVS --- */
-
-
-.button-wrapper {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 24px;
-}
-
-.save-button {
-    background: linear-gradient(145deg, #4CAF50, #43a047);
-    color: white;
-    width: calc(100% - 10px);
-    padding: 25px 50px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 24px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: background 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.save-button:hover {
-    background: linear-gradient(145deg, #43a047, #388e3c);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-}
-
-.save-button:active {
-    transform: scale(0.96);
-}
-.invalid-input {
-    border: 1px solid red; /* Berikan border merah pada input yang tidak valid */
-    background-color: #ffe0e0; /* Berikan warna latar belakang merah muda pucat */
-}
-
-
-/* Responsive Save Button */
-@media screen and (max-width: 1200px) {
-    .save-button {
-        padding: 20px 40px;
-        font-size: 20px;
+    } catch (error) {
+        console.error("Error saat menyimpan data ke localStorage:", error);
     }
 }
 
-@media screen and (max-width: 992px) {
-    .save-button {
-        padding: 15px 30px;
-        font-size: 18px;
+function loadFromLocalStorage() {
+    try {
+        const savedFormData = localStorage.getItem(STORAGE_KEYS.FORM_DATA);
+        if (savedFormData) {
+            const formData = JSON.parse(savedFormData);
+            if (auditorSelect) auditorSelect.value = formData.auditor || '';
+            if (ncvsSelect) {
+                updateNcvsOptions(formData.auditor || '');
+                ncvsSelect.value = formData.ncvs || '';
+            }
+            if (document.getElementById("model-name")) document.getElementById("model-name").value = formData.modelName || '';
+            if (document.getElementById("style-number")) document.getElementById("style-number").value = formData.styleNumber || '';
+        }
+
+        const savedDefectCounts = localStorage.getItem(STORAGE_KEYS.DEFECT_COUNTS);
+        if (savedDefectCounts) {
+            defectCounts = JSON.parse(savedDefectCounts);
+        }
+
+        const savedQtyOutputs = localStorage.getItem(STORAGE_KEYS.QTY_OUTPUTS);
+        if (savedQtyOutputs) {
+            const qtyData = JSON.parse(savedQtyOutputs);
+            for (const grade in qtyData) {
+                qtyInspectOutputs[grade] = qtyData[grade];
+            }
+        }
+
+        const savedReworkCounters = localStorage.getItem(STORAGE_KEYS.REWORK_COUNTERS);
+        if (savedReworkCounters) {
+            const reworkData = JSON.parse(savedReworkCounters);
+            totalReworkLeft = reworkData.left || 0;
+            totalReworkRight = reworkData.right || 0;
+            totalReworkPairs = reworkData.pairs || 0;
+        }
+
+ const savedStateVariables = localStorage.getItem(STORAGE_KEYS.STATE_VARIABLES);
+        if (savedStateVariables) {
+            const stateData = JSON.parse(savedStateVariables);
+            selectedDefects = stateData.selectedDefects || [];
+            currentInspectionPairs = stateData.currentInspectionPairs || [];
+            totalInspected = stateData.totalInspected || 0;
+            reworkLog = stateData.reworkLog || []; // <-- TAMBAHKAN INI
+        }
+        
+        // Memuat Qty Sample Set
+        const savedQtySampleSet = localStorage.getItem(STORAGE_KEYS.QTY_SAMPLE_SET);
+        if (qtySampleSetInput && savedQtySampleSet) {
+             qtySampleSetInput.value = parseInt(savedQtySampleSet, 10) > 0 ? savedQtySampleSet : '';
+        }
+        
+        // Update semua tampilan berdasarkan data yang dimuat
+        updateAllDisplays();
+        updateButtonStatesFromLoadedData();
+
+    } catch (error) {
+        console.error("Error saat memuat data dari localStorage:", error);
+        resetAllFields(); // Jika ada error, reset semuanya untuk menghindari state korup
     }
 }
 
-@media screen and (max-width: 768px) {
-    .save-button {
-        padding: 12px 25px;
-        font-size: 16px;
-        width: 100%;
-        margin-top: 10px;
+function updateAllDisplays() {
+    // Update counter grade
+    for (const grade in qtyInspectOutputs) {
+        if (outputElements[grade]) {
+            outputElements[grade].textContent = qtyInspectOutputs[grade];
+        }
     }
-
-    .button-wrapper {
-        justify-content: center;
-    }
-}
-
-@media screen and (max-width: 480px) {
-    .save-button {
-        padding: 10px 20px;
-        font-size: 14px;
-        letter-spacing: 0.3px;
-    }
-}
-
-
-/* ============================= */
-/* 5. FTT Section - Reworked     */
-/* ============================= */
-.ftt-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 20px;
-    margin-bottom: 1px;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    background: linear-gradient(135deg, #f9f9f9, #ffffff);
-    border-radius: 15px;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
-}
-
-.ftt-container:hover {
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-    transform: translateY(-3px);
-}
-
-/* FTT & Qty Inspect Box */
-.section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(145deg, #ffffff, #e6e9ef);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1), -4px -4px 10px rgba(255, 255, 255, 0.6);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    min-width: 130px; /* Agar tetap muat di layar kecil */
-}
-
-/* Responsive Mode */
-@media (max-width: 600px) {
-    .ftt-container {
-        grid-template-columns: repeat(2, 1fr); /* Tetap 2 kolom di layar kecil */
-        gap: 10px; /* Tambahkan sedikit jarak agar lebih nyaman */
-    }
-
-    .section {
-        min-width: 100px; /* Sesuaikan ukuran agar tetap muat */
-    }
-}
-
-/* Hover Efek */
-.section:hover {
-    transform: translateY(-5px);
-    box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.15), -6px -6px 15px rgba(255, 255, 255, 0.7);
-}
-
-
-/* Label FTT & Qty Inspect */
-.section label {
-    font-size: 16px;
-    font-weight: bold;
-    color: #555;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-/* Output Box (FTT & Qty Inspect) */
-.counter {
-    font-size: 28px;
-    font-weight: bold;
-    text-align: center;
-    padding: 12px;
-    border-radius: 8px;
-    width: 120px;
-    margin-top: 6px;
-    background: linear-gradient(145deg, #e8f5e9, #ffffff);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    color: #0000FF;
-}
-
-/* Hover efek untuk Output */
-.counter:hover {
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
-}
-
-/* Variasi warna sesuai kategori FTT */
-.counter.low-ftt {
-    background-color: #ff0000;
-    border-color: #ff0000;
-    color: #ff0000; /* Merah */
-}
-
-.counter.medium-ftt {
-    background-color: #ffbf00;
-    border-color: #ffbf00;
-    color: #ffbf00; /* Kuning */
-}
-
-.counter.high-ftt {
-    background-color: #32cd32;
-    border-color: #32cd32;
-    color: #32cd32; /* Hijau */
-}
-
-/* Responsive: Agar tetap rapi di HP */
-@media (max-width: 600px) {
-    .ftt-container {
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .section {
-        width: 100%;
-        max-width: 250px;
-    }
-}
-
-
-
-/* ============================= */
-/* 6. Qty Section - Stylish UI   */
-/* ============================= */
-.qty-section {
-    display: grid;
-         grid-column: 2 / 3;
-    grid-row: 4 / 5;
-        min-height: 110px;
-  max-height: 110px;
-        margin-top: 193px;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 15px;
-    grid-auto-flow: row;
-    justify-content: center;
-    padding: 30px;
-    background: linear-gradient(70deg, #f9f9f9, #ffffff);
-    border-radius: 15px;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
-}
-/* Efek hover pada qty-section */
-.qty-section:hover {
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-    transform: translateY(-3px);
-}
-
-/* Jika layar kecil (HP mode portrait), batasi jadi 2 kolom */
-@media (max-width: 600px) {
-    .qty-section {
-        grid-template-columns: repeat(2, 1fr); /* 2 item per baris */
-    }
-}
-
-/* Jika layar sangat kecil (<400px), buat 1 item per baris */
-@media (max-width: 400px) {
-    .qty-section {
-        grid-template-columns: repeat(1, 1fr); /* 1 item per baris */
-    }
-}
-
-.qty-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    padding: 15px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-/* Efek hover qty-item */
-.qty-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.15), -6px -6px 15px rgba(255, 255, 255, 0.7);
-}
-
-.input-button {
-    font-size: 16px;
-    font-weight: bold;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: background 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    color: white;
-    width: 140px;
-    text-align: center;
-}
-
-/* Warna tombol berdasarkan kategori */
-.a-grade {
-    background: linear-gradient(135deg, #4CAF50, #45a049);
-}
-
-.r-grade {
-    background: linear-gradient(135deg, #00008B, #00008B);
-}
-
-.b-grade {
-    background: linear-gradient(135deg, #FFFF00, #e6c200);
-    color: black;
-}
-
-.c-grade {
-    background: linear-gradient(135deg, #FF0000, #cc0000);
-}
-
-/* Efek hover pada tombol */
-.input-button:hover {
-    opacity: 0.9;
-    transform: scale(1.05);
-}
-
-.input-button:active {
-    transform: scale(0.95);
-}
-
-.output-box {
-    font-size: 22px;
-    font-weight: bold;
-    text-align: center;
-    padding: 12px 20px;
-    border-radius: 10px;
-    width: 90px;
-    margin-top: 12px;
-    background: linear-gradient(145deg, #ffffff, #e6e9ef);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-/* Efek hover pada output box */
-.output-box:hover {
-    transform: translateY(-2px);
-}
-
-/* ============================= */
-/* 7. Rework Section            */
-/* ============================= */
-.rework-section {
-     grid-column: 2 / 3;
-    grid-row: 4 / 5;
-    min-height: 110px;
-  max-height: 180px;
-    display: flex;
-    gap: 20px;
-    justify-content: space-between;
-    padding: 1px;
-    background: linear-gradient(135deg, #f9f9f9, #ffffff);
-    border-radius: 15px;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
-}
-
-
-.rework-section:hover {
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-    transform: translateY(-5px);
-}
-
-.rework-left, .rework-right {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(145deg, #ffffff, #e6e9ef);
-    border-radius: 12px;
-    padding: 1px;
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1), -4px -4px 10px rgba(255, 255, 255, 0.6);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.rework-left:hover, .rework-right:hover {
-    transform: translateY(-5px);
-    box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.15), -6px -6px 15px rgba(255, 255, 255, 0.7);
-}
-
-.rework-left p, .rework-right p {
-    font-size: 1.8rem;
-    font-weight: bold;
-    margin: 10px 0;
-    color: #333;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.rework-left button, .rework-right button {
-    background: linear-gradient(135deg, #4CAF50, #45a049);
-    color: white;
-    font-size: 16px;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: background 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.rework-left button:hover, .rework-right button:hover {
-    background: linear-gradient(135deg, #45a049, #388e3c);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.rework-left button:active, .rework-right button:active {
-    transform: scale(0.95);
-}
-.rework-pairs {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(145deg, #ffffff, #e6e9ef);
-    border-radius: 12px;
-    padding: 1px;
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1), -4px -4px 10px rgba(255, 255, 255, 0.6);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.rework-pairs:hover {
-    transform: translateY(-5px);
-    box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.15), -6px -6px 15px rgba(255, 255, 255, 0.7);
-}
-
-.rework-pairs p {
-    font-size: 1.8rem;
-    font-weight: bold;
-    margin: 10px 0;
-    color: #333;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.rework-pairs button {
-    background: linear-gradient(135deg, #4CAF50, #45a049);
-    color: white;
-    font-size: 16px;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: background 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.rework-pairs button:hover {
-    background: linear-gradient(135deg, #45a049, #388e3c);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.rework-pairs button:active {
-    transform: scale(0.95);
-}
-
-/* ============================= */
-/* 8. Defect Menu Section        */
-/* ============================= */
-.defect-menu {
-    grid-column: 2 / 3;
-    grid-row: 2 / 4;
-    margin-top: 0;
-    background: linear-gradient(145deg, #ffffff, #f3f3f3);
-    border-radius: 15px;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    padding: 16px 20px 20px 20px;
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
-    font-size: 20px;
-    text-align: center;
-    min-height: 200px;
-    overflow: auto;
-}
-
-.defect-menu h3 {
-    margin: 0 0 15px 0;
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
-    text-transform: uppercase;
-    padding-bottom: 5px;
-}
-
-.defect-menu:hover {
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-    transform: translateY(-5px);
-}
-
-.defect-items {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 15px;
-}
-
-.defect-button {
-    /* Gaya dasar untuk semua tombol defect */
-    color: white;
-    padding: 12px 15px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    text-align: center;
-    transition: all 0.3s ease; /* Transisi untuk semua properti */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    min-width: 120px;
-    min-height: 50px;
-    width: auto;
-    overflow: hidden;
-    white-space: normal;
-    word-wrap: break-word;
-}
-
-/* ======================================================== */
-/* --- MODIFIKASI: Gaya Tombol yang Dipilih (Highlight) --- */
-/* ======================================================== */
-.defect-button.active {
-    /* 1. Border yang Jelas & Kontras */
-    border: 4px solid #39FF14; /* Warna Cyan/Aqua yang kontras */
+    // Update rework counters
+    if (leftCounter) leftCounter.textContent = totalReworkLeft;
+    if (rightCounter) rightCounter.textContent = totalReworkRight;
+    if (pairsCounter) pairsCounter.textContent = totalReworkPairs;
     
-    /* 2. Efek "Tertekan" dengan Inner Shadow */
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.7);
-
-    /* 3. Transformasi untuk memperkuat efek 'tertekan' */
-    transform: scale(0.98) translateY(1px);
-
-    /* 4. Menggelapkan sedikit warna asli agar border lebih menonjol */
-    filter: brightness(0.85);
-
-    /* 5. Padding disesuaikan agar ukuran dalam tombol tetap konsisten */
-    padding: 8px 11px;
+    // Update summary dan statistik utama
+    updateDefectSummaryDisplay();
+    updateTotalQtyInspect();
 }
 
-.defect-button.active:hover {
-    /* Mencerahkan kembali saat di-hover, tapi tetap mempertahankan gaya 'active' */
-    filter: brightness(1);
+
+function updateButtonStatesFromLoadedData() {
+    // Reset semua highlight dan state
+    defectButtons.forEach(btn => btn.classList.remove('active'));
     
-    /* Pertahankan border dan shadow agar status 'active' tidak hilang */
-    border: 4px solid #39FF14;
-    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8); /* Shadow lebih kuat */
-}
-/* ======================================================== */
+    // Highlight defect yang sedang dipilih dari data yang di-load
+    selectedDefects.forEach(defectName => {
+        const button = Array.from(defectButtons).find(btn => (btn.dataset.defect || btn.textContent.trim()) === defectName);
+        if (button) {
+            button.classList.add('active');
+        }
+    });
 
-.defect-button:active {
-    /* Efek sesaat ketika tombol DIKLIK (bukan saat aktif) */
-    transform: scale(0.95);
-}
+    // Atur status Rework Section
+    const enableRework = selectedDefects.length > 0;
+    toggleButtonGroup(reworkButtons, enableRework);
 
-/* --- Warna untuk kelompok Biru Tua --- */
-.defect-button.defect-blue {
-    background: #00008B; /* Darker Blue (Navy Blue) */
-    color: white;
-    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.6);
+    // Atur status Qty Section (R/B/C) sesuai aturan baru
+    updateQtySectionState();
 }
 
-.defect-button.defect-blue:hover {
-    background: #0000CD;
-    box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.7);
-    transform: translateY(-2px);
+function clearLocalStorageExceptQtySampleSet() {
+    try {
+        localStorage.removeItem(STORAGE_KEYS.FORM_DATA);
+        localStorage.removeItem(STORAGE_KEYS.DEFECT_COUNTS);
+        localStorage.removeItem(STORAGE_KEYS.QTY_OUTPUTS);
+        localStorage.removeItem(STORAGE_KEYS.REWORK_COUNTERS);
+        localStorage.removeItem(STORAGE_KEYS.STATE_VARIABLES);
+        console.log("localStorage dibersihkan (kecuali qty sample set)");
+    } catch (error) {
+        console.error("Error saat membersihkan localStorage:", error);
+    }
 }
 
-/* --- Warna untuk kelompok Kuning Cerah --- */
-.defect-button.defect-yellow {
-    background: #FFFF00; /* Vivid Yellow */
-    color: black;
-    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.6);
+// ===========================================
+// 3. Fungsi Pembantu: Mengatur Status Tombol (Modifikasi)
+// ===========================================
+
+// Fungsi untuk mengaktifkan/menonaktifkan sekelompok tombol
+function toggleButtonGroup(buttons, enable) {
+    buttons.forEach(button => {
+        button.disabled = !enable;
+        button.classList.toggle('inactive', !enable);
+        // Hapus highlight 'active' saat dinonaktifkan
+        if (!enable) {
+            button.classList.remove('active');
+        }
+    });
 }
 
-.defect-button.defect-yellow:hover {
-    background: #FFD700;
-    box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.7);
-    transform: translateY(-2px);
+// ===========================================
+// FUNGSI PEMBANTU BARU: Mengontrol Status Tombol A-Grade
+// ===========================================
+function updateAGradeButtonState() {
+    // Cari tombol A-Grade secara spesifik
+    const aGradeButton = Array.from(gradeInputButtons).find(btn => btn.classList.contains('a-grade'));
+    if (!aGradeButton) return; // Keluar jika tombol tidak ditemukan
+
+    // Tombol A-Grade harus nonaktif jika ada defect yang sedang dipilih
+    // ATAU jika sudah ada pasangan {defect, posisi} yang tercatat untuk item ini.
+    const shouldBeDisabled = selectedDefects.length > 0 || currentInspectionPairs.length > 0;
+
+    aGradeButton.disabled = shouldBeDisabled;
+    aGradeButton.classList.toggle('inactive', shouldBeDisabled);
 }
 
-/* --- Warna untuk kelompok Merah Cerah --- */
-.defect-button.defect-red {
-    background: #FF0000; /* Pure Red */
-    color: white;
-    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.6);
+// ===========================================
+// 4. Fungsi Utama: Inisialisasi Status Tombol (Modifikasi)
+// ===========================================
+// Fungsi Utama: Inisialisasi Status Tombol (Modifikasi)
+function initButtonStates() {
+    console.log("Mengatur status tombol ke kondisi awal siklus...");
+
+    // Reset variabel state untuk siklus baru
+    selectedDefects = [];
+    currentInspectionPairs = [];
+
+    // Reset tampilan visual tombol
+    defectButtons.forEach(btn => btn.classList.remove('active'));
+    
+    // Aktifkan semua tombol defect
+    toggleButtonGroup(defectButtons, true);
+
+    // --- MODIFIKASI ---
+    // Panggil fungsi ini untuk mengaktifkan kembali A-Grade
+    updateAGradeButtonState();
+    // ------------------
+
+    // Nonaktifkan Rework dan Qty (R/B/C)
+    toggleButtonGroup(reworkButtons, false);
+    updateQtySectionState(); 
+    
+    // Cek batas inspeksi
+    if (totalInspected >= MAX_INSPECTION_LIMIT) {
+        toggleButtonGroup(defectButtons, false);
+        toggleButtonGroup(gradeInputButtons, false); // Nonaktifkan semua grade termasuk A
+        console.log(`Batas inspeksi ${MAX_INSPECTION_LIMIT} tercapai. Input dinonaktifkan.`);
+    }
 }
 
-.defect-button.defect-red:hover {
-    background: #CC0000;
-    box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.7);
-    transform: translateY(-2px);
-}
-/* ============================= */
-/* 9. Summary Defect Section    */
-/* ============================= */
-.summary-defect {
-    /* Style yang sudah ada */
-    grid-column: 1 / 2;
-    margin-top: 0;
-    background: linear-gradient(145deg, #ffffff, #f7f7f7);
-    border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    padding: 25px;
-    height: 313px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
-    text-align: center;
-}
+// ===========================================
+// 5. Update Qty Counters (Left, Right, Pairs) (Modifikasi)
+// ===========================================
+function updateQuantity(counterId) {
+    const counterElement = document.getElementById(counterId);
+    if (!counterElement) {
+        console.error("Elemen counter tidak ditemukan:", counterId);
+        return;
+    }
+    let currentValue = parseInt(counterElement.textContent) || 0;
+    currentValue++;
+    counterElement.textContent = currentValue;
 
-
-.summary-defect h3 {
-    /* Style yang sudah ada */
-    margin: 0 0 15px 0;
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
-    text-transform: uppercase;
-    border-bottom: 2px solid #ddd;
-    padding-bottom: 5px;
-}
-.summary-item {
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    padding: 10px 15px;
-    margin: 8px 0;
-    display: grid; /* Menggunakan CSS Grid */
-    /* Ubah lebar kolom "Position" */
-    grid-template-columns: 2fr 1.2fr 1.5fr auto; /* Lebar kolom: Defect, Position (lebih lebar), Level, Count */
-    gap: 10px; /* Jarak antar kolom */
-    align-items: center; /* Vertikal align tengah */
-    width: 100%;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.summary-item:hover {
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    transform: translateY(-3px);
-}
-
-.defect-col {
-    text-align: left;
-    white-space: normal; /* IZINKAN TEKS MULTI-BARIS */
-    overflow: visible; /* TIDAK POTONG TEKS */
-    text-overflow: unset; /* HILANGKAN ELLIPSIS */
-    word-break: break-word; /* PECahkan KATA JIKA PERLU */
-}
-
-.level-col {
-    text-align: right;
-    display: flex; /* FLEX UNTUK SUSUN GRADE + COUNT */
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px; /* JARAK ANTARA GRADE DAN COUNT */
-}
-
-
-.count {
-    background-color: #ff6b6b;
-    color: #fff;
-    padding: 4px 10px;
-    border-radius: 12px;
-    min-width: 30px;
-    text-align: center;
-    font-weight: bold;
-    font-size: 14px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    border: 2px solid #ff4c4c;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.count:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-/* ============================= */
-/* 10. Enhanced Plus and Minus Buttons   */
-/* ============================= */
-.buttons {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 9999; /* Highest possible z-index to ensure visibility */
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    pointer-events: auto;
-}
-
-/* Ensure buttons are always on top of other elements */
-.defect-menu,
-.rework-section,
-#reject-section,
-.summary-defect {
-    position: relative;
-    z-index: 1;
-}
-
-.control-button {
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 36px;
-    color: #fff;
-    border: none;
-    border-radius: 50%; /* Circular buttons */
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-    position: relative;
-    overflow: hidden;
-    z-index: 9999; /* Ensure buttons are always on top */
-}
-
-.control-button .button-icon {
-    position: relative;
-    z-index: 1;
-}
-
-/* Plus Button Styles */
-#plus-button {
-    background: linear-gradient(145deg, #4CAF50, #45a049);
-}
-
-#plus-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 50%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-#plus-button:hover::before {
-    opacity: 1;
-}
-
-#plus-button.active {
-    background: linear-gradient(145deg, #388E3C, #2E7D32);
-    transform: scale(1.1);
-}
-
-#plus-button.inactive {
-    background: linear-gradient(145deg, #B0BEC5, #90A4AE);
-    cursor: not-allowed;
-}
-
-/* Minus Button Styles */
-#minus-button {
-    background: linear-gradient(145deg, #F44336, #D32F2F);
-}
-
-#minus-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 50%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-#minus-button:hover::before {
-    opacity: 1;
-}
-
-#minus-button.active {
-    background: linear-gradient(145deg, #D32F2F, #B71C1C);
-    transform: scale(1.1);
-}
-
-#minus-button.inactive {
-    background: linear-gradient(145deg, #B0BEC5, #90A4AE);
-    cursor: not-allowed;
-}
-
-/* Hover and Active States */
-.control-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
-}
-
-.control-button:active {
-    transform: scale(0.95);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Responsive Design */
-@media (max-width: 600px) {
-    .buttons {
-        bottom: 10px;
-        right: 10px;
-        gap: 10px;
+    if (counterId === 'left-counter') {
+        totalReworkLeft = currentValue;
+    } else if (counterId === 'pairs-counter') { // Pastikan ID cocok dengan HTML 'pairs-counter'
+        totalReworkPairs = currentValue;
+    } else if (counterId === 'right-counter') {
+        totalReworkRight = currentValue;
     }
     
-    .control-button {
-        width: 50px;
-        height: 50px;
-        font-size: 30px;
+    updateRedoRate(); // Panggil updateRedoRate setiap kali rework diupdate
+    saveToLocalStorage(); // Simpan ke localStorage setiap ada perubahan
+}
+
+// ===========================================
+// 6. Update FTT dan Redo Rate (MODIFIKASI FINAL v2)
+// ===========================================
+function updateFTT() {
+    if (!fttOutput) return;
+
+    // --- MODIFIKASI ---
+    // Gunakan fungsi pembantu baru untuk mendapatkan total rework yang valid.
+    const processedReworks = getProcessedReworkCounts();
+    const calculatedTotalRework = processedReworks.calculatedTotal;
+    // --------------------
+
+    const totalBGrade = qtyInspectOutputs['b-grade'] || 0;
+    const totalCGrade = qtyInspectOutputs['c-grade'] || 0;
+
+    // FTT = (Total Inspect - (Total Rework Valid + Total B/C)) / Total Inspect
+    const fttValue = totalInspected > 0 ? ((totalInspected - (calculatedTotalRework + totalBGrade + totalCGrade)) / totalInspected) * 100 : 0;
+    fttOutput.textContent = `${Math.max(0, fttValue).toFixed(2)}%`; 
+
+    // Opsi: Update class styling jika ada
+    if (fttValue >= 92) {
+        fttOutput.className = 'counter high-ftt';
+    } else if (fttValue >= 80) {
+        fttOutput.className = 'counter medium-ftt';
+    } else {
+        fttOutput.className = 'counter low-ftt';
     }
 }
 
-/* ============================= */
-/* 11. Gaya untuk Elemen yang Dinonaktifkan (Disabled) */
-/* ============================= */
+function updateRedoRate() {
+    if (!redoRateOutput) return;
 
-/* Gaya untuk tombol defect yang dinonaktifkan */
-.defect-button:disabled,
-.defect-button.disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    background: linear-gradient(135deg, #a0bde3, #90a4ae); /* Warna lebih redup */
-    box-shadow: none;
+    // --- MODIFIKASI ---
+    // Gunakan fungsi pembantu baru untuk mendapatkan total rework yang valid.
+    const processedReworks = getProcessedReworkCounts();
+    const calculatedTotalRework = processedReworks.calculatedTotal;
+    // --------------------
+
+    const redoRateValue = totalInspected !== 0 ? (calculatedTotalRework / totalInspected) * 100 : 0;
+    redoRateOutput.textContent = `${redoRateValue.toFixed(2)}%`;
 }
 
-/* Gaya untuk tombol rework yang dinonaktifkan */
-#rework-left:disabled,
-#rework-right:disabled, 
-#rework-pairs:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    background: linear-gradient(135deg, #c8e6c9, #b2dfdb); /* Warna lebih redup */
-    box-shadow: none;
+// ===========================================
+// FUNGSI PEMBANTU BARU: Memproses & Memisahkan Tipe Rework (REVISI TOTAL)
+// ===========================================
+/**
+ * Menganalisis log rework per item untuk menghitung nilai rework secara akurat
+ * sesuai dengan logika baru.
+ *
+ * Logika:
+ * 1. Jika item memiliki 'PAIRS', dihitung sebagai 1 rework unit (pairs dominan).
+ * 2. Jika item memiliki 'LEFT' DAN 'RIGHT' (tanpa 'PAIRS'), dihitung sebagai 1 rework unit.
+ * 3. Jika item HANYA memiliki 'LEFT', dihitung sebagai 0.5 rework unit.
+ * 4. Jika item HANYA memiliki 'RIGHT', dihitung sebagai 0.5 rework unit.
+ *
+ * @returns {object} Sebuah objek berisi nilai rework final untuk FTT, Redo Rate, dan database.
+ */
+function getProcessedReworkCounts() {
+    let finalReworkPairs = 0; // Untuk database: item yang dihitung sebagai 'Pairs'
+    let finalReworkKiri = 0;  // Untuk database: item yang HANYA 'Left'
+    let finalReworkKanan = 0; // Untuk database: item yang HANYA 'Right'
+    let calculatedTotal = 0;  // Untuk FTT & Redo Rate (contoh: 0.5, 1, 1.5, dst.)
+
+    // Iterasi melalui setiap item rework yang telah dicatat di log
+    for (const reworkPositions of reworkLog) {
+        const hasPairs = reworkPositions.includes('PAIRS');
+        const hasLeft = reworkPositions.includes('LEFT');
+        const hasRight = reworkPositions.includes('RIGHT');
+
+        if (hasPairs) {
+            // Aturan 1: Jika 'PAIRS' ada, hitung sebagai 1 & catat sebagai rework 'Pairs'.
+            calculatedTotal += 1;
+            finalReworkPairs += 1;
+        } else if (hasLeft && hasRight) {
+            // Aturan 2: Jika 'LEFT' dan 'RIGHT' ada (tanpa 'PAIRS'), hitung sebagai 1 & catat sebagai 'Pairs'.
+            calculatedTotal += 1;
+            finalReworkPairs += 1;
+        } else if (hasLeft) {
+            // Aturan 3: Jika HANYA 'LEFT' ada.
+            calculatedTotal += 0.5;
+            finalReworkKiri += 1;
+        } else if (hasRight) {
+            // Aturan 4: Jika HANYA 'RIGHT' ada.
+            calculatedTotal += 0.5;
+            finalReworkKanan += 1;
+        }
+    }
+
+    return {
+        finalReworkPairs,
+        finalReworkKiri,
+        finalReworkKanan,
+        calculatedTotal
+    };
 }
 
-/* Gaya untuk tombol grade saat tidak aktif (opsional) */
-.qty-item .input-button.inactive {
-    opacity: 0.7;
-    cursor: default;
-    background: linear-gradient(135deg, #e0e0e0, #d0d0d0);
-    color: #888;
+// ===========================================
+// 7. Update Total Qty Inspect (termasuk FTT dan Redo Rate) (Perbaikan)
+// ===========================================
+function updateTotalQtyInspect() {
+    let total = 0;
+    for (const category in qtyInspectOutputs) {
+        total += qtyInspectOutputs[category];
+    }
+    if (qtyInspectOutput) {
+        qtyInspectOutput.textContent = total;
+    }
+    totalInspected = total; // Perbarui variabel global
+    updateFTT(); // Selalu panggil update FTT
+    updateRedoRate(); // Selalu panggil update Redo Rate
+    saveToLocalStorage(); // Simpan ke localStorage setiap ada perubahan
+
+    // --- LOGIKA BATAS INSPEKSI 50 YANG DIPERBAIKI ---
+    if (totalInspected >= MAX_INSPECTION_LIMIT) {
+        // Menonaktifkan SEMUA tombol input yang relevan secara PERMANEN
+        // (sampai aplikasi di-reset)
+        toggleButtonGroup(defectButtons, false);
+        toggleButtonGroup(reworkButtons, false);
+        toggleButtonGroup(gradeInputButtons, false);
+        console.log(`Batas inspeksi ${MAX_INSPECTION_LIMIT} telah tercapai. Input dinonaktifkan.`);
+        // Pastikan tidak ada tombol yang ter-highlight saat ini
+        defectButtons.forEach(btn => btn.classList.remove('active'));
+        reworkButtons.forEach(btn => btn.classList.remove('active'));
+        gradeInputButtons.forEach(btn => btn.classList.remove('active'));
+    } else {
+        // JANGAN panggil initButtonStates di sini, karena itu mereset state.
+        // initButtonStates akan dipanggil pada tempat yang tepat (setelah siklus input selesai).
+        // Biarkan alur handleDefectClick, handleReworkClick, handleGradeClick yang mengatur status tombol dinamis.
+    }
+    // --- AKHIR LOGIKA BATAS INSPEKSI 50 ---
 }
 
-/* ============================= */
-/* 12. Announcement Styles */
-/* ============================= */
-.announcement-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    position: absolute;
-    top: 25px;
-    right: 30px;
-    padding: 0;
-    transition: color 0.3s ease, transform 0.2s ease;
+// ===========================================
+// 8. Menambahkan Defect ke Summary List (Logika Baru)
+// ===========================================
+function addAllDefectsToSummary(finalGrade) {
+    // Pastikan ada data pasangan yang akan dicatat dan grade sudah final
+    if (currentInspectionPairs.length === 0 || !finalGrade) {
+        console.warn("addDefectsToSummary: Tidak ada pasangan defect/posisi untuk dicatat.");
+        return;
+    }
+
+    // Iterasi melalui setiap pasangan {defect, posisi} yang telah dikonfirmasi
+    currentInspectionPairs.forEach(pair => {
+        const { type, position } = pair;
+
+        // Pastikan struktur defectCounts sudah ada
+        if (!defectCounts[type]) {
+            defectCounts[type] = { "LEFT": {}, "PAIRS": {}, "RIGHT": {} };
+        }
+        if (!defectCounts[type][position]) {
+            defectCounts[type][position] = {};
+        }
+        if (!defectCounts[type][position][finalGrade]) {
+            defectCounts[type][position][finalGrade] = 0;
+        }
+
+        // Tambahkan hitungan
+        defectCounts[type][position][finalGrade]++;
+    });
+
+    console.log("defectCounts diupdate:", JSON.stringify(defectCounts));
+    saveToLocalStorage();
 }
 
-.announcement-button:hover {
-    transform: scale(1.1);
+// ===========================================
+// 9. Menampilkan Summary Defect
+// ===========================================
+function updateDefectSummaryDisplay() {
+    if (!summaryContainer) return;
+
+    summaryContainer.innerHTML = ''; // Bersihkan summary list
+    const gradeOrder = ["r-grade", "b-grade", "c-grade"]; // Gunakan nama kelas grade
+    const positionOrder = ["LEFT", "PAIRS", "RIGHT"];
+
+    const summaryItems = [];
+
+    for (const defectType in defectCounts) {
+        for (const position of positionOrder) {
+            if (defectCounts[defectType][position]) {
+                for (const displayGrade of gradeOrder) {
+                    if (defectCounts[defectType][position][displayGrade] && defectCounts[defectType][position][displayGrade] > 0) {
+                        const count = defectCounts[defectType][position][displayGrade];
+                        let gradeLabel = ''; // Variabel baru untuk label yang diinginkan
+
+                        // Logika untuk menentukan label yang ditampilkan
+                        if (displayGrade === 'r-grade') {
+                            gradeLabel = 'REWORK';
+                        } else if (displayGrade === 'b-grade') {
+                            gradeLabel = 'B-GRADE';
+                        } else if (displayGrade === 'c-grade') {
+                            gradeLabel = 'C-GRADE';
+                        }
+                        // Jika ada grade lain di masa depan, bisa ditambahkan di sini
+
+                        const item = document.createElement('div');
+                        item.className = 'summary-item';
+                        item.innerHTML = `
+                            <div class="defect-col">${defectType}</div>
+                            <div class="position-col">${position}</div>
+                            <div class="level-col">${gradeLabel} <span class="count">${count}</span></div>
+                        `;
+                        summaryItems.push({
+                            defectType: defectType,
+                            grade: displayGrade, // Simpan grade asli untuk sorting
+                            position: position,
+                            element: item
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    // Sorting items for consistent display
+    summaryItems.sort((a, b) => {
+        if (a.defectType < b.defectType) return -1;
+        if (a.defectType > b.defectType) return 1;
+        const gradeOrderIndexA = gradeOrder.indexOf(a.grade);
+        const gradeOrderIndexB = gradeOrder.indexOf(b.grade);
+        if (gradeOrderIndexA < gradeOrderIndexB) return -1;
+        if (gradeOrderIndexA > gradeOrderIndexB) return 1;
+        const positionOrderIndexA = positionOrder.indexOf(a.position);
+        const positionOrderIndexB = positionOrder.indexOf(b.position);
+        if (positionOrderIndexA < positionOrderIndexB) return -1;
+        if (positionOrderIndexA > positionOrderIndexB) return 1;
+        return 0;
+    });
+
+    summaryItems.forEach(itemData => {
+        summaryContainer.appendChild(itemData.element);
+    });
 }
 
-.announcement-icon {
-    font-size: 30px;
-    color: #FF9800;
-    transition: transform 0.2s ease;
+// ===========================================
+// 10. Event Handlers untuk Tombol (LOGIKA INTI BARU)
+// ===========================================
+
+// --- FUNGSI PEMBANTU BARU UNTUK MENGONTROL QTY SECTION ---
+function updateQtySectionState() {
+    // Aturan: Qty (R/B/C) aktif HANYA JIKA tidak ada defect "menggantung"
+    // DAN sudah ada minimal satu cacat yang tercatat.
+    const enable = selectedDefects.length === 0 && currentInspectionPairs.length > 0;
+    
+    gradeInputButtons.forEach(btn => {
+        if (!btn.classList.contains('a-grade')) {
+            btn.disabled = !enable;
+            btn.classList.toggle('inactive', !enable);
+        }
+    });
 }
 
-.announcement-icon:hover {
-    transform: scale(1.2);
-    color: #e68900;
+// Handler untuk klik tombol Defect Menu Item
+function handleDefectClick(button) {
+    const defectName = button.dataset.defect || button.textContent.trim();
+    const index = selectedDefects.indexOf(defectName);
+
+    if (index > -1) {
+        // Jika sudah ada, hapus (batalkan pilihan)
+        selectedDefects.splice(index, 1);
+        button.classList.remove('active');
+    } else {
+        // Jika belum ada, tambahkan
+        selectedDefects.push(defectName);
+        button.classList.add('active');
+    }
+
+    // Aktifkan Rework Section jika ada defect yang dipilih
+    const enableRework = selectedDefects.length > 0;
+    toggleButtonGroup(reworkButtons, enableRework);
+
+    // Nonaktifkan Qty Section (R/B/C)
+    updateQtySectionState();
+    
+    // --- MODIFIKASI BARU ---
+    // Update status tombol A-Grade setiap kali defect dipilih atau dibatalkan
+    updateAGradeButtonState();
+    // -----------------------
+
+    saveToLocalStorage();
 }
 
-.announcement-popup {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 80%;
-    max-width: 600px;
-    background: linear-gradient(135deg, #2979FF, #D50000); /* Gradasi biru dan merah */
-    background-blend-mode: multiply; /* Efek memudar */
-    box-shadow: 0 10px 25px rgba(213, 0, 0, 0.3); /* Shadow dengan warna senada */
-    border-radius: 20px;
-    padding: 30px;
-    z-index: 10000;
-    animation: popupFadeIn 0.5s ease-in-out;
+// Handler untuk klik tombol Rework Section
+function handleReworkClick(button) {
+    const reworkPosition = button.id.replace('rework-', '').toUpperCase();
+    
+    // Pastikan ada defect yang dipilih sebelum memproses
+    if (selectedDefects.length === 0) return;
+
+    // Update counter rework
+    updateQuantity(button.id.replace('rework-', '') + '-counter');
+
+    // Pindahkan semua defect yang dipilih ke dalam pasangan yang dikonfirmasi
+    selectedDefects.forEach(defectName => {
+        currentInspectionPairs.push({ type: defectName, position: reworkPosition });
+    });
+
+    // Reset defect yang dipilih
+    selectedDefects = [];
+    defectButtons.forEach(btn => btn.classList.remove('active'));
+
+    // Nonaktifkan kembali Rework Section (menunggu defect baru)
+    toggleButtonGroup(reworkButtons, false);
+    
+    // Aktifkan Qty Section karena status kembali "bersih"
+    updateQtySectionState();
+
+    // --- MODIFIKASI BARU ---
+    // Update status tombol A-Grade. Meskipun defect sudah dikonfirmasi,
+    // A-Grade tetap harus nonaktif karena item ini memiliki defect.
+    updateAGradeButtonState();
+    // -----------------------
+
+    saveToLocalStorage();
 }
 
-@keyframes popupFadeIn {
-    from { opacity: 0; transform: translate(-50%, -60%); }
-    to { opacity: 1; transform: translate(-50%, -50%); }
-}
+// Handler untuk klik tombol Qty Section (A, R, B, C Grade)
+function handleGradeClick(button) {
+    const gradeCategory = Array.from(button.classList).find(cls => cls.endsWith('-grade'));
+    if (!gradeCategory) return;
 
-.announcement-content {
-    position: relative;
-}
+    // --- LOGIKA BARU DITAMBAHKAN DI SINI ---
+    // Jika item ini adalah R-Grade dan memiliki cacat yang tercatat...
+    if (gradeCategory === 'r-grade' && currentInspectionPairs.length > 0) {
+        // Ambil posisi rework yang unik dari pasangan cacat saat ini
+        const reworkPositionsForItem = [...new Set(currentInspectionPairs.map(pair => pair.position))];
+        
+        // Hanya tambahkan ke log jika ada posisi rework yang valid
+        if (reworkPositionsForItem.length > 0) {
+            reworkLog.push(reworkPositionsForItem);
+            console.log("Rework Log diupdate:", reworkLog);
+        }
+    }
+    // --- AKHIR LOGIKA BARU ---
 
-.close-button {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 24px;
-    cursor: pointer;
-    color: white; /* Warna teks putih agar kontras */
-}
-
-.announcement-date {
-    font-weight: bold;
-    font-size: 1.2em;
-    margin-bottom: 10px;
-    color: white;
-    padding: 10px 15px;
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    text-align: center;
-}
-
-.date-controls {
-    display: flex;
-    align-items: center; /* Menyelaraskan item secara vertikal */
-    justify-content: center;
-    margin-top: 10px;
-}
-
-#date-text {
-    margin: 0 10px;
-}
-
-.announcement-nav {
-    background: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1em;
-    font-weight: bold;
-    color: #333;
-    transition: background 0.3s ease;
-}
-
-.close-button {
-    position: absolute;
-    top: 5px;
-    right: 10px;
-    font-size: 30px;
-    cursor: pointer;
-    color: white;
-    z-index: 10001; /* Pastikan selalu di atas */
+    // Tambah hitungan Qty Inspect di memori
+    qtyInspectOutputs[gradeCategory]++;
+    
+    // Panggil fungsi ini untuk me-render SEMUA perubahan angka ke layar
+    updateAllDisplays();  
+    
+    if (gradeCategory !== 'a-grade') {
+        // Proses semua pasangan defect yang terkumpul
+        addAllDefectsToSummary(gradeCategory);
+    }
+    
+    // Update lagi tampilan ringkasan defect setelah ditambahkan
+    updateDefectSummaryDisplay(); 
+    saveToLocalStorage();
+    
+    // Reset seluruh alur untuk item berikutnya
+    setTimeout(() => {
+        initButtonStates();
+    }, 150);
 }
 
 
-.announcement-text {
-    text-align: justify;
-    font-size: 1em;
-    color: white; /* Warna teks putih agar kontras */
-    margin-bottom: 25px;
-    line-height: 1.6;
-    padding: 20px;
-    background-color: rgba(255, 255, 255, 0.2); /* Latar belakang semi-transparan */
-    border-radius: 10px;
-}
+// ===========================================
+// 11. Validasi Input dan Simpan Data (MODIFIKASI FINAL v2)
+// ===========================================
+async function saveData() {
+    console.log("Memulai proses simpan data...");
 
-/* ============================= */
-/* 13. Statistik Button Styles */
-/* ============================= */
-.statistic-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    position: absolute;
-    top: 17px;
-    right: 80px; /* Geser kiri dari tombol announcement */
-    padding: 0;
-    transition: color 0.3s ease, transform 0.2s ease;
-}
+    if (!validateInputs() || !validateQtySampleSet()) {
+        console.log("Validasi dasar gagal. Penyimpanan dibatalkan.");
+        return;
+    }
 
-.statistic-icon {
-    font-size: 30px;
-    color: #3f51b5; /* Warna biru keunguan */
-    transition: transform 0.2s ease, color 0.2s ease;
-}
+    // --- MODIFIKASI LOGIKA REWORK ---
+    // Panggil fungsi pembantu untuk mendapatkan semua hitungan rework yang benar
+    const processedReworks = getProcessedReworkCounts();
+    const { finalReworkPairs, finalReworkKiri, finalReworkKanan, calculatedTotal } = processedReworks;
+    // ---------------------------------
 
-.statistic-button:hover .statistic-icon {
-    transform: scale(1.2);
-    color: #303f9f;
-}
+    // Validasi tambahan: total defect tidak boleh lebih rendah dari total rework terhitung
+    const totalDefectCount = Object.values(defectCounts).reduce((sum, positions) =>
+        sum + Object.values(positions).reduce((posSum, grades) =>
+            posSum + Object.values(grades).reduce((gradeSum, count) => gradeSum + count, 0),
+        0),
+    0);
 
-/* Responsif pada layar kecil */
-@media (max-width: 600px) {
-    .statistic-button {
-        top: 20px;
-        right: 70px;
+    if (totalDefectCount < calculatedTotal) {
+        alert("Peringatan: Total defect yang tercatat (" + totalDefectCount + ") lebih rendah dari total unit rework terhitung (" + calculatedTotal.toFixed(2) + "). Harap pastikan semua data sudah benar.");
+        console.log("Validasi gagal: Total defect < total rework terhitung.");
+        // Anda bisa memilih untuk menghentikan (return) atau hanya memperingatkan.
+    }
+    
+    const fttValueText = fttOutput ? fttOutput.innerText.replace("%", "").trim() : "0";
+    const finalFtt = parseFloat(fttValueText) / 100;
+
+    const redoRateValueText = redoRateOutput ? redoRateOutput.innerText.replace("%", "").trim() : "0";
+    const finalRedoRate = parseFloat(redoRateValueText) / 100;
+
+    const defectsToSend = [];
+    // ... (sisa kode untuk mengisi defectsToSend tidak perlu diubah) ...
+     for (const defectType in defectCounts) {
+        for (const position in defectCounts[defectType]) {
+            for (const grade in defectCounts[defectType][position]) {
+                const count = defectCounts[defectType][position][grade];
+                if (count > 0) {
+                    defectsToSend.push({
+                        type: defectType,
+                        position: position,
+                        level: grade,
+                        count: count
+                    });
+                }
+            }
+        }
+    }
+
+    const dataToSend = {
+        // ... (data lain seperti timestamp, auditor, ncvs, dll. tetap sama) ...
+        timestamp: new Date().toISOString(),
+        auditor: document.getElementById("auditor").value,
+        ncvs: document.getElementById("ncvs").value,
+        modelName: document.getElementById("model-name").value,
+        styleNumber: document.getElementById("style-number").value,
+        qtyInspect: totalInspected,
+        ftt: finalFtt,
+        redoRate: finalRedoRate,
+        "a-grade": qtyInspectOutputs['a-grade'],
+        "b-grade": qtyInspectOutputs['b-grade'],
+        "c-grade": qtyInspectOutputs['c-grade'],
+        
+        // --- MODIFIKASI ---
+        // Kirim nilai rework yang sudah diproses dengan benar
+        reworkKiri: finalReworkKiri,
+        reworkKanan: finalReworkKanan,
+        reworkPairs: finalReworkPairs,
+        // ------------------
+        defects: defectsToSend,
+    };
+
+    console.log("Data yang akan dikirim (setelah diproses):", JSON.stringify(dataToSend, null, 2));
+
+    const saveButton = document.querySelector(".save-button");
+    saveButton.disabled = true;
+    saveButton.textContent = "MENYIMPAN...";
+
+    try {
+        // ... (sisa kode try-catch-finally untuk fetch tidak perlu diubah) ...
+        const response = await fetch("https://script.google.com/macros/s/AKfycbwp9jX0u4u6qKtP3HoBKg2-Bi0Hcn0vCBh4p3TnFhjIsg4-bUp3F6dlM2GGIMUPop8X/exec", { // Ganti dengan URL Anda
+            method: "POST",
+            body: JSON.stringify(dataToSend),
+        });
+        const resultText = await response.text();
+        console.log("Respons server:", resultText);
+        alert(resultText);
+
+        if (response.ok && resultText.toLowerCase().includes("berhasil")) {
+            // Tandai NCVS yang baru saja digunakan
+            markNcvsAsUsed(auditorSelect.value, ncvsSelect.value);
+            // Perbarui tampilan dropdown NCVS setelah menandai
+            updateNcvsOptions(auditorSelect.value);
+            resetAllFields();
+        } 
+    } catch (error) {
+        console.error("Error saat mengirim data:", error);
+        alert("Terjadi kesalahan saat menyimpan data.");
+    } finally {
+        saveButton.disabled = false;
+        saveButton.textContent = "SIMPAN";
     }
 }
+
+// ===========================================
+// 12. Validasi Input Form (dari dokumen kedua)
+// ===========================================
+function validateInputs() {
+    const auditor = auditorSelect.value.trim();
+    const ncvs = ncvsSelect.value.trim();
+    const modelName = document.getElementById("model-name").value.trim();
+    const styleNumberInput = document.getElementById("style-number");
+    const styleNumber = styleNumberInput.value.trim();
+
+    // Pastikan auditor dan ncvs sudah dipilih
+    if (!auditor || auditor === "") {
+        alert("Harap isi semua form dasar (Auditor, NCVS, Model, Style Number) sebelum menyimpan data!");
+        return false;
+    }
+    if (!ncvs || ncvs === "") {
+        alert("Harap isi semua form dasar (Auditor, NCVS, Model, Style Number) sebelum menyimpan data!");
+        return false;
+    }
+
+    if (!modelName || !styleNumber) {
+        alert("Harap isi semua form dasar (Auditor, NCVS, Model, Style Number) sebelum menyimpan data!");
+        return false;
+    }
+
+    const styleNumberPattern = /^[a-zA-Z0-9]{6}-[a-zA-Z0-9]{3}$/;
+    if (!styleNumberPattern.test(styleNumber)) {
+        alert("Format Style Number tidak sesuai. Contoh: AH1567-100 atau 767688-001");
+        styleNumberInput.classList.add('invalid-input');
+        return false;
+    } else {
+        styleNumberInput.classList.remove('invalid-input');
+    }
+    return true;
+}
+
+// ===========================================
+// 13. Validasi Defect sebelum Simpan
+// ===========================================
+function validateDefects() {
+    let hasDefectRecorded = false;
+    for (const defectType in defectCounts) {
+        for (const position in defectCounts[defectType]) {
+            for (const grade in defectCounts[defectType][position]) {
+                if (defectCounts[defectType][position][grade] > 0) {
+                    hasDefectRecorded = true;
+                    break;
+                }
+            }
+            if (hasDefectRecorded) break;
+        }
+        if (hasDefectRecorded) break;
+    }
+
+    const hasRBCGradeInput = qtyInspectOutputs['r-grade'] > 0 || qtyInspectOutputs['b-grade'] > 0 || qtyInspectOutputs['c-grade'] > 0;
+
+    if (hasRBCGradeInput && !hasDefectRecorded) {
+        alert("Jika ada item Rework, B-Grade, atau C-Grade, harap pastikan setidaknya ada satu defect yang tercatat sebelum menyimpan data!");
+        return false;
+    }
+    return true;
+}
+
+// ===========================================
+// 14. Validasi Qty Sample Set
+// ===========================================
+function validateQtySampleSet() {
+    if (!qtySampleSetInput) {
+        console.error("Elemen qty-sample-set tidak ditemukan!");
+        return false;
+    }
+
+    const qtySampleSetValue = parseInt(qtySampleSetInput.value, 10);
+
+    // Validasi jika Qty Sample Set kosong atau 0
+    if (isNaN(qtySampleSetValue) || qtySampleSetValue <= 0) {
+        alert("Harap masukkan Jumlah Qty Sample Set yang valid dan lebih dari 0.");
+        return false;
+    }
+
+    const currentTotalInspect = totalInspected;
+
+    // Qty Sample Set harus sama dengan Qty Inspect
+    if (currentTotalInspect !== qtySampleSetValue) {
+        alert(`Jumlah total Qty Inspect (${currentTotalInspect}) harus sama dengan Qty Sample Set (${qtySampleSetValue}).`);
+        return false;
+    }
+
+    return true;
+}
+
+// ===========================================
+// 15. Reset Semua Field Setelah Simpan (Modifikasi)
+// ===========================================
+function resetAllFields() {
+    console.log("Memulai proses reset semua field dan data internal...");
+    
+    // Reset input form
+    if (auditorSelect) auditorSelect.value = "";
+    updateNcvsOptions("");
+    document.getElementById("model-name").value = "";
+    const styleNumberInput = document.getElementById("style-number");
+    if (styleNumberInput) {
+        styleNumberInput.value = "";
+        styleNumberInput.classList.remove('invalid-input');
+    }
+
+    // Reset data internal utama
+    for (const categoryKey in qtyInspectOutputs) {
+        qtyInspectOutputs[categoryKey] = 0;
+    }
+    defectCounts = {};
+    totalInspected = 0;
+    totalReworkLeft = 0;
+    totalReworkRight = 0;
+    totalReworkPairs = 0;
+    
+    // KOSONGKAN SEMUA DATA INTERNAL YANG BARU
+    selectedDefects = [];
+    currentInspectionPairs = [];
+    reworkLog = []; // <-- TAMBAHKAN INI
+
+    // Reset tampilan
+    updateAllDisplays();
+    
+    // Hapus summary
+    if (summaryContainer) {
+        summaryContainer.innerHTML = "";
+    }
+
+    // Atur ulang status tombol ke kondisi awal
+    initButtonStates(); 
+    
+    // Hapus semua data dari localStorage kecuali qty sample
+    clearLocalStorageExceptQtySampleSet();
+    
+    console.log("Semua field dan data internal telah berhasil direset.");
+}
+
+// ===========================================
+// 16. Inisialisasi Aplikasi dan Event Listeners (Dilengkapi dengan loadFromLocalStorage)
+// ===========================================
+function initApp() {
+    console.log("Menginisialisasi aplikasi dengan alur yang diperbarui...");
+
+    // Inisialisasi referensi DOM
+    outputElements = {
+        'a-grade': document.getElementById('a-grade-counter'),
+        'r-grade': document.getElementById('r-grade-counter'),
+        'b-grade': document.getElementById('b-grade-counter'),
+        'c-grade': document.getElementById('c-grade-counter')
+    };
+    fttOutput = document.getElementById('fttOutput');
+    qtyInspectOutput = document.getElementById('qtyInspectOutput');
+    leftCounter = document.getElementById('left-counter');
+    rightCounter = document.getElementById('right-counter');
+    pairsCounter = document.getElementById('pairs-counter');
+    summaryContainer = document.getElementById('summary-list');
+    redoRateOutput = document.getElementById('redoRateOutput');
+    qtySampleSetInput = document.getElementById('qty-sample-set');
+
+    defectButtons = document.querySelectorAll('.defect-button');
+    reworkButtons = document.querySelectorAll('.rework-button');
+    gradeInputButtons = document.querySelectorAll('.input-button');
+
+    // Inisialisasi dropdown conditional NCVS
+    auditorSelect = document.getElementById('auditor');
+    ncvsSelect = document.getElementById('ncvs');
+
+    // Event listener untuk dropdown Auditor
+    if (auditorSelect) {
+        auditorSelect.addEventListener('change', (event) => {
+            const selectedAuditor = event.target.value;
+            updateNcvsOptions(selectedAuditor);
+            saveToLocalStorage(); // Auto-save saat ada perubahan
+        });
+    }
+
+    // Event listener untuk dropdown NCVS
+    if (ncvsSelect) {
+        ncvsSelect.addEventListener('change', () => {
+            saveToLocalStorage(); // Auto-save saat ada perubahan
+        });
+    }
+
+    // Event listener untuk input form lainnya
+    const modelNameInput = document.getElementById("model-name");
+    const styleNumberInput = document.getElementById("style-number");
+    
+    if (modelNameInput) {
+        modelNameInput.addEventListener('input', saveToLocalStorage);
+    }
+    
+    if (styleNumberInput) {
+        styleNumberInput.addEventListener('input', saveToLocalStorage);
+    }
+
+    // Cek apakah elemen output ditemukan
+    for (const category in outputElements) {
+        if (!outputElements[category]) {
+            console.error(`INIT ERROR: Elemen output dengan ID '${category.replace('-grade', '-counter')}' tidak ditemukan di HTML!`);
+        }
+    }
+
+    // Setup Event Listeners untuk tombol (defect, rework, grade)
+    defectButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            handleDefectClick(button);
+            button.classList.add('active-feedback');
+            setTimeout(() => button.classList.remove('active-feedback'), 200);
+        });
+    });
+
+    reworkButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            handleReworkClick(button);
+            button.classList.add('active-feedback');
+            setTimeout(() => button.classList.remove('active-feedback'), 200);
+        });
+    });
+
+    gradeInputButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            handleGradeClick(button);
+            button.classList.add('active-feedback');
+            setTimeout(() => button.classList.remove('active-feedback'), 200);
+        });
+    });
+
+    // Setup Tombol Simpan
+    const saveButton = document.querySelector(".save-button");
+    if (saveButton) {
+        saveButton.addEventListener("click", saveData);
+    }
+
+    // Inisialisasi Qty Sample Set
+    if (qtySampleSetInput) {
+        let storedQty = localStorage.getItem('qtySampleSet');
+        let qtySampleSetValue;
+
+        if (storedQty && !isNaN(parseInt(storedQty, 10)) && parseInt(storedQty, 10) > 0) {
+            qtySampleSetValue = parseInt(storedQty, 10);
+        } else {
+            qtySampleSetValue = '';
+        }
+
+        qtySampleSetInput.value = qtySampleSetValue;
+
+        qtySampleSetInput.addEventListener('change', () => {
+            let newQty = parseInt(qtySampleSetInput.value, 10);
+            if (!isNaN(newQty) && newQty > 0) {
+                localStorage.setItem('qtySampleSet', newQty);
+            } else {
+                localStorage.removeItem('qtySampleSet');
+            }
+            updateTotalQtyInspect();
+            saveToLocalStorage(); // Auto-save saat ada perubahan
+        });
+    }
+
+    // Hilangkan elemen tombol plus minus dari DOM (jika masih ada)
+    const plusButtonElement = document.getElementById('plus-button');
+    const minusButtonElement = document.getElementById('minus-button');
+    if (plusButtonElement && plusButtonElement.parentNode) {
+        plusButtonElement.parentNode.removeChild(plusButtonElement);
+    }
+    if (minusButtonElement && minusButtonElement.parentNode) {
+        minusButtonElement.parentNode.removeChild(minusButtonElement);
+    }
+
+    // >>> PENTING: LOAD DATA DARI LOCALSTORAGE SAAT APLIKASI DIMUAT <<<
+    loadFromLocalStorage();
+
+    // Atur status tombol awal saat aplikasi dimuat (setelah load data)
+    if (!activeDefectType && !activeReworkPosition && !currentSelectedGrade) {
+        initButtonStates();
+    }
+    
+    updateTotalQtyInspect(); // Hitung dan tampilkan nilai awal
+
+    // Setup conditional NCVS
+    updateNcvsOptions(auditorSelect ? auditorSelect.value : '');
+
+    console.log("Aplikasi berhasil diinisialisasi sepenuhnya dengan localStorage.");
+}
+
+// === Event listener utama untuk menjalankan inisialisasi setelah DOM siap ===
+document.addEventListener('DOMContentLoaded', initApp);
+
+// ===========================================
+// 17. Fungsi NCVS Conditional & Coloring
+// ===========================================
+
+// Fungsi pembantu untuk mendapatkan tanggal hari ini dalam format YYYY-MM-DD
+function getTodayDateString() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// Fungsi untuk mendapatkan data NCVS yang sudah digunakan dari localStorage
+function getUsedNcvsData() {
+    const storedData = localStorage.getItem(USED_NCVS_STORAGE_KEY);
+    let usedNcvsPerDay = {};
+
+    if (storedData) {
+        try {
+            usedNcvsPerDay = JSON.parse(storedData);
+        } catch (e) {
+            console.error("Error parsing used NCVS data from localStorage:", e);
+            usedNcvsPerDay = {};
+        }
+    }
+
+    const todayDate = getTodayDateString();
+
+    // Reset data jika tanggal di localStorage bukan hari ini
+    if (!usedNcvsPerDay[todayDate]) {
+        usedNcvsPerDay = {
+            [todayDate]: {}
+        };
+        localStorage.setItem(USED_NCVS_STORAGE_KEY, JSON.stringify(usedNcvsPerDay));
+    }
+
+    return usedNcvsPerDay[todayDate];
+}
+
+// Fungsi untuk menandai NCVS sebagai sudah digunakan
+function markNcvsAsUsed(auditor, ncvs) {
+    if (!auditor || !ncvs) return;
+
+    const todayDate = getTodayDateString();
+    let usedNcvsForToday = getUsedNcvsData();
+
+    if (!usedNcvsForToday[auditor]) {
+        usedNcvsForToday[auditor] = [];
+    }
+
+    // Pastikan NCVS belum ada di daftar sebelum menambahkannya
+    if (!usedNcvsForToday[auditor].includes(ncvs)) {
+        usedNcvsForToday[auditor].push(ncvs);
+    }
+
+    // Simpan kembali data yang diperbarui ke localStorage
+    const allUsedNcvsData = JSON.parse(localStorage.getItem(USED_NCVS_STORAGE_KEY) || '{}');
+    allUsedNcvsData[todayDate] = usedNcvsForToday;
+    localStorage.setItem(USED_NCVS_STORAGE_KEY, JSON.stringify(allUsedNcvsData));
+}
+
+function updateNcvsOptions(selectedAuditor) {
+    // Kosongkan opsi NCVS yang ada
+    ncvsSelect.innerHTML = '';
+
+    // Tambahkan opsi default "Pilih NCVS"
+    const defaultOption = document.createElement('option');
+    defaultOption.value = "";
+    defaultOption.textContent = "Pilih NCVS";
+    ncvsSelect.appendChild(defaultOption);
+
+    // Dapatkan data NCVS yang sudah digunakan untuk auditor hari ini
+    const usedNcvsForToday = getUsedNcvsData();
+    const usedNcvsBySelectedAuditor = usedNcvsForToday[selectedAuditor] || [];
+
+    // Jika ada auditor yang dipilih, isi opsi NCVS yang relevan
+    if (selectedAuditor && auditorNcvsMap[selectedAuditor]) {
+        const ncvsList = auditorNcvsMap[selectedAuditor];
+        ncvsList.forEach(ncvs => {
+            const option = document.createElement('option');
+            option.value = ncvs;
+            option.textContent = ncvs;
+
+            // Terapkan warna merah jika NCVS sudah digunakan
+            if (usedNcvsBySelectedAuditor.includes(ncvs)) {
+                option.classList.add('used-ncvs');
+            }
+
+            ncvsSelect.appendChild(option);
+        });
+        ncvsSelect.disabled = false;
+    } else {
+        ncvsSelect.disabled = true;
+        defaultOption.textContent = "Pilih NCVS (pilih Auditor dahulu)";
+    }
+    ncvsSelect.value = "";
+}
+
+// ===========================================
+// 18. Announcement Logic
+// ===========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const announcements = [
+        { 
+            date: "06-03-2025", 
+            text: `E-QMS kini hadir dalam versi web sebagai upgrade dari sistem berbasis Google Spreadsheet, menawarkan kemudahan input bagi auditor, akurasi data yang lebih baik, serta mengurangi risiko human error maupun kendala teknis pada sistem lama. Implementasi E-QMS Web App merupakan bagian dari komitmen kami dalam digitalisasi proses mutu, sejalan dengan visi untuk menciptakan operasional yang agile, data-driven, dan berkelanjutan.
+
+Apabila terdapat kendala teknis, silakan hubungi nomor berikut: 088972745194.`
+        },
+    ];
+    let currentAnnouncementIndex = 0;
+    let viewedAnnouncements = JSON.parse(localStorage.getItem('viewedAnnouncements')) || [];
+    const announcementPopup = document.getElementById('announcement-popup');
+    const announcementDateElement = document.getElementById('date-text');
+    const announcementTextElement = document.getElementById('announcement-text');
+    const announcementButton = document.getElementById('announcement-button');
+    const closeButton = document.querySelector('#announcement-popup .close-button');
+    const prevButton = document.getElementById('prev-announcement');
+    const nextButton = document.getElementById('next-announcement');
+
+    function showAnnouncement(index) {
+        if (!announcementPopup || !announcementDateElement || !announcementTextElement || announcements.length === 0) return;
+
+        currentAnnouncementIndex = index;
+        announcementDateElement.textContent = announcements[index].date;
+        // Menggunakan innerHTML dan mengganti '\n' dengan '<br>' untuk menampilkan baris baru
+        announcementTextElement.innerHTML = announcements[index].text.replace(/\n/g, '<br>'); 
+        announcementPopup.style.display = 'block';
+
+        const announcementIdentifier = `${announcements[index].date}-${announcements[index].text.substring(0, 20)}`;
+        if (!viewedAnnouncements.includes(announcementIdentifier)) {
+            viewedAnnouncements.push(announcementIdentifier);
+            localStorage.setItem('viewedAnnouncements', JSON.stringify(viewedAnnouncements));
+        }
+    }
+
+    function closeAnnouncement() {
+        if (announcementPopup) announcementPopup.style.display = 'none';
+    }
+
+    function nextAnnouncement() {
+        if (announcements.length === 0) return;
+        const nextIndex = (currentAnnouncementIndex + 1) % announcements.length;
+        showAnnouncement(nextIndex);
+    }
+
+    function prevAnnouncement() {
+        if (announcements.length === 0) return;
+        const prevIndex = (currentAnnouncementIndex - 1 + announcements.length) % announcements.length;
+        showAnnouncement(prevIndex);
+    }
+
+    if (announcementButton) {
+        announcementButton.addEventListener('click', () => {
+            if (announcements.length > 0) showAnnouncement(currentAnnouncementIndex);
+        });
+    }
+    if (closeButton) closeButton.addEventListener('click', closeAnnouncement);
+    if (prevButton) prevButton.addEventListener('click', prevAnnouncement);
+    if (nextButton) nextButton.addEventListener('click', nextAnnouncement);
+
+    if (announcements.length > 0) {
+        let firstUnreadIndex = -1;
+        for (let i = 0; i < announcements.length; i++) {
+            const announcementIdentifier = `${announcements[i].date}-${announcements[i].text.substring(0, 20)}`;
+            if (!viewedAnnouncements.includes(announcementIdentifier)) {
+                firstUnreadIndex = i;
+                break;
+            }
+        }
+        if (firstUnreadIndex !== -1) {
+            showAnnouncement(firstUnreadIndex);
+        } else {
+            currentAnnouncementIndex = announcements.length - 1;
+        }
+    }
+});
