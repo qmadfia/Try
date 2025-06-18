@@ -117,7 +117,7 @@ h1:hover {
 /* --- STYLING UNTUK NCVS YANG SUDAH DIGUNAKAN --- */
 /* Ini akan mewarnai opsi individual di dropdown saat dibuka */
 #ncvs option.used-ncvs {
-    color: #red;
+    color: red;
     font-weight: bold;
     /* Anda bisa menambahkan gaya lain di sini jika diperlukan */
     /* background-color: #ffebeb; */
