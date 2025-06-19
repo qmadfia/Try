@@ -1,4 +1,3 @@
-
 /* ============================= */
 /* 1. Global Styles              */
 /* ============================= */
@@ -1102,3 +1101,42 @@ h1:hover {
     }
 }
 
+/* =========================================== */
+/* 14. STYLE UNTUK LOADING OVERLAY BARU */
+/* =========================================== */
+#loading-overlay {
+    /* Sembunyikan secara default */
+    display: none; 
+
+    /* Tampilan dan Posisi */
+    position: fixed; /* Tetap di layar bahkan saat scroll */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Latar belakang hitam semi-transparan */
+    z-index: 9999; /* Pastikan berada di atas semua elemen lain */
+
+    /* Pusatkan konten di dalamnya (spinner) */
+    justify-content: center;
+    align-items: center;
+}
+
+#loading-overlay.visible {
+    display: flex; /* Gunakan flex untuk memunculkan dan memusatkan spinner */
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 8px solid #f3f3f3; /* Lingkaran abu-abu muda */
+    border-top: 8px solid #3498db; /* Warna biru untuk bagian yang berputar */
+    border-radius: 50%;
+    animation: spin 1s linear infinite; /* Animasi berputar */
+}
+
+/* Animasi putaran untuk spinner */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
