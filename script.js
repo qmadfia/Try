@@ -1109,16 +1109,6 @@ function initApp() {
         });
     }
 
-    // Hilangkan elemen tombol plus minus dari DOM (jika masih ada)
-    const plusButtonElement = document.getElementById('plus-button');
-    const minusButtonElement = document.getElementById('minus-button');
-    if (plusButtonElement && plusButtonElement.parentNode) {
-        plusButtonElement.parentNode.removeChild(plusButtonElement);
-    }
-    if (minusButtonElement && minusButtonElement.parentNode) {
-        minusButtonElement.parentNode.removeChild(minusButtonElement);
-    }
-
     // >>> PENTING: LOAD DATA DARI LOCALSTORAGE SAAT APLIKASI DIMUAT <<<
     loadFromLocalStorage();
 
