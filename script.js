@@ -50,8 +50,8 @@ let auditorSelect;
 
 // Data mapping Auditor ke NCVS
 const auditorNcvsMap = {
-    "Badrowi": ["109", "110", "111", "112", "113", "114", "115", "116"],
-    "Sopan Sopian": ["101", "102", "103", "104", "105", "106", "107", "108"],
+    "Badrowi": ["101", "102", "103", "104", "105", "106", "107", "108", "109", "110", "111", "112", "113", "114", "115", "116"],
+    "Sopan Sopian": ["101", "102", "103", "104", "105", "106", "107", "108", "109", "110", "111", "112", "113", "114", "115", "116"],
     "Iksan": ["201", "202", "203", "204", "207", "210"]
 };
 
@@ -820,7 +820,7 @@ async function saveData() {
     // --- MODIFIKASI SELESAI ---
 
     try {
-        const response = await fetch("https://script.google.com/macros/s/AKfycbwp9jX0u4u6qKtP3HoBKg2-Bi0Hcn0vCBh4p3TnFhjIsg4-bUp3F6dlM2GGIMUPop8X/exec", {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbz6MSvAqN2vhsasQ-fK_2hxgOkeue3zlc5TsfyLISX8VydruDi5CdTsDgmyPXozv3SB/exec", {
             method: "POST",
             body: JSON.stringify(dataToSend),
         });
@@ -1238,7 +1238,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 Apabila terdapat kendala teknis, silakan hubungi nomor berikut: 088972745194.`
         },
-         {  
+          {  
             date: "06-30-2025",
             // Teks pengumuman yang panjang tetap sama
             text: `🛠️ FTT Sampling App Update v.2025.06
