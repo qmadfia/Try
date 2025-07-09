@@ -1109,6 +1109,15 @@ function initApp() {
         });
     }
 
+    const statisticButton = document.querySelector('.statistic-button');
+
+    if (statisticButton) {
+        statisticButton.addEventListener('click', () => {
+            window.location.href = 'dashboard.html';
+        });
+    }
+
+    
     // >>> PENTING: LOAD DATA DARI LOCALSTORAGE SAAT APLIKASI DIMUAT <<<
     loadFromLocalStorage();
 
