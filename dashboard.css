@@ -158,26 +158,36 @@ body.dark .header-title {
     color: #e2e8f0;
 }
 
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+/* E-QMS Link Styling - New/Modified */
+.header-title-link {
+    font-size: 1.2rem; /* Slightly smaller than main title */
+    font-weight: 600;
+    color: white; /* Text color for the button */
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8); /* Blue gradient background */
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    text-decoration: none; /* Remove underline */
+    transition: all 0.3s ease; /* Smooth transition for hover effects */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
 
-.user-profile {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #64748b;
+.header-title-link:hover {
+    background: linear-gradient(135deg, #2563eb, #1e40af); /* Darker gradient on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* More prominent shadow on hover */
 }
 
-body.dark .user-profile {
-    color: #a0aec0;
+body.dark .header-title-link {
+    background: linear-gradient(135deg, #2563eb, #1e40af); /* Darker gradient for dark mode */
+    color: #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.user-profile i {
-    font-size: 1.5rem;
+body.dark .header-title-link:hover {
+    background: linear-gradient(135deg, #1e40af, #1c3d8a); /* Even darker gradient on hover in dark mode */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
+
 
 /* Content Area */
 .content {
@@ -193,6 +203,8 @@ body.dark .user-profile {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     margin-bottom: 2rem;
     overflow: hidden;
+    /* Dihapus: display: flex, flex-direction: column, height: 100% */
+    /* Properti ini hanya akan diterapkan pada .chart-card secara spesifik */
 }
 
 body.dark .card {
@@ -201,7 +213,7 @@ body.dark .card {
 }
 
 .card-header {
-    padding: 1.5rem 2rem;
+    padding: 0.5rem 0.5rem;
     border-bottom: 1px solid #e2e8f0;
     display: flex;
     justify-content: space-between;
@@ -230,6 +242,10 @@ body.dark .card-header h3 {
 
 .card-body {
     padding: 2rem;
+    /* --- MODIFIKASI: Pastikan ini ada dan sudah benar --- */
+    flex-grow: 1; /* Memungkinkan card-body mengambil semua ruang vertikal yang tersisa */
+    display: flex; /* Mengubah card-body menjadi flex container untuk chart-container */
+    flex-direction: column; /* Mengatur chart-container secara vertikal di dalamnya */
 }
 
 /* Filters Section */
@@ -490,7 +506,10 @@ body.dark .stat-content p {
 }
 
 .chart-card {
-    min-height: 400px; /* Consistent chart height */
+    min-height: 550px; /* Consistent chart height */
+    /* --- MODIFIKASI: Pastikan ini ada dan sudah benar --- */
+    display: flex; /* Hanya chart-card yang menjadi flex container */
+    flex-direction: column; /* Susun header dan body secara vertikal di dalam chart-card */
 }
 
 .chart-container {
@@ -721,13 +740,14 @@ body.dark .ncvs-badge {
 
     .chart-card {
         min-height: 300px; /* Slightly shorter charts on mobile */
+        /* --- MODIFIKASI: Pastikan ini juga ada di media query --- */
+        display: flex;
+        flex-direction: column;
     }
 }
 
 @media (max-width: 480px) {
-    .user-profile span {
-        display: none; /* Hide user name on very small screens */
-    }
+    /* No user-profile span to hide anymore */
 
     .data-table {
         font-size: 0.75rem;
@@ -742,4 +762,102 @@ body.dark .ncvs-badge {
         padding: 0.4rem 0.8rem;
         font-size: 0.75rem;
     }
+}
+
+/* Styling for table filters group */
+.table-filters-group {
+    display: flex;
+    gap: 1rem; /* Jarak antara dropdown */
+    align-items: center;
+}
+
+.filter-group-inline {
+    display: flex;
+    flex-direction: column; /* Label di atas dropdown */
+    align-items: flex-start;
+}
+
+.filter-group-inline label {
+    font-size: 0.8rem;
+    color: #6b7280; /* Warna teks label */
+    margin-bottom: 0.25rem; /* Jarak antara label dan dropdown */
+}
+
+/* Hide labels visually but keep them for screen readers */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* Basic styling for the new select elements */
+.form-select-inline {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem; /* rounded-md */
+    background-color: #ffffff;
+    font-size: 0.875rem; /* text-sm */
+    line-height: 1.25rem;
+    color: #374151;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm); /* Ensure this variable is defined in your CSS */
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-select-inline:focus {
+    border-color: #3b82f6; /* focus:ring-blue-500 focus:border-blue-500 */
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* example focus ring */
+}
+
+/* --- Penyesuaian Perataan Teks untuk Tabel --- */
+
+/* Rata Tengah untuk Header Kolom yang Ditentukan */
+.data-table th:nth-child(1), /* Timestamp */
+.data-table th:nth-child(2), /* Auditor */
+.data-table th:nth-child(3), /* NCVS */
+.data-table th:nth-child(4), /* Model */
+.data-table th:nth-child(5), /* Qty Inspect */
+.data-table th:nth-child(6), /* FTT */
+.data-table th:nth-child(7), /* Rework Rate */
+.data-table th:nth-child(8), /* A-Grade */
+.data-table th:nth-child(9), /* B-Grade */
+.data-table th:nth-child(10), /* C-Grade */
+.data-table th:nth-child(11) /* Rework (L/R/P) */
+{
+    text-align: center;
+}
+
+/* Rata Tengah untuk Isi Data Kolom yang Ditentukan */
+.data-table td:nth-child(3), /* NCVS */
+.data-table td:nth-child(5), /* Qty Inspect */
+.data-table td:nth-child(6), /* FTT */
+.data-table td:nth-child(7), /* Rework Rate */
+.data-table td:nth-child(8), /* A-Grade */
+.data-table td:nth-child(9), /* B-Grade */
+.data-table td:nth-child(10), /* C-Grade */
+.data-table td:nth-child(11) /* Rework (L/R/P) */
+{
+    text-align: center;
+}
+
+/* Memastikan Kolom Rata Kiri (Timestamp, Auditor, Model) - meskipun ini default, eksplisit lebih baik */
+.data-table th:nth-child(1), /* Timestamp */
+.data-table th:nth-child(2), /* Auditor */
+.data-table th:nth-child(4) /* Model */
+{
+    text-align: center;
+}
+
+.data-table td:nth-child(1), /* Timestamp */
+.data-table td:nth-child(2), /* Auditor */
+.data-table td:nth-child(4) /* Model */
+{
+    text-align: left;
 }
