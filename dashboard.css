@@ -191,7 +191,7 @@ body.dark .header-title-link:hover {
 
 /* Content Area */
 .content {
-    padding: 2rem;
+    padding: 0.5rem;
     max-width: 1400px;
     margin: 0 auto;
 }
@@ -201,7 +201,7 @@ body.dark .header-title-link:hover {
     background: white;
     border-radius: 0.75rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
     overflow: hidden;
     /* Dihapus: display: flex, flex-direction: column, height: 100% */
     /* Properti ini hanya akan diterapkan pada .chart-card secara spesifik */
@@ -253,7 +253,7 @@ body.dark .card-header h3 {
     /* Uses .card styles */
     border-bottom: none; /* Remove extra border-bottom as it's a card now */
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Re-apply card shadow */
-    margin-bottom: 2rem; /* Ensure consistent spacing */
+    margin-bottom: 0.5rem; /* Ensure consistent spacing */
 }
 
 .filters-header {
@@ -432,7 +432,7 @@ body.dark .btn-group .btn.active {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
 }
 
 .stat-card {
@@ -501,8 +501,8 @@ body.dark .stat-content p {
 .charts-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); /* Adjusted minmax for better layout */
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    gap: 1.1rem;
+    margin-bottom: 0.5rem;
 }
 
 .chart-card {
