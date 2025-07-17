@@ -307,9 +307,18 @@ function updateDefectChart(data, plant) {
 
     const defectCounts = {};
     filteredData.forEach(item => {
-        const defect = item.Defect;
-        const count = Number(item.Total) || 0;
-        defectCounts[defect] = (defectCounts[defect] || 0) + count;
+        const defectName = item.Defect; // Ini akan menjadi kunci utama, misalnya 'overcement'
+        let count = Number(item.Total) || 0;
+
+        // --- START MODIFIKASI UNTUK LOGIKA PAIRS ---
+        // Asumsi: Jika ada kolom 'Type' dalam data defect Anda dan nilainya 'pairs'
+        if (item.Position === 'Pairs') { // Pastikan kolom 'Position' ini ada di data defects Anda
+            count = count * 2; // Kalikan dua jika tipenya 'pairs'
+        }
+        // --- END MODIFIKASI ---
+
+        // Sekarang jumlahkan ke defectName utama
+        defectCounts[defectName] = (defectCounts[defectName] || 0) + count;
     });
 
     const sortedDefects = Object.entries(defectCounts)
@@ -322,7 +331,7 @@ function updateDefectChart(data, plant) {
     renderChart(ctx, 'bar', {
         labels: labels,
         datasets: [{
-            label: 'Total Defects', // Changed label
+            label: 'Total Defects',
             data: chartData,
             backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(255, 159, 64, 0.6)', 'rgba(255, 205, 86, 0.6)'],
             borderColor: ['rgba(255, 99, 132, 1)', 'rgba(255, 159, 64, 1)', 'rgba(255, 205, 86, 1)'],
