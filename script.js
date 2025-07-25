@@ -1,6 +1,9 @@
 // ===========================================
 // 1. Deklarasi Variabel Global dan DOM References (Modifikasi)
 // ===========================================
+// --- IMPOR DATABASE DARI FILE TERPISAH ---
+// Pastikan path './databasemodel.js' sudah benar sesuai lokasi file Anda.
+import { styleModelDatabase } from './databasemodel.js';
 let totalInspected = 0;
 // Variabel lama ini masih berguna untuk tampilan UI, tapi tidak untuk kalkulasi final
 let totalReworkLeft = 0;
@@ -47,7 +50,8 @@ let reworkButtons;
 let gradeInputButtons;
 let ncvsSelect;
 let auditorSelect;
-
+let modelNameInput;
+let styleNumberInput;
 // Data mapping Auditor ke NCVS
 const auditorNcvsMap = {
     "Badrowi": ["101", "102", "103", "104", "105", "106", "107", "108", "109", "110", "111", "112", "113", "114", "115", "116"],
@@ -955,6 +959,12 @@ function resetAllFields() {
         styleNumberInput.value = "";
         styleNumberInput.classList.remove('invalid-input');
     }
+    
+        // Reset input Model Name dan pastikan aktif kembali
+    if (modelNameInput) {
+        modelNameInput.value = "";
+        modelNameInput.disabled = false; // Penting: aktifkan kembali
+    }
 
     // Reset data internal utama
     for (const categoryKey in qtyInspectOutputs) {
@@ -987,6 +997,38 @@ function resetAllFields() {
     
     console.log("Semua field dan data internal telah berhasil direset.");
 }
+
+// ===========================================
+// FUNGSI BARU: Auto-fill Model Name berdasarkan Style Number
+// ===========================================
+function autoFillModelName() {
+    // Pastikan elemen input sudah diinisialisasi
+    if (!styleNumberInput || !modelNameInput) {
+        console.error("Elemen Style Number atau Model Name tidak ditemukan.");
+        return;
+    }
+
+    // Ambil nilai dari input Style Number, bersihkan spasi, dan ubah ke huruf besar
+    // agar cocok dengan kunci di styleModelDatabase (jika kunci Anda huruf besar).
+    const enteredStyleNumber = styleNumberInput.value.trim().toUpperCase();
+    
+    // Cari model yang cocok di database
+    const matchedModel = styleModelDatabase[enteredStyleNumber];
+
+    if (matchedModel) {
+        // Jika ditemukan kecocokan, isi input Model Name
+        modelNameInput.value = matchedModel;
+        // Nonaktifkan input Model Name agar tidak diubah secara manual
+        modelNameInput.disabled = true;
+    } else {
+        // Jika tidak ditemukan kecocokan, kosongkan input Model Name
+        modelNameInput.value = "";
+        // Aktifkan kembali input Model Name agar auditor bisa mengetik manual
+        modelNameInput.disabled = false;
+    }
+}
+
+
 
 // ===========================================
 // 16. Inisialisasi Aplikasi dan Event Listeners (Dilengkapi dengan loadFromLocalStorage)
@@ -1034,23 +1076,21 @@ function initApp() {
         });
     }
 
+    // Pastikan Anda menginisialisasi DOM references untuk input Model Name dan Style Number di sini:
+    modelNameInput = document.getElementById("model-name");
+    styleNumberInput = document.getElementById("style-number");
+
     // Event listener untuk input form lainnya
-    const modelNameInput = document.getElementById("model-name");
-    const styleNumberInput = document.getElementById("style-number");
-    
     if (modelNameInput) {
         modelNameInput.addEventListener('input', saveToLocalStorage);
     }
     
     if (styleNumberInput) {
-        styleNumberInput.addEventListener('input', saveToLocalStorage);
-    }
-
-    // Cek apakah elemen output ditemukan
-    for (const category in outputElements) {
-        if (!outputElements[category]) {
-            console.error(`INIT ERROR: Elemen output dengan ID '${category.replace('-grade', '-counter')}' tidak ditemukan di HTML!`);
-        }
+        // Saat auditor mengetik di Style Number, panggil fungsi autoFillModelName
+        styleNumberInput.addEventListener('input', () => {
+            saveToLocalStorage(); // Auto-save perubahan input
+            autoFillModelName(); // Panggil fungsi auto-fill
+        });
     }
 
     // Setup Event Listeners untuk tombol (defect, rework, grade)
