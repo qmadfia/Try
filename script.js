@@ -1,3 +1,4 @@
+
 // ===========================================
 // 1. Deklarasi Variabel Global dan DOM References (Modifikasi)
 // ===========================================
@@ -686,7 +687,7 @@ function handleReworkClick(button) {
     // Panggil fungsi untuk menonaktifkan tombol yang baru saja diklik secara permanen untuk siklus ini
     updateReworkButtonStates();
     // Nonaktifkan kembali Rework Section (karena tidak ada defect yang sedang dipilih)
-    toggleButtonGroup(reworkButtons, false); 
+    toggleButtonGroup(reworkButtons, false);    
     // --- MODIFIKASI SELESAI ---
     
     // Aktifkan Qty Section karena status kembali "bersih"
@@ -703,6 +704,24 @@ function handleGradeClick(button) {
     const gradeCategory = Array.from(button.classList).find(cls => cls.endsWith('-grade'));
     if (!gradeCategory) return;
 
+    // --- MODIFIKASI DIMULAI ---
+    // Jika tombol adalah B-Grade atau C-Grade, tampilkan konfirmasi
+    if (gradeCategory === 'b-grade' || gradeCategory === 'c-grade') {
+        // Simpan referensi ke tombol dan kategori grade untuk digunakan di callback popup
+        showConfirmationPopup(gradeCategory, () => {
+            // Callback jika pengguna memilih 'YA'
+            processGradeClick(button, gradeCategory);
+        });
+        return; // Hentikan eksekusi handleGradeClick sampai konfirmasi diterima
+    }
+    // --- MODIFIKASI SELESAI ---
+
+    // Untuk A-Grade dan R-Grade, langsung proses
+    processGradeClick(button, gradeCategory);
+}
+
+// --- FUNGSI BARU: Fungsi pembantu untuk memproses klik grade setelah konfirmasi ---
+function processGradeClick(button, gradeCategory) {
     // Jika item ini adalah R-Grade dan memiliki cacat yang tercatat...
     if (gradeCategory === 'r-grade' && currentInspectionPairs.length > 0) {
         // Ambil posisi rework yang unik dari pasangan cacat saat ini
@@ -734,6 +753,55 @@ function handleGradeClick(button) {
     setTimeout(() => {
         initButtonStates();
     }, 150);
+}
+
+
+// --- FUNGSI BARU: Menampilkan Pop-up Konfirmasi ---
+function showConfirmationPopup(grade, onConfirmCallback) {
+    const confirmationText = `Apakah Anda menemukan defect ${grade.toUpperCase()}?`;
+
+    // Buat elemen popup dinamis
+    const popupOverlay = document.createElement('div');
+    popupOverlay.className = 'confirmation-overlay'; // Tambahkan class untuk styling CSS
+
+    const popupContent = document.createElement('div');
+    popupContent.className = 'confirmation-content';
+
+    const message = document.createElement('p');
+    message.textContent = confirmationText;
+
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'confirmation-buttons';
+
+    const backButton = document.createElement('button');
+    backButton.textContent = 'Kembali';
+    backButton.className = 'button-back'; // Class untuk styling
+
+    const confirmButton = document.createElement('button');
+    confirmButton.textContent = 'YA';
+    confirmButton.className = 'button-confirm'; // Class untuk styling
+
+    buttonContainer.appendChild(backButton);
+    buttonContainer.appendChild(confirmButton);
+
+    popupContent.appendChild(message);
+    popupContent.appendChild(buttonContainer);
+    popupOverlay.appendChild(popupContent);
+
+    document.body.appendChild(popupOverlay); // Tambahkan ke body
+
+    // Event listener untuk tombol 'Kembali'
+    backButton.addEventListener('click', () => {
+        document.body.removeChild(popupOverlay); // Hapus popup
+        console.log("Aksi dibatalkan oleh pengguna.");
+        // Tidak perlu melakukan apa-apa lagi, karena callback tidak dipanggil
+    });
+
+    // Event listener untuk tombol 'YA'
+    confirmButton.addEventListener('click', () => {
+        document.body.removeChild(popupOverlay); // Hapus popup
+        onConfirmCallback(); // Panggil callback untuk melanjutkan proses grade
+    });
 }
 
 
