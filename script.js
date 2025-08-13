@@ -1020,7 +1020,8 @@ function resetAllFields() {
     
     // Reset input form
     if (auditorSelect) auditorSelect.value = "";
-    updateNcvsOptions("");
+    // Panggil fungsi updateNcvsOptions() dengan auditor kosong untuk mereset dropdown
+    updateNcvsOptions(""); 
     document.getElementById("model-name").value = "";
     const styleNumberInput = document.getElementById("style-number");
     if (styleNumberInput) {
@@ -1057,7 +1058,7 @@ function resetAllFields() {
         summaryContainer.innerHTML = "";
     }
 
-    // Atur ulang status tombol ke kondisi awal
+   // Atur ulang status tombol ke kondisi awal
     initButtonStates(); 
     
     // Hapus semua data dari localStorage kecuali qty sample
@@ -1236,8 +1237,10 @@ function initApp() {
     
     updateTotalQtyInspect(); // Hitung dan tampilkan nilai awal
 
-    // Setup conditional NCVS
+    // --- MODIFIKASI DI SINI ---
+    // Pastikan NCVS dropdown diperbarui setelah data auditor dimuat dari localStorage
     updateNcvsOptions(auditorSelect ? auditorSelect.value : '');
+    // --- AKHIR MODIFIKASI ---
 
     console.log("Aplikasi berhasil diinisialisasi sepenuhnya dengan localStorage.");
 }
@@ -1327,12 +1330,19 @@ function updateNcvsOptions(selectedAuditor) {
         ncvsList.forEach(ncvs => {
             const option = document.createElement('option');
             option.value = ncvs;
-            option.textContent = ncvs;
 
-            // Terapkan warna merah jika NCVS sudah digunakan
+            // --- MODIFIKASI INTI DIMULAI ---
+            // Terapkan teks notifikasi dan warna merah jika NCVS sudah digunakan
             if (usedNcvsBySelectedAuditor.includes(ncvs)) {
-                option.classList.add('used-ncvs');
+                // Modifikasi teks di dalam dropdown
+                option.textContent = `${ncvs} (NCVS ini telah diinput)`;
+                // Tambahkan class CSS untuk warna merah
+                option.classList.add('used-ncvs'); 
+            } else {
+                // NCVS normal, tidak ada notifikasi
+                option.textContent = ncvs;
             }
+            // --- MODIFIKASI INTI SELESAI ---
 
             ncvsSelect.appendChild(option);
         });
@@ -1341,6 +1351,7 @@ function updateNcvsOptions(selectedAuditor) {
         ncvsSelect.disabled = true;
         defaultOption.textContent = "Pilih NCVS (pilih Auditor dahulu)";
     }
+    // Set value ke string kosong untuk menghindari pemilihan otomatis
     ncvsSelect.value = "";
 }
 
